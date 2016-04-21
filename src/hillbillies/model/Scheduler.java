@@ -11,9 +11,10 @@ import ogp.framework.util.ModelException;
  * @version	0.8
  * @author 	Kevin Algoet & Jeroen Depuydt
  * 
- * @invar	This Scheduler can have its Faction as Faction.
+ * @invar	Each Scheduler can have its Faction as Faction.
  * 			| canHaveAsFaction(getFaction())
- * 
+ * @invar	Each Scheduler must have proper Tasks attached to it.
+ * 			| hasProperTasks(getAllTasks())
  */
 public class Scheduler {
 	/**
@@ -42,6 +43,14 @@ public class Scheduler {
 	public ArrayList<Task> getAllTasks()
 	{
 		return this.tasks;
+	}
+	
+	/**
+	 * Return an Iterator for all Tasks currently managed by this Scheduler.
+	 */
+	public Iterator<Task> getAllTasksIterator()
+	{
+		return tasks.iterator();
 	}
 	
 	/**
