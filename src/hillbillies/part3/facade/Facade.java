@@ -349,8 +349,7 @@ public class Facade implements IFacade{
 
 	@Override
 	public Task getAssignedTask(Unit unit) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return unit.getTask();
 	}
 
 	@Override
