@@ -38,7 +38,7 @@ public class FactionTest {
 	{
 		if (executeExtendedAfterMethod)
 			executeExtendedAfterMethod = false;
-		faction = new Faction(world);
+		faction = new Faction();
 	}
 	
 	@Test

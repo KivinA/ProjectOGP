@@ -311,17 +311,20 @@ public class Facade implements IFacade{
 
 	@Override
 	public Scheduler getScheduler(Faction faction) throws ModelException {
-		return faction.getScheduler();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public void schedule(Scheduler scheduler, Task task) throws ModelException {
-		scheduler.addTask(task);
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void replace(Scheduler scheduler, Task original, Task replacement) throws ModelException {
-		scheduler.replaceTask(original, replacement);
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
