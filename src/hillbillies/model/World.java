@@ -14,7 +14,7 @@ import hillbillies.util.ConnectedToBorder;
 import ogp.framework.util.ModelException;
 
 /**
- * A class describing the World in which Units live.
+ * A class describing the World in which the game is played.
  * 
  * @version 0.7
  * @author 	Kevin Algoet & Jeroen Depuydt
@@ -657,7 +657,7 @@ public class World {
 			// Factions:
 			if (getNbOfFactions() < MAX_AMOUNT_OF_FACTIONS)
 			{
-				Faction newFaction = new Faction();
+				Faction newFaction = new Faction(this);
 				addFaction(newFaction);
 				
 				newUnit.setFaction(newFaction);

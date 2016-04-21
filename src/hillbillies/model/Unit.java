@@ -4756,4 +4756,40 @@ public class Unit {
 	 * Variable registering the world of this Unit.
 	 */
 	private World world;
+	
+	// ----------------------
+	// |					|
+	// |					|
+	// |        TASK		|
+	// |					|
+	// |					|
+	// ----------------------
+	
+	/**
+	 * Return the Task assigned to this Unit.
+	 */
+	public Task getTask()
+	{
+		return this.task;
+	}
+	
+	/**
+	 * Assign the given Task as this Unit's Task.
+	 * 
+	 * @param 	task
+	 * 			The given Task to assign.
+	 * @post	The Task of this Unit is equal to the given Task.
+	 * 			| new.getTask() == task
+	 * 
+	 * [TODO] Add checker.
+	 */
+	public void setTask(Task task)
+	{
+		this.task = task;
+	}
+	
+	/**
+	 * Variable referencing the Task assigned to this Unit.
+	 */
+	private Task task;
 }

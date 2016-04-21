@@ -9,19 +9,21 @@ import ogp.framework.util.ModelException;
 /**
  * A class describing Factions that are active in the World, with a set of Units.
  * 
- * @version 0.7
+ * @version 0.8
  * @author 	Kevin Algoet & Jeroen Depuydt
  *
  * @invar	Each Faction must have proper Units.
+ * 
+ * [TODO]	Added World association, check the association in World.java.
  */
 public class Faction {
 	
 	/**
 	 * Initialize this new Faction.
 	 */
-	public Faction()
+	public Faction(World world)
 	{
-		
+		setWorld(world);
 	}
 	
 	/**
@@ -157,4 +159,44 @@ public class Faction {
 	 * Constant registering the maximum amount of Units of this Faction.
 	 */
 	private final static int MAX_AMOUNT_OF_UNITS = 50;
+	
+	/**
+	 * Return the World to which this Faction is attached.
+	 */
+	public World getWorld()
+	{
+		return this.world;
+	}
+	
+	/**
+	 * Set the World of this Faction to the given World.
+	 * 
+	 * @param 	world
+	 * 			The new World for this Faction.
+	 * 
+	 * @post	The World of this Faction is equal to the given World.
+	 */
+	@Raw
+	public void setWorld(World world)
+	{
+		this.world = world;
+	}
+	
+	/**
+	 * Variable referencing the World to which this Faction is attached.
+	 */
+	private World world;
+	
+	/**
+	 * Return the Scheduler that is attached to this Faction.
+	 */
+	public Scheduler getScheduler()
+	{
+		return this.scheduler;
+	}
+	
+	/**
+	 * Variable referencing the Scheduler attached to this Faction.
+	 */
+	private Scheduler scheduler;
 }

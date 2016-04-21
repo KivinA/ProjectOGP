@@ -228,8 +228,8 @@ public class WorldTest
 	{
 		initializeCorrectWorld();
 		
-		Faction faction1 = new Faction();
-		Faction faction2 = new Faction();
+		Faction faction1 = new Faction(world);
+		Faction faction2 = new Faction(world);
 		Faction faction3 = null;
 		Unit unit = new Unit("Hillbilly", 50, 50, 50, 50, new int[]{ 0, 1, 1}, false, world);
 		
@@ -260,7 +260,7 @@ public class WorldTest
 		initializeCorrectWorld();
 		
 		for (int i = 0; i < 6; i++)
-			world.addFaction(new Faction());
+			world.addFaction(new Faction(world));
 	}
 
 	@Test // See also LogTest.java
