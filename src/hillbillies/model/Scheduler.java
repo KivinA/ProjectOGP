@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import be.kuleuven.cs.som.annotate.*;
 import ogp.framework.util.ModelException;
@@ -55,6 +56,19 @@ public class Scheduler {
 	}
 	
 	/**
+	 * Check whether the given collections of Tasks are all Tasks assigned to this Scheduler.
+	 * 
+	 * @param 	tasks
+	 * 			The collection of Tasks to check.
+	 * @return	True if and only if all Tasks of this collection are assigned to this Scheduler.
+	 * 			| result == tasks.containsAll(tasks)
+	 */
+	public boolean areTasksPartOfThisScheduler(Collection<Task> tasks)
+	{
+		return tasks.containsAll(tasks);
+	}
+	
+	/**
 	 * Check whether this Scheduler has the given Task as one of its Tasks.
 	 * 
 	 * @param 	task
@@ -69,6 +83,7 @@ public class Scheduler {
 	
 	/**
 	 * Check whether this Scheduler has proper Tasks attached to it.
+	 * [TODO] Add implementation.
 	 */
 	public boolean hasProperTasks()
 	{
