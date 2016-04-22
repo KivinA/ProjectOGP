@@ -173,7 +173,6 @@ public class Faction {
 	 * 
 	 * @param 	world
 	 * 			The new World for this Faction.
-	 * 
 	 * @post	The World of this Faction is equal to the given World.
 	 */
 	@Raw
@@ -193,6 +192,36 @@ public class Faction {
 	public Scheduler getScheduler()
 	{
 		return this.scheduler;
+	}
+	
+	/**
+	 * Check whether this Faction can have the given Scheduler as its Scheduler.
+	 * 
+	 * @param 	scheduler
+	 * 			The Scheduler to check.
+	 * @return	True if and only if the given Scheduler is not effective or if the given Scheduler has this Faction as its Faction.
+	 */
+	public boolean canHaveAsScheduler(Scheduler scheduler)
+	{
+		if (scheduler == null)
+			return true;
+		return (scheduler.getFaction() == this);
+	}
+	
+	/**
+	 * Assign the given Scheduler to this Faction.
+	 * 
+	 * @param 	scheduler
+	 * 			The new Scheduler for this Faction.
+	 * @throws 	ModelException
+	 * 			This Faction cannot have the given Scheduler as its Scheduler.
+	 * @post	The Scheduler of this new Faction is equal to the given Scheduler.
+	 */
+	public void setScheduler(Scheduler scheduler) throws ModelException
+	{
+		if (!canHaveAsScheduler(scheduler))
+			throw new ModelException("This Faction cannot have the given Scheduler as its Scheduler.");
+		this.scheduler = scheduler;
 	}
 	
 	/**

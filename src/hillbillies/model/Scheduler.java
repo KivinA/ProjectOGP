@@ -2,6 +2,7 @@ package hillbillies.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import be.kuleuven.cs.som.annotate.*;
 import ogp.framework.util.ModelException;
@@ -34,8 +35,8 @@ public class Scheduler {
 	 */
 	public Scheduler(Faction faction, World world) throws ModelException
 	{
-		setFaction(faction);
 		setWorld(world);
+		setFaction(faction);
 	}
 
 	/**
@@ -48,11 +49,16 @@ public class Scheduler {
 	
 	/**
 	 * Return an Iterator for all Tasks currently managed by this Scheduler.
-	 * [TODO] This method should return an iterator of a list of Tasks where all those Task are sorted by their priority, in a descending order.
 	 */
 	public Iterator<Task> getAllTasksIterator()
 	{
 		return tasks.iterator();
+	}
+	
+	public Task getTaskWithHighestPriority()
+	{
+		
+		return null;
 	}
 	
 	/**
@@ -101,6 +107,7 @@ public class Scheduler {
 	public void addTask(Task task)
 	{
 		tasks.add(task);
+		Collections.sort(tasks, new TaskComparator());
 	}
 	
 	/**
@@ -209,9 +216,14 @@ public class Scheduler {
 	 * 
 	 * @param 	faction
 	 * 			The new Faction for this Scheduler.
-	 * 
 	 * @post	The Faction of this Scheduler is equal to the given Faction
 	 * 			| new.getFaction() == faction
+	 * @effect	The given Faction will assign this Scheduler as its Scheduler, if the given faction is effective.
+	 * 			| if (faction != null)
+	 * 			|	then faction.setScheduler(this)
+	 * @effect	The World in which this Scheduler operates will be set to ineffective if the given faction is ineffective.
+	 * 			| if (faction == null)
+	 * 			|	then this.setWorld(null)
 	 */
 	@Raw
 	public void setFaction(Faction faction) throws ModelException
@@ -219,6 +231,10 @@ public class Scheduler {
 		if (!canHaveAsFaction(faction))
 			throw new ModelException("This Scheduler cannot have the given Faction as its Faction.");
 		this.faction = faction;
+		if (faction != null)
+			faction.setScheduler(this);
+		else
+			setWorld(null);
 	}
 	
 	/**
@@ -240,7 +256,6 @@ public class Scheduler {
 	 * 
 	 * @param 	world
 	 * 			The new World for this Scheduler.
-	 * 
 	 * @post	The World in which this Scheduler operates is equal to the given World.
 	 * 			| new.getWorld() == world
 	 */

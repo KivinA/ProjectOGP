@@ -1,11 +1,7 @@
 package hillbillies.test.classes;
 
 import static org.junit.Assert.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import hillbillies.model.*;
 import hillbillies.part2.listener.DefaultTerrainChangeListener;
 import ogp.framework.util.ModelException;

@@ -765,12 +765,12 @@ public class World {
 	 * 
 	 * @param 	faction
 	 * 			The given Faction to check.
-	 * @return	True if and only if the given Faction is effective and if it has no Units.
+	 * @return	True if and only if the given Faction is effective, if it has no Units, if it has no World and Scheduler attached to it.
 	 */
 	@Raw
 	public boolean canRemoveAsFaction(Faction faction)
 	{
-		return (faction != null) && (faction.getNbOfUnits() == 0);
+		return (faction != null) && (faction.getNbOfUnits() == 0) && (faction.getWorld() == null) && (faction.getScheduler() == null);
 	}
 	
 	/**
@@ -788,6 +788,7 @@ public class World {
 	@Raw
 	public void removeFaction(Faction faction) throws ModelException
 	{
+		faction.setWorld(null);
 		if (!canRemoveAsFaction(faction))
 			throw new ModelException("This World cannot remove the given Faction from its Factions");
 		factions.remove(faction);
