@@ -337,14 +337,12 @@ public class Facade implements IFacade{
 
 	@Override
 	public Set<Scheduler> getSchedulersForTask(Task task) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return task.getAllSchedulers();
 	}
 
 	@Override
 	public Unit getAssignedUnit(Task task) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return task.getUnit();
 	}
 
 	@Override
@@ -354,14 +352,12 @@ public class Facade implements IFacade{
 
 	@Override
 	public String getName(Task task) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return task.getName();
 	}
 
 	@Override
 	public int getPriority(Task task) throws ModelException {
-		// TODO Auto-generated method stub
-		return 0;
+		return task.getPriority();
 	}
 
 }

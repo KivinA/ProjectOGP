@@ -47,6 +47,7 @@ public class Scheduler {
 	
 	/**
 	 * Return an Iterator for all Tasks currently managed by this Scheduler.
+	 * [TODO] This method should return an iterator of a list of Tasks where all those Task are sorted by their priority, in a descending order.
 	 */
 	public Iterator<Task> getAllTasksIterator()
 	{

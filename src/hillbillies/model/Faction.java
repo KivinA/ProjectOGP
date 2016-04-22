@@ -150,7 +150,7 @@ public class Faction {
 	 * Variable referencing a set collecting all Units in which this Faction is involved.
 	 * 
 	 * @invar	The references set is effective.
-	 * @invar	Each Unit registered in the referenced set is effective.
+	 * @invar	Each Unit registered in the referenced set is effective and has this Faction as its Faction.
 	 * @invar	No Unit is referenced more than once in the set.
 	 */
 	private Set<Unit> units = new HashSet<Unit>();
