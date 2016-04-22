@@ -125,8 +125,9 @@ public class Scheduler {
 	 * Check whether this Scheduler can remove the given Task from its Tasks.
 	 * 
 	 * @param 	task
-	 * 			The given Task to check.
-	 * @return	True if and only if... [TODO]
+	 * 			The Task to check.
+	 * @return	True if and only if the given Task is effective and part of this Scheduler's Tasks.
+	 * 			| result == (task != null && hasAsTask(task))
 	 */
 	public boolean canRemoveAsTask(Task task)
 	{
@@ -137,7 +138,9 @@ public class Scheduler {
 	 * Remove a given Task from this Scheduler.
 	 * 
 	 * @param 	task
-	 * 			The given Task to remove.
+	 * 			The Task to remove.
+	 * @post	The given Task is no longer part of this Scheduler's collection of Tasks.
+	 * 			| new.hasAsTask(task) == false
 	 */
 	public void removeTask(Task task) throws ModelException
 	{
@@ -169,6 +172,46 @@ public class Scheduler {
 	}
 	
 	/**
+	 * Mark the given Task, by creating a bidirectional association with the given Unit.
+	 * 
+	 * @param 	task
+	 * 			The Task to mark.
+	 * @param 	unit
+	 * 			The Unit to execute the given Task.
+	 * @throws 	ModelException
+	 * 			A condition was violated or an error was thrown.
+	 * @effect	The Task of the given Unit is set to the given Task.
+	 * 			| unit.setTask(task)
+	 * @effect	The Unit of the given Task is set to the given Unit.
+	 * 			| task.setUnit(unit)
+	 */
+	public void markTask(Task task, Unit unit) throws ModelException
+	{
+		unit.setTask(task);
+		task.setUnit(unit);
+	}
+	
+	/**
+	 * Unmark the given Task, by destroying the bidirectional association with the given Unit.
+	 * 
+	 * @param 	task
+	 * 			The Task to unmark.
+	 * @param 	unit
+	 * 			The Unit to unmark.
+	 * @throws 	ModelException
+	 * 			A condition was violated or an error was thrown.
+	 * @effect	The Task of the given Unit is set to an ineffective state.
+	 * 			| unit.setTask(null)
+	 * @effect	The Unit of the given Task is set to an ineffective state.
+	 * 			| task.setUnit(null)
+	 */
+	public void unmarkTask(Task task, Unit unit) throws ModelException
+	{
+		unit.setTask(null);
+		task.setUnit(null);
+	}
+	
+	/**
 	 * Variable referencing all the tasks of this Scheduler.
 	 */
 	private ArrayList<Task> tasks = new ArrayList<Task>();
@@ -178,12 +221,14 @@ public class Scheduler {
 	 * 
 	 * @param 	task
 	 * 			The given Task to check whether it's being executed or not.
+	 * @throws 	ModelException
+	 * 			A condition was violated or an error was thrown.
 	 * @effect	The assigned Task of a Unit will be set to null, if this Unit has the given Task as its assigned Task.
 	 * 			| (for each Unit in getFaction().getAllUnits():
 	 * 			|	if (Unit.getTask() == task)
 	 * 			|		then unit.setTask(null))
 	 */
-	private void stopExecutingTask(Task task)
+	private void stopExecutingTask(Task task) throws ModelException
 	{
 		Iterator<Unit> iter = getFaction().getAllUnits().iterator();
 		while (iter.hasNext())

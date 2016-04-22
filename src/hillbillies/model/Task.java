@@ -14,6 +14,8 @@ import ogp.framework.util.ModelException;
  * 
  * @invar	Each Task must have proper Schedulers.
  * 			| hasProperSchedulers()
+ * @invar	Each Task can have its Unit as Unit.
+ * 			| canHaveAsUnit(getUnit())
  */
 public class Task {
 	public Task(String name, int priority)
@@ -74,14 +76,39 @@ public class Task {
 	}
 	
 	/**
+	 * Check whether this Task can be assigned to the given Unit.
+	 * 
+	 * @param 	unit
+	 * 			The Unit to check.
+	 * @return	True if and only if the given Unit is ineffective or if this Unit is effective and has this Task as its assigned Task.
+	 * 			| if (unit == null)
+	 * 			|	then result == true
+	 * 			| else
+	 * 			|	result == (unit.getTask() == this)
+	 */
+	public boolean canHaveAsUnit(Unit unit)
+	{
+		if (unit == null)
+			return true;
+		return unit.getTask() == this;
+	}
+	
+	/**
 	 * Set the Unit that will execute this Task to the given Unit.
 	 * 
 	 * @param 	unit
 	 * 			The Unit that will be executing this Task.
+	 * @throws	ModelException
+	 * 			This Task cannot have the given Unit as its Unit.
+	 * 			| ! canHaveAsUnit(unit)
+	 * @post	The Unit to which this new Task is asssigned is equal to the given Unit.
+	 * 			| new.getUnit() == unit
 	 */
 	@Raw
-	public void setUnit(@Raw Unit unit)
+	public void setUnit(@Raw Unit unit) throws ModelException
 	{
+		if (!canHaveAsUnit(unit))
+			throw new ModelException("This Task cannot be assigned to the given Unit.");
 		this.unit = unit;
 	}
 	

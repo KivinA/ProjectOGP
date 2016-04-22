@@ -12,6 +12,7 @@ package hillbillies.model;
  * 
  * @note	This class is based on the given code from this stackoverflow answer: 
  * 			http://stackoverflow.com/questions/521171/a-java-collection-of-value-pairs-tuples
+ * [FIXME]	Is this class a value class?
  */
 public class Tuple<V1, V2> {
 	/**

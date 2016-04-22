@@ -4768,9 +4768,29 @@ public class Unit {
 	/**
 	 * Return the Task assigned to this Unit.
 	 */
+	@Basic @Raw
 	public Task getTask()
 	{
 		return this.task;
+	}
+	
+	/**
+	 * Check whether this Unit can have the given Task as its Task.
+	 * 
+	 * @param 	task
+	 * 			The Task to check.
+	 * @return	True if and only if the given Task is ineffective or if it is effective and listed as one of the Tasks of the Scheduler
+	 * 			of this Unit's Faction.
+	 * 			| if (task == null)
+	 * 			|	result == true
+	 * 			| else
+	 * 			|	result == getFaction().getScheduler().hasAsTask(task)
+	 */
+	public boolean canHaveAsTask(Task task)
+	{
+		if (task == null)
+			return true;
+		return getFaction().getScheduler().hasAsTask(task);
 	}
 	
 	/**
@@ -4780,11 +4800,14 @@ public class Unit {
 	 * 			The given Task to assign.
 	 * @post	The Task of this Unit is equal to the given Task.
 	 * 			| new.getTask() == task
-	 * 
-	 * [TODO] Add checker.
+	 * @throws	ModelException
+	 * 			This Unit cannot have the given Task as its assigned Task
+	 * 			| !canHaveAsTask(task)
 	 */
-	public void setTask(Task task)
+	public void setTask(Task task) throws ModelException
 	{
+		if (!canHaveAsTask(task))
+			throw new ModelException("This Unit cannot assign the given Task as its Task.");
 		this.task = task;
 	}
 	
