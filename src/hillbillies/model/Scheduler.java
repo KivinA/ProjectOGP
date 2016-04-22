@@ -3,6 +3,7 @@ package hillbillies.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import be.kuleuven.cs.som.annotate.*;
 import ogp.framework.util.ModelException;
@@ -55,9 +56,19 @@ public class Scheduler {
 		return tasks.iterator();
 	}
 	
+	/**
+	 * Return the Task with the highest priority that is currently not being executed.
+	 * 
+	 * @return	
+	 */
 	public Task getTaskWithHighestPriority()
 	{
-		
+		Iterator<Task> iter = getAllTasksIterator();
+		while (iter.hasNext())
+		{
+			if(iter.next().getUnit() == null)
+				return iter.next();
+		}
 		return null;
 	}
 	
@@ -269,4 +280,28 @@ public class Scheduler {
 	 * Variable referencing the World in which this Scheduler operates.
 	 */
 	private World world;
+	
+	/**
+	 * A custom TaskComparator used to sort the list of Tasks for each Scheduler.
+	 * [FIXME] How do you documentate this?
+	 */
+	public static class TaskComparator implements Comparator<Task>{
+		public TaskComparator() 
+		{
+			
+		}
+		
+		/**
+		 * This compare method will make sure we can sort Tasks according to their priority in a descending order.
+		 */
+		@Override
+		public int compare(Task t1, Task t2) 
+		{
+			if (t1.getPriority() > t2.getPriority())
+				return -1;
+			if (t1.getPriority() < t2.getPriority())
+				return 1;
+			return 0;
+		}
+	}
 }
