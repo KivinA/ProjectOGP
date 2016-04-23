@@ -5,72 +5,72 @@ import java.util.List;
 import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
 
-public class TaskFactory implements ITaskFactory<Expressions, Statements, Task>
+public class TaskFactory implements ITaskFactory<Expressions, Statement, Task>
 {
 
 	@Override
-	public List<Task> createTasks(String name, int priority, Statements activity, List<int[]> selectedCubes) {
+	public List<Task> createTasks(String name, int priority, Statement activity, List<int[]> selectedCubes) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createAssignment(String variableName, Expressions value, SourceLocation sourceLocation) {
+	public Statement createAssignment(String variableName, Expressions value, SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createWhile(Expressions condition, Statements body, SourceLocation sourceLocation) {
+	public Statement createWhile(Expressions condition, Statement body, SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createIf(Expressions condition, Statements ifBody, Statements elseBody,
+	public Statement createIf(Expressions condition, Statement ifBody, Statement elseBody,
 			SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createBreak(SourceLocation sourceLocation) {
+	public Statement createBreak(SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createPrint(Expressions value, SourceLocation sourceLocation) {
+	public Statement createPrint(Expressions value, SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createSequence(List<Statements> statements, SourceLocation sourceLocation) {
+	public Statement createSequence(List<Statement> Statement, SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createMoveTo(Expressions position, SourceLocation sourceLocation) {
+	public Statement createMoveTo(Expressions position, SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createWork(Expressions position, SourceLocation sourceLocation) {
+	public Statement createWork(Expressions position, SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createFollow(Expressions unit, SourceLocation sourceLocation) {
+	public Statement createFollow(Expressions unit, SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Statements createAttack(Expressions unit, SourceLocation sourceLocation) {
+	public Statement createAttack(Expressions unit, SourceLocation sourceLocation) {
 		// TODO Auto-generated method stub
 		return null;
 	}
