@@ -299,8 +299,7 @@ public class Facade implements IFacade{
 
 	@Override
 	public ITaskFactory<?, ?, Task> createTaskFactory() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TaskFactory();
 	}
 
 	@Override
