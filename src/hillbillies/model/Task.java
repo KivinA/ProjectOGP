@@ -24,6 +24,13 @@ public class Task {
 		setPriority(priority);
 	}
 	
+	public Task(String name, int priority, Statement activity)
+	{
+		this.name = name;
+		setPriority(priority);
+		this.acitivity = activity;
+	}
+	
 	/**
 	 * Return the name of this Task.
 	 */
@@ -240,4 +247,10 @@ public class Task {
 	 * 			|	(I == J) || schedulers.get(I) != schedulers.get(J))
 	 */
 	private Set<Scheduler> schedulers = new HashSet<Scheduler>();
+	
+	/**
+	 * Variable referencing the activities linked to this Task. This will most likely be a sequence of statements.
+	 */
+	private Statement acitivity;
+	
 }
