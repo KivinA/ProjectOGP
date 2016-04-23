@@ -248,6 +248,11 @@ public class Task {
 	 */
 	private Set<Scheduler> schedulers = new HashSet<Scheduler>();
 	
+	public Statement getActivity()
+	{
+		return this.acitivity;
+	}
+	
 	/**
 	 * Variable referencing the activities linked to this Task. This will most likely be a sequence of statements.
 	 */
