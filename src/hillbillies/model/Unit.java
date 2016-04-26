@@ -5,15 +5,7 @@ import be.kuleuven.cs.som.annotate.*;
 import ogp.framework.util.ModelException;
 
 /* 
- * QUESTIONS PART 2:
- *		1.	Please fix/explain the implementation of the movement algorithm, because we simply don't understand.
- *		2.	When we spawn the first Unit, we always get one error saying the advanceTime duration was too large. This happens only once 
- *			everytime we spawn the first Unit of this World. Do we need to fix this?
- *		3.	While writing tests, a few questions came up: 
- *				1.	What is better? Using one variable to test on or just using multiple variables? In the first way, you need to clear this
- *					variable each time you use it (using @After method), in the second way, you take more resources.
- *				2.	Is there a certain way to block the @After and @Before calls? Sometimes we would like to not call upon these methods,
- *					simply because they aren't needed.
+ * QUESTIONS PART 3:
  *
  * STUFF TODO:
  * 		1. Check all TODO's.
@@ -23,6 +15,7 @@ import ogp.framework.util.ModelException;
  * 		5. Add @Raw annotation to associations with objects that doesn't have to be in proper state (basically almost every association)
  * 		6. Change Faction to allow it to remove itself if there are no Units left. To do this, we must create an association with World.
  * 		7. There is an error with isFalling, which happens in rare occurences. Please fix.
+ * 		8. Don't forget to add @Model tags to all private methods that are used in a specification of another method.
  */
 
 /** 
