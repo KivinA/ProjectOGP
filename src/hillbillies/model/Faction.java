@@ -7,19 +7,22 @@ import be.kuleuven.cs.som.annotate.*;
 import ogp.framework.util.ModelException;
 
 /**
- * A class describing Factions that are active in the World, with a set of Units.
+ * A class describing Factions that are active in the {@link World}, with a set of {@link Unit}s and a {@link Scheduler}.
  * 
- * @version 0.8
+ * @version 0.9
  * @author 	Kevin Algoet & Jeroen Depuydt
  *
  * @invar	Each Faction must have proper Units.
+ * @invar	Each Faction can have its Scheduler as its Scheduler.
  * 
  * [TODO]	Added World association, check the association in World.java.
  */
 public class Faction {
 	
 	/**
-	 * Initialize this new Faction.
+	 * Initialize this new Faction with the given {@link World}.
+	 * 
+	 * @post	The World of this new Faction is equal to the given World.
 	 */
 	public Faction(World world)
 	{
@@ -27,7 +30,23 @@ public class Faction {
 	}
 	
 	/**
-	 * Return the number of Units associated with this Faction.
+	 * Terminate this Faction.
+	 * 
+	 * @post	The World of this Faction is ineffective.
+	 * @post	The Scheduler of this Faction is ineffective.
+	 * @effect	The Scheduler of this Faction is terminated.
+	 * @throws 	ModelException
+	 * 			A condition was violated or an error was thrown.
+	 */
+	public void terminate() throws ModelException
+	{
+		setWorld(null);
+		getScheduler().terminate();
+		setScheduler(null);
+	}
+	
+	/**
+	 * Return the number of {@link Unit}s associated with this Faction.
 	 */
 	@Basic @Raw
 	public int getNbOfUnits()
@@ -36,23 +55,22 @@ public class Faction {
 	}
 	
 	/**
-	 * Check whether this Faction has the given Unit as one of its Units.
+	 * Check whether this Faction has the given {@link Unit} as one of its {@link Unit}s.
 	 * 
 	 * @param 	unit
-	 * 			The given unit to check upon.
-	 * 
+	 * 			The {@link Unit} to check.
 	 * @return	True if and only if the given Unit is registered as a Unit of this Faction.
 	 */
-	public boolean hasAsUnit(Unit unit)
+	public boolean hasAsUnit(@Raw Unit unit)
 	{
 		return units.contains(unit);
 	}
 	
 	/**
-	 * Check whether this Faction can have the given Unit as one of its Units.
+	 * Check whether this Faction can have the given {@link Unit} as one of its {@link Unit}s.
 	 * 
 	 * @param 	unit
-	 * 			The given Unit to check.
+	 * 			The {@link Unit} to check.
 	 * @return	True if and only if the given Unit is effective and the number of Units isn't higher or equal to the maximum number 
 	 * 			of Units.
 	 */
@@ -63,18 +81,17 @@ public class Faction {
 	}
 	
 	/**
-	 * Add a given Unit to this faction.
+	 * Add a given {@link Unit} to this faction.
 	 * 
 	 * @param 	unit
-	 * 			The given Unit to add to this faction.
-	 * 
+	 * 			The {@link Unit} to add.
 	 * @throws 	ModelException 
-	 * 			This Faction cannot have the given unit as one of its units.
-	 * 
-	 * @post	The number of units of this Faction is incremented by 1.
+	 * 			This Faction cannot have the given Unit as one of its Units.
+	 * @post	The number of Units of this Faction is incremented by 1.
 	 * @post	This Faction has the given unit as one of its units.
 	 */
-	public void addUnit(Unit unit) throws ModelException
+	@Raw
+	public void addUnit(@Raw Unit unit) throws ModelException
 	{
 		if (! canHaveAsUnit(unit))
 			throw new ModelException("This Faction cannot have the given Unit as one of its Units.");
@@ -82,10 +99,10 @@ public class Faction {
 	}
 	
 	/**
-	 * Check whether this Faction can remove the given unit from its units.
+	 * Check whether this Faction can remove the given {@link Unit} from its {@link Unit}s.
 	 * 
 	 * @param 	unit
-	 * 			The given Unit to check.
+	 * 			The {@link Unit} to check.
 	 * @return	True if and only if the given Unit is effective, this Faction has the given Unit as one of its Units and
 	 * 			if the given Unit doesn't reference any Faction.
 	 */
@@ -96,30 +113,30 @@ public class Faction {
 	}
 	
 	/**
-	 * Remove a given Unit from the list of Units of this Faction.
+	 * Remove a given {@link Unit} from the list of {@link Unit}s of this Faction.
 	 * 
 	 * @param 	unit
-	 * 			The given Unit to remove from this faction.
-	 * 
+	 * 			The {@link Unit} to remove.
 	 * @throws	ModelException
-	 * 			This Faction cannot remove the given unit from its units.
-	 * 
-	 * @post	The number of units of this Faction is decremented by 1.
+	 * 			This Faction cannot remove the given Unit from its Units.
+	 * @post	The number of Units of this Faction is decremented by 1.
 	 * @post	This Faction no longer has the given Unit as one of its Units.
 	 */
 	@Raw
-	public void removeUnit(Unit unit) throws ModelException
+	public void removeUnit(@Raw Unit unit) throws ModelException
 	{
 		unit.setFaction(null);
 		if (!canRemoveAsUnit(unit))
 			throw new ModelException("The given Unit cannot be removed from this Faction's units.");
 		units.remove(unit);
+		
+		if (units.isEmpty())
+			getWorld().removeFaction(this);
 	}
 	
 	/**
-	 * Return a set containing all the Units of this Faction.
+	 * Return a set containing all the {@link Unit}s of this Faction.
 	 */
-	@Basic @Raw
 	public Set<Unit> getAllUnits()
 	{
 		return this.units;
@@ -147,32 +164,33 @@ public class Faction {
 	}
 	
 	/**
-	 * Variable referencing a set collecting all Units in which this Faction is involved.
+	 * Variable referencing a set collecting all {@link Unit}s that are attached to this Faction.
 	 * 
-	 * @invar	The references set is effective.
+	 * @invar	The referenced set is effective.
 	 * @invar	Each Unit registered in the referenced set is effective and has this Faction as its Faction.
 	 * @invar	No Unit is referenced more than once in the set.
 	 */
 	private Set<Unit> units = new HashSet<Unit>();
 	
 	/**
-	 * Constant registering the maximum amount of Units of this Faction.
+	 * Constant registering the maximum amount of {@link Unit}s of this Faction.
 	 */
 	private final static int MAX_AMOUNT_OF_UNITS = 50;
 	
 	/**
-	 * Return the World to which this Faction is attached.
+	 * Return the {@link World} to which this Faction is attached.
 	 */
+	@Basic @Raw
 	public World getWorld()
 	{
 		return this.world;
 	}
 	
 	/**
-	 * Set the World of this Faction to the given World.
+	 * Set the {@link World} of this Faction to the given {@link World}.
 	 * 
 	 * @param 	world
-	 * 			The new World for this Faction.
+	 * 			The new {@link World} for this Faction.
 	 * @post	The World of this Faction is equal to the given World.
 	 */
 	@Raw
@@ -182,25 +200,27 @@ public class Faction {
 	}
 	
 	/**
-	 * Variable referencing the World to which this Faction is attached.
+	 * Variable referencing the {@link World} to which this Faction is attached.
 	 */
 	private World world;
 	
 	/**
-	 * Return the Scheduler that is attached to this Faction.
+	 * Return the {@link Scheduler} that is attached to this Faction.
 	 */
+	@Basic @Raw
 	public Scheduler getScheduler()
 	{
 		return this.scheduler;
 	}
 	
 	/**
-	 * Check whether this Faction can have the given Scheduler as its Scheduler.
+	 * Check whether this Faction can have the given {@link Scheduler} as its {@link Scheduler}.
 	 * 
 	 * @param 	scheduler
-	 * 			The Scheduler to check.
+	 * 			The {@link Scheduler} to check.
 	 * @return	True if and only if the given Scheduler is not effective or if the given Scheduler has this Faction as its Faction.
 	 */
+	@Raw
 	public boolean canHaveAsScheduler(Scheduler scheduler)
 	{
 		if (scheduler == null)
@@ -209,14 +229,15 @@ public class Faction {
 	}
 	
 	/**
-	 * Assign the given Scheduler to this Faction.
+	 * Assign the given {@link Scheduler} to this Faction.
 	 * 
 	 * @param 	scheduler
-	 * 			The new Scheduler for this Faction.
+	 * 			The new {@link Scheduler} for this Faction.
 	 * @throws 	ModelException
 	 * 			This Faction cannot have the given Scheduler as its Scheduler.
 	 * @post	The Scheduler of this new Faction is equal to the given Scheduler.
 	 */
+	@Raw
 	public void setScheduler(Scheduler scheduler) throws ModelException
 	{
 		if (!canHaveAsScheduler(scheduler))
@@ -225,7 +246,7 @@ public class Faction {
 	}
 	
 	/**
-	 * Variable referencing the Scheduler attached to this Faction.
+	 * Variable referencing the {@link Scheduler} attached to this Faction.
 	 */
 	private Scheduler scheduler;
 }

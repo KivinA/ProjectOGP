@@ -42,8 +42,7 @@ public class Part3TestPartial {
 		types[2][2][2] = TYPE_WORKSHOP;
 
 		World world = facade.createWorld(types, new DefaultTerrainChangeListener());
-		Unit unit = facade.createUnit("Test", new int[] { 0, 0, 0 }, 50, 50, 50, 50, true);
-		facade.addUnit(unit, world);
+		Unit unit = facade.spawnUnit(world, true);
 		Faction faction = facade.getFaction(unit);
 
 		Scheduler scheduler = facade.getScheduler(faction);

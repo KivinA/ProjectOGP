@@ -41,6 +41,22 @@ public class Scheduler {
 	}
 
 	/**
+	 * Terminated this Scheduler.
+	 * 
+	 * @post	The collection of Tasks attached to this Scheduler is cleared.
+	 * @post	The World to which this Scheduler is attached is ineffective.
+	 * @post	The Faction to which this Scheduler is attached is ineffective.
+	 * @throws 	ModelException
+	 * 			A condition was violated or an error was thrown.
+	 */
+	public void terminate() throws ModelException
+	{
+		tasks.clear();
+		setWorld(null);
+		setFaction(null);
+	}
+	
+	/**
 	 * Return an ArrayList collecting all Tasks of this Scheduler.
 	 */
 	public ArrayList<Task> getAllTasks()
@@ -228,6 +244,7 @@ public class Scheduler {
 	 * 			|	if (Unit.getTask() == task)
 	 * 			|		then unit.setTask(null))
 	 */
+	@Model
 	private void stopExecutingTask(Task task) throws ModelException
 	{
 		Iterator<Unit> iter = getFaction().getAllUnits().iterator();
@@ -249,10 +266,10 @@ public class Scheduler {
 	}
 	
 	/**
-	 * Check whether this Scheduler can have the given Faction as its Faction.
+	 * Check whether this Scheduler can have the given {@link Faction} as its {@link Faction}.
 	 * 
 	 * @param 	faction
-	 * 			The given Faction to check.
+	 * 			The given {@link Faction} to check.
 	 * @return	True if and only if the given Faction is null or if the given Faction is part of the same World as the Scheduler and if the given
 	 * 			Faction doesn't have a Scheduler attached to it.
 	 * 			| if (faction == null)
@@ -268,10 +285,10 @@ public class Scheduler {
 	}
 	
 	/**
-	 * Set the Faction to which this Scheduler is attached to the given Faction.
+	 * Set the {@link Faction} to which this Scheduler is attached to the given {@link Faction}.
 	 * 
 	 * @param 	faction
-	 * 			The new Faction for this Scheduler.
+	 * 			The new {@link Faction} for this Scheduler.
 	 * @post	The Faction of this Scheduler is equal to the given Faction
 	 * 			| new.getFaction() == faction
 	 * @effect	The given Faction will assign this Scheduler as its Scheduler, if the given faction is effective.

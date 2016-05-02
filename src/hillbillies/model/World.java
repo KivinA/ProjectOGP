@@ -788,7 +788,7 @@ public class World {
 	@Raw
 	public void removeFaction(Faction faction) throws ModelException
 	{
-		faction.setWorld(null);
+		faction.terminate();
 		if (!canRemoveAsFaction(faction))
 			throw new ModelException("This World cannot remove the given Faction from its Factions");
 		factions.remove(faction);
