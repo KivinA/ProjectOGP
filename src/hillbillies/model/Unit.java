@@ -4559,10 +4559,11 @@ public class Unit {
 	{
 		if (faction == null)
 			return true;
-		Iterator<Faction> iterator = getWorld().getAllFactions().iterator();
-		while (iterator.hasNext())
-			if (iterator.next() == faction)
+		for (Faction factionWorld : getWorld().getAllFactions())
+		{
+			if (factionWorld == faction && faction.hasAsUnit(this))
 				return true;
+		}
 		return false;
 	}
 	
@@ -4589,9 +4590,6 @@ public class Unit {
 		if (! canHaveAsFaction(faction))
 			throw new ModelException("The given faction is invalid for any Unit.");
 		this.faction = faction;
-		
-		if (faction != null)
-			getFaction().addUnit(this);
 	}
 	
 	/**
@@ -4736,11 +4734,12 @@ public class Unit {
 	 * 
 	 * @param 	world
 	 * 			The new world for this Unit.
+	 * @throws ModelException 
 	 * 
 	 * @post	The world of this new Unit is equal to the given world.
 	 * 			| new.getWorld() == world
 	 */
-	public void setWorld(World world)
+	public void setWorld(World world) throws ModelException
 	{
 		this.world = world;
 	}

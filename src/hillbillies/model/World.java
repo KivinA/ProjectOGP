@@ -623,8 +623,7 @@ public class World {
 	 */
 	public Unit spawnUnit(boolean enableDefaultBehaviour) throws ModelException
 	{
-		try
-		{
+		
 			String name = "Hillbilly";
 			int strength = new Random().nextInt(101);
 			int agility = new Random().nextInt(101);
@@ -649,16 +648,20 @@ public class World {
 			}
 			
 			int[] initialPosition = {x ,y ,z};
-
-			Unit newUnit = new Unit(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, this);
-			
-			addUnit(newUnit);
+			Unit newUnit;
+			if (getNbOfUnits() < MAX_AMOUNT_OF_UNITS)
+			{
+				newUnit = new Unit(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, this);
+				addUnit(newUnit);
+			}
+			else
+				throw new ModelException("Maximum amount of units reached.");
 			
 			// Factions:
 			if (getNbOfFactions() < MAX_AMOUNT_OF_FACTIONS)
 			{
 				Faction newFaction = new Faction(this);
-				newUnit.setFaction(newFaction);
+				newFaction.addUnit(newUnit);
 			}
 			else
 			{
@@ -676,13 +679,7 @@ public class World {
 			}
 			
 			return newUnit;
-		}
-		
-		catch (ModelException e)
-		{
-			throw new ModelException("The maximum amount of Units has been reached.");
-		}
-	}
+}
 	
 	/**
 	 * Variable referencing a set of Units available in this World.

@@ -304,10 +304,6 @@ public class Scheduler {
 		if (!canHaveAsFaction(faction))
 			throw new ModelException("This Scheduler cannot have the given Faction as its Faction.");
 		this.faction = faction;
-		if (faction != null)
-			faction.setScheduler(this);
-		else
-			setWorld(null);
 	}
 	
 	/**

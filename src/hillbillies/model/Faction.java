@@ -1,5 +1,6 @@
 package hillbillies.model;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -40,9 +41,13 @@ public class Faction {
 	 * @effect	The Scheduler of this Faction is terminated.
 	 * @throws 	ModelException
 	 * 			A condition was violated or an error was thrown.
+	 * @throws 	ModelException
+	 * 			The number of Units attached to this Faction isn't zero.
 	 */
 	public void terminate() throws ModelException
 	{
+		if (getNbOfUnits() != 0)
+			throw new ModelException();
 		setWorld(null);
 		getScheduler().terminate();
 		setScheduler(null);
@@ -80,7 +85,7 @@ public class Faction {
 	@Raw
 	public boolean canHaveAsUnit(Unit unit)
 	{
-		return (unit != null) && (getNbOfUnits() < MAX_AMOUNT_OF_UNITS);
+		return (unit != null) && (getNbOfUnits() < MAX_AMOUNT_OF_UNITS) && (getWorld().hasAsUnit(unit));
 	}
 	
 	/**
@@ -99,6 +104,7 @@ public class Faction {
 		if (! canHaveAsUnit(unit))
 			throw new ModelException("This Faction cannot have the given Unit as one of its Units.");
 		units.add(unit);
+		unit.setFaction(this);
 	}
 	
 	/**
@@ -154,11 +160,9 @@ public class Faction {
 	 */
 	public boolean hasProperUnits()
 	{
-		Iterator<Unit> iterator = units.iterator();
-		while (iterator.hasNext())
+		for (Unit unit: units)
 		{
-			Unit unit = iterator.next();
-			if (! canHaveAsUnit(unit))
+			if (!canHaveAsUnit(unit))
 				return false;
 			if (unit.getFaction() != this)
 				return false;
@@ -228,7 +232,7 @@ public class Faction {
 	{
 		if (scheduler == null)
 			return true;
-		return (scheduler.getFaction() == this);
+		return (scheduler.getFaction() == this) && (getScheduler() == null);
 	}
 	
 	/**
@@ -243,6 +247,7 @@ public class Faction {
 	@Raw
 	public void setScheduler(Scheduler scheduler) throws ModelException
 	{
+		System.out.println("Scheduler: " + getScheduler());
 		if (!canHaveAsScheduler(scheduler))
 			throw new ModelException("This Faction cannot have the given Scheduler as its Scheduler.");
 		this.scheduler = scheduler;
