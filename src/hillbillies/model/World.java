@@ -658,8 +658,6 @@ public class World {
 			if (getNbOfFactions() < MAX_AMOUNT_OF_FACTIONS)
 			{
 				Faction newFaction = new Faction(this);
-				addFaction(newFaction);
-				
 				newUnit.setFaction(newFaction);
 			}
 			else

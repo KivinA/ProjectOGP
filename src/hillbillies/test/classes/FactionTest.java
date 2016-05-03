@@ -34,7 +34,7 @@ public class FactionTest {
 	}
 	
 	@Before
-	public void setUp()
+	public void setUp() throws ModelException
 	{
 		if (executeExtendedAfterMethod)
 			executeExtendedAfterMethod = false;

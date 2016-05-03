@@ -21,12 +21,15 @@ public class Faction {
 	
 	/**
 	 * Initialize this new Faction with the given {@link World}.
+	 * @throws ModelException 
 	 * 
 	 * @post	The World of this new Faction is equal to the given World.
 	 */
-	public Faction(World world)
+	public Faction(World world) throws ModelException
 	{
 		setWorld(world);
+		world.addFaction(this);
+		setScheduler(new Scheduler(this, world));
 	}
 	
 	/**
