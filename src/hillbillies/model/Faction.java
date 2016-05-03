@@ -1,14 +1,13 @@
 package hillbillies.model;
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import be.kuleuven.cs.som.annotate.*;
 import ogp.framework.util.ModelException;
 
 /**
- * A class describing Factions that are active in the {@link World}, with a set of {@link Unit}s and a {@link Scheduler}.
+ * A class describing Factions that are active in the {@link World}, with a set of {@link Unit}s 
+ * and a {@link Scheduler}.
  * 
  * @version 0.9
  * @author 	Kevin Algoet & Jeroen Depuydt
@@ -16,15 +15,17 @@ import ogp.framework.util.ModelException;
  * @invar	Each Faction must have proper Units.
  * @invar	Each Faction can have its Scheduler as its Scheduler.
  * 
- * [TODO]	Added World association, check the association in World.java.
  */
 public class Faction {
 	
 	/**
 	 * Initialize this new Faction with the given {@link World}.
-	 * @throws ModelException 
 	 * 
-	 * @post	The World of this new Faction is equal to the given World.
+	 * @effect	Set the World of this Faction to the given World.
+	 * @effect	Add this Faction to the list of Factions of the given World.
+	 * @effect	Set the Scheduler of this Faction to the given Scheduler.
+	 * @throws	ModelException
+	 * 			A condition was violated or an error was thrown.
 	 */
 	public Faction(World world) throws ModelException
 	{
@@ -36,13 +37,13 @@ public class Faction {
 	/**
 	 * Terminate this Faction.
 	 * 
-	 * @post	The World of this Faction is ineffective.
-	 * @post	The Scheduler of this Faction is ineffective.
-	 * @effect	The Scheduler of this Faction is terminated.
+	 * @effect	Set the World of this Faction ineffective.
+	 * @effect	Terminate the Scheduler of this Faction.
+	 * @effect	Set the Scheduler of this Faction ineffective.
 	 * @throws 	ModelException
 	 * 			A condition was violated or an error was thrown.
 	 * @throws 	ModelException
-	 * 			The number of Units attached to this Faction isn't zero.
+	 * 			There are still Units attached to this Faction.
 	 */
 	public void terminate() throws ModelException
 	{
@@ -79,8 +80,8 @@ public class Faction {
 	 * 
 	 * @param 	unit
 	 * 			The {@link Unit} to check.
-	 * @return	True if and only if the given Unit is effective and the number of Units isn't higher or equal to the maximum number 
-	 * 			of Units.
+	 * @return	True if and only if the given Unit is effective, if the number of Units isn't higher or equal to the maximum number 
+	 * 			of Units and if the given Unit is part of this Faction's World.
 	 */
 	@Raw
 	public boolean canHaveAsUnit(Unit unit)
@@ -93,10 +94,13 @@ public class Faction {
 	 * 
 	 * @param 	unit
 	 * 			The {@link Unit} to add.
-	 * @throws 	ModelException 
-	 * 			This Faction cannot have the given Unit as one of its Units.
 	 * @post	The number of Units of this Faction is incremented by 1.
 	 * @post	This Faction has the given unit as one of its units.
+	 * @effect	The Faction of the given Unit is set to this Faction.
+	 * @throws 	ModelException 
+	 * 			This Faction cannot have the given Unit as one of its Units.
+	 * @throws	ModelException
+	 * 			A condition was violated or an error was thrown.
 	 */
 	@Raw
 	public void addUnit(@Raw Unit unit) throws ModelException
@@ -112,7 +116,7 @@ public class Faction {
 	 * 
 	 * @param 	unit
 	 * 			The {@link Unit} to check.
-	 * @return	True if and only if the given Unit is effective, this Faction has the given Unit as one of its Units and
+	 * @return	True if and only if the given Unit is effective, if this Faction has the given Unit as one of its Units and
 	 * 			if the given Unit doesn't reference any Faction.
 	 */
 	@Raw
@@ -130,6 +134,7 @@ public class Faction {
 	 * 			This Faction cannot remove the given Unit from its Units.
 	 * @post	The number of Units of this Faction is decremented by 1.
 	 * @post	This Faction no longer has the given Unit as one of its Units.
+	 * @effect	If the list of Units is empty after removing the given Unit, remove this Faction from the World.
 	 */
 	@Raw
 	public void removeUnit(@Raw Unit unit) throws ModelException
@@ -145,10 +150,13 @@ public class Faction {
 	
 	/**
 	 * Return a set containing all the {@link Unit}s of this Faction.
+	 * 
+	 * @return	The number of elements in the resulting list is equal to the number of Units attached to this Faction.
+	 * @return	Each element of the resulting set equals a Unit that is attached to this Faction.
 	 */
 	public Set<Unit> getAllUnits()
 	{
-		return this.units;
+		return new HashSet<Unit>(units);
 	}
 	
 	/**
@@ -247,7 +255,6 @@ public class Faction {
 	@Raw
 	public void setScheduler(Scheduler scheduler) throws ModelException
 	{
-		System.out.println("Scheduler: " + getScheduler());
 		if (!canHaveAsScheduler(scheduler))
 			throw new ModelException("This Faction cannot have the given Scheduler as its Scheduler.");
 		this.scheduler = scheduler;
