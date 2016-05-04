@@ -22,10 +22,9 @@ public class FactionTest {
 	private static final int TYPE_LOG = 2;
 	private static final int TYPE_WORKSHOP = 3;
 	private static final int[] POSITION = {0, 0, 0};
-	//private boolean executeExtendedAfterMethod;
 	
 	@BeforeClass
-	public static void setUpBeforeClass() throws ModelException
+	public static void setUpBeforeClass() throws Exception
 	{
 		int[][][] terrain = new int[3][3][3];
 		terrain[1][1][0] = TYPE_WORKSHOP;
@@ -38,18 +37,21 @@ public class FactionTest {
 	}
 	
 	@Before
-	public void setUp() throws ModelException
+	public void setUp() throws Exception
 	{
 		faction = new Faction(world);
 	}
 	
 	@After
-	public void tearDown() throws ModelException
+	public void tearDown() throws Exception
 	{
 		if (world.hasAsFaction(faction))
 		{
-			faction.getAllUnits().clear();
-			world.removeFaction(faction);
+			if (faction.getNbOfUnits() > 0)
+				for (Unit unit: faction.getAllUnits())
+					faction.removeUnit(unit);
+			else
+				world.removeFaction(faction);
 		}
 		
 		for (Iterator<Unit> i = world.getAllUnits().iterator(); i.hasNext();)
@@ -58,6 +60,8 @@ public class FactionTest {
 			unit.setWorld(null);
 			i.remove();
 		}
+		
+		System.out.println("Units in this World: " + world.getNbOfUnits());
 	}
 	
 	@Test
@@ -92,10 +96,11 @@ public class FactionTest {
 		assertNull(theFaction.getWorld());
 	}
 	
-	@Test (expected = ModelException.class)
+	@Test (expected = IllegalStateException.class)
 	public void terminate_NonEmptyUnits() throws Exception
 	{
 		Unit unit = new Unit("Hillbilly", DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
+		world.addUnit(unit);
 		faction.addUnit(unit);
 		world.removeFaction(faction);
 	}
@@ -136,7 +141,7 @@ public class FactionTest {
 		faction.addUnit(unit);
 	}
 	
-	@Test (expected = ModelException.class)
+	@Test (expected = IllegalArgumentException.class)
 	public void addUnit_IllegalCase() throws Exception
 	{
 		faction.addUnit(null);
@@ -183,7 +188,7 @@ public class FactionTest {
 		faction.removeUnit(unit);
 	}
 	
-	@Test (expected = ModelException.class)
+	@Test (expected = IllegalArgumentException.class)
 	public void removeUnit_IllegalCase() throws Exception
 	{
 		Unit unit = new Unit ("Hillbilly", 10, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
