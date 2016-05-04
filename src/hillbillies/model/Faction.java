@@ -12,7 +12,8 @@ import be.kuleuven.cs.som.annotate.*;
  * @author 	Kevin Algoet & Jeroen Depuydt
  *
  * @invar	Each Faction must have proper Units.
- * @invar	Each Faction can have its Scheduler as its Scheduler.
+ * @invar	Each Faction must have a proper Scheduler.
+ * @invar	Each Faction must have a proper World.
  * 
  */
 public class Faction {
@@ -21,15 +22,13 @@ public class Faction {
 	 * Initialize this new Faction with the given {@link World}.
 	 * 
 	 * @effect	Set the World of this Faction to the given World.
-	 * @effect	Add this Faction to the list of Factions of the given World.
-	 * @effect	Set the Scheduler of this Faction to the given Scheduler.
+	 * @effect	Set the Scheduler of this Faction to the newly created Scheduler.
 	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 */
 	public Faction(World world) throws IllegalArgumentException
 	{
 		setWorld(world);
-		world.addFaction(this);
 		setScheduler(new Scheduler(this, world));
 	}
 	
@@ -39,6 +38,7 @@ public class Faction {
 	 * @effect	Set the World of this Faction ineffective.
 	 * @effect	Terminate the Scheduler of this Faction.
 	 * @effect	Set the Scheduler of this Faction ineffective.
+	 * @post	The terminated state of this Faction is enabled.
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @throws 	IllegalStateException
@@ -48,10 +48,25 @@ public class Faction {
 	{
 		if (getNbOfUnits() != 0)
 			throw new IllegalStateException("This Faction still has Units attached to it!");
+		this.isTerminated = true;
 		setWorld(null);
 		getScheduler().terminate();
 		setScheduler(null);
 	}
+	
+	/**
+	 * Check whether this Faction is terminated or not.
+	 */
+	@Basic @Raw
+	public boolean isTerminated()
+	{
+		return this.isTerminated;
+	}
+	
+	/**
+	 * Variable registering whether this Faction is terminated or not.
+	 */
+	private boolean isTerminated = false;
 	
 	/**
 	 * Return the number of {@link Unit}s associated with this Faction.
@@ -140,11 +155,11 @@ public class Faction {
 	@Raw
 	public void removeUnit(@Raw Unit unit) throws IllegalArgumentException
 	{
-		unit.setFaction(null);
 		if (!canRemoveAsUnit(unit))
 			throw new IllegalArgumentException("The given Unit cannot be removed from this Faction's units.");
 		units.remove(unit);
 		
+		// Remove this Faction once it has no more Units left after removing the last Unit.
 		if (units.isEmpty())
 			getWorld().removeFaction(this);
 	}
@@ -203,6 +218,23 @@ public class Faction {
 	}
 	
 	/**
+	 * Check whether this Faction can have the given {@link World} as its {@link World}.
+	 * 
+	 * @param 	world
+	 * 			The {@link World} to check.
+	 * @return	If this Faction is terminated, true if and only if the given World is ineffective.
+	 * 			Otherwise, true if and only if the given World is effective and if the given World can have this Faction
+	 * 			as one of its Factions.
+	 */
+	public boolean canHaveAsWorld(World world)
+	{
+		if (isTerminated())
+			return world == null;
+		else
+			return (world != null) && world.canHaveAsFaction(this);
+	}
+	
+	/**
 	 * Set the {@link World} of this Faction to the given {@link World}.
 	 * 
 	 * @param 	world
@@ -210,9 +242,22 @@ public class Faction {
 	 * @post	The World of this Faction is equal to the given World.
 	 */
 	@Raw
-	public void setWorld(World world)
+	public void setWorld(World world) throws IllegalArgumentException
 	{
+		if (!canHaveAsWorld(world))
+			throw new IllegalArgumentException("Invalid World for this Faction!");
 		this.world = world;
+	}
+	
+	/**
+	 * Check whether this Faction has a proper World attached to it.
+	 * 
+	 * @return	True if and only if this Faction can have the attached World as its World and if that World is ineffective or has
+	 * 			this Faction as one of its Factions.
+	 */
+	public boolean hasProperWorld()
+	{
+		return canHaveAsWorld(getWorld()) && (getWorld() == null || getWorld().hasAsFaction(this));
 	}
 	
 	/**
@@ -234,14 +279,16 @@ public class Faction {
 	 * 
 	 * @param 	scheduler
 	 * 			The {@link Scheduler} to check.
-	 * @return	True if and only if the given Scheduler is not effective or if the given Scheduler has this Faction as its Faction.
+	 * @return	If this Faction is terminated, true if and only if the given Scheduler is ineffective.
+	 * 			Otherwise, true if and only if this Faction doesn't have a Scheduler, if the given Scheduler is effective
+	 * 			and if the given Scheduler isn't terminated.
 	 */
 	@Raw
 	public boolean canHaveAsScheduler(Scheduler scheduler)
 	{
-		if (scheduler == null)
-			return true;
-		return (scheduler.getFaction() == this) && (getScheduler() == null);
+		if (isTerminated())
+			return scheduler == null;
+		return (getScheduler() == null) && (scheduler != null) && (!scheduler.isTerminated());
 	}
 	
 	/**
@@ -257,8 +304,19 @@ public class Faction {
 	public void setScheduler(Scheduler scheduler) throws IllegalArgumentException
 	{
 		if (!canHaveAsScheduler(scheduler))
-			throw new IllegalArgumentException("This Faction cannot have the given Scheduler as its Scheduler.");
+			throw new IllegalArgumentException("This Faction cannot have the given Scheduler as its Scheduler!");
 		this.scheduler = scheduler;
+	}
+	
+	/**
+	 * Check whether this Faction has a proper {@link Scheduler} attached to it.
+	 * 
+	 * @return	True if and only if this Faction can have the attached Scheduler as its Scheduler and if the attached Scheduler is
+	 * 			either ineffective or if the Faction of this Scheduler is equal to this Faction.
+	 */
+	public boolean hasProperScheduler()
+	{
+		return canHaveAsScheduler(getScheduler()) && (getScheduler() == null || getScheduler().getFaction().equals(this));
 	}
 	
 	/**

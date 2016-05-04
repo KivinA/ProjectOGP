@@ -1322,6 +1322,7 @@ public class Unit {
 		setIsAlive(false);
 		
 		// Delete the Unit:
+		setFaction(null);
 		getFaction().removeUnit(this);
 		getWorld().removeUnit(this);
 	}
@@ -4566,14 +4567,17 @@ public class Unit {
 	*/
 	public boolean canHaveAsFaction(Faction faction)
 	{
-		if (faction == null)
-			return true;
-		for (Faction factionWorld : getWorld().getAllFactions())
+		if (isAlive())
+			return faction == null;
+		else
 		{
-			if (factionWorld == faction && faction.hasAsUnit(this))
-				return true;
+			for (Faction factionWorld : getWorld().getAllFactions())
+			{
+				if (factionWorld == faction && faction.hasAsUnit(this))
+					return true;
+			}
+			return false;
 		}
-		return false;
 	}
 	
 	/**

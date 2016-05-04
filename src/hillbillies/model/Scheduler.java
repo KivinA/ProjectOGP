@@ -52,9 +52,24 @@ public class Scheduler {
 	public void terminate()
 	{
 		tasks.clear();
+		this.isTerminated = true;
 		setWorld(null);
 		setFaction(null);
 	}
+	
+	/**
+	 * Check whether this Scheduler is terminated.
+	 */
+	@Basic @Raw
+	public boolean isTerminated()
+	{
+		return this.isTerminated;
+	}
+	
+	/**
+	 * Variable registering whether this Scheduler is terminated.
+	 */
+	private boolean isTerminated = false;
 	
 	/**
 	 * Return an ArrayList collecting all Tasks of this Scheduler.
@@ -279,9 +294,9 @@ public class Scheduler {
 	 */
 	public boolean canHaveAsFaction(Faction faction)
 	{
-		if (faction == null)
-			return true;
-		return getWorld().hasAsFaction(faction) && (faction.getScheduler() == null);
+		if (isTerminated())
+			return faction == null;
+		return faction != null && faction.canHaveAsScheduler(this);
 	}
 	
 	/**
@@ -321,6 +336,22 @@ public class Scheduler {
 	}
 	
 	/**
+	 * Check whether this Scheduler can have the given {@link World} as its {@link World}.
+	 * 
+	 * @param 	world
+	 * 			The {@link World} to check.
+	 * @return	If this Scheduler is terminated, true if and only if the given World is ineffective.
+	 * 			Otherwise, true if and only if the given World is effective, and if this Scheduler's Faction has the same World
+	 * 			as the given world.
+	 */
+	public boolean canHaveAsWorld(World world)
+	{
+		if (isTerminated())
+			return world == null;
+		return (world != null) && getFaction().getWorld().equals(world);
+	}
+	
+	/**
 	 * Set the World of this Scheduler to the given World.
 	 * 
 	 * @param 	world
@@ -341,7 +372,8 @@ public class Scheduler {
 	
 	/**
 	 * A custom TaskComparator used to sort the list of Tasks for each Scheduler.
-	 * [FIXME] How do you documentate this?
+	 * [FIXME]USE ANONYMOUS CLASS IN THE PARAMETER OF THE METHOD!
+	 * 
 	 */
 	public static class TaskComparator implements Comparator<Task>{
 		public TaskComparator() 
