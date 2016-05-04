@@ -40,6 +40,7 @@ public class FactionTest {
 	public void setUp() throws Exception
 	{
 		faction = new Faction(world);
+		world.addFaction(faction);
 	}
 	
 	@After
@@ -49,9 +50,17 @@ public class FactionTest {
 		{
 			if (faction.getNbOfUnits() > 0)
 				for (Unit unit: faction.getAllUnits())
+				{
+					unit.die();
 					faction.removeUnit(unit);
+				}
+					
 			else
+			{
+				if (!faction.isTerminated())
+					faction.terminate();
 				world.removeFaction(faction);
+			}
 		}
 		
 		for (Iterator<Unit> i = world.getAllUnits().iterator(); i.hasNext();)
@@ -60,38 +69,48 @@ public class FactionTest {
 			unit.setWorld(null);
 			i.remove();
 		}
-		
-		System.out.println("Units in this World: " + world.getNbOfUnits());
 	}
 	
 	@Test
-	public void constructor_SingleCase() throws Exception
+	public void constructor_SingleCase()
 	{
 		Faction theFaction = new Faction(world);
+		world.addFaction(theFaction);
 		assertSame(world, theFaction.getWorld());
 		assertTrue(world.hasAsFaction(theFaction));
 		assertNotNull(theFaction.getScheduler());
 		assertEquals(0, theFaction.getNbOfUnits());
 		assertTrue(theFaction.hasProperUnits());
+		assertTrue(theFaction.hasProperScheduler());
+		assertTrue(theFaction.hasProperWorld());
 	}
 	
 	@Test
-	public void terminate_LegalCase() throws Exception
+	public void terminate_LegalCase()
 	{
 		Faction theFaction = new Faction(world);
-		world.removeFaction(theFaction);
+		world.addFaction(theFaction);
+		theFaction.terminate();
+		assertEquals(0, theFaction.getNbOfUnits());
+		assertTrue(theFaction.isTerminated());
 		assertNull(theFaction.getScheduler());
 		assertNull(theFaction.getWorld());
+		assertTrue(world.hasAsFaction(theFaction));
+		world.removeFaction(theFaction);
+		assertFalse(world.hasAsFaction(theFaction));
 	}
 	
 	@Test
 	public void terminate_LegalCaseZeroUnits() throws Exception
 	{
 		Faction theFaction = new Faction(world);
+		world.addFaction(theFaction);
 		Unit unit = new Unit("Hillbilly", DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
 		world.addUnit(unit);
 		theFaction.addUnit(unit);
 		theFaction.removeUnit(unit);
+		assertEquals(0, theFaction.getNbOfUnits());
+		assertTrue(theFaction.isTerminated());
 		assertNull(theFaction.getScheduler());
 		assertNull(theFaction.getWorld());
 	}
@@ -102,11 +121,11 @@ public class FactionTest {
 		Unit unit = new Unit("Hillbilly", DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
 		world.addUnit(unit);
 		faction.addUnit(unit);
-		world.removeFaction(faction);
+		faction.terminate();
 	}
 	
 	@Test
-	public void canHaveAsUnit_TrueCase() throws Exception
+	public void canHaveAsUnit_TrueCase() throws Exception // [FIXME] This Exception should be deleted once possible.
 	{
 		Unit unit = world.spawnUnit(false);
 		assertTrue(faction.canHaveAsUnit(unit));
@@ -119,7 +138,14 @@ public class FactionTest {
 	}
 	
 	@Test
-	public void canHaveAsUnit_AmountExceeded() throws Exception
+	public void canHaveAsUnit_UnitNotPartOfWorld() throws Exception // [FIXME] This Exception should be deleted once possible.
+	{
+		Unit unit = new Unit("Hillbilly", DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
+		assertFalse(faction.canHaveAsUnit(unit));
+	}
+	
+	@Test
+	public void canHaveAsUnit_AmountExceeded() throws Exception // [FIXME] This Exception should be deleted once possible.
 	{
 		Unit unit;
 		for (int i = 0; i < 50; i++)
@@ -134,7 +160,7 @@ public class FactionTest {
 	}
 	
 	@Test
-	public void addUnit_LegalCase() throws Exception
+	public void addUnit_LegalCase() throws Exception // [FIXME] This Exception should be deleted once possible.
 	{
 		Unit unit = new Unit ("Hillbilly", 10, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
 		world.addUnit(unit);
@@ -148,11 +174,12 @@ public class FactionTest {
 	}
 	
 	@Test
-	public void canRemoveAsUnit_TrueCase() throws Exception
+	public void canRemoveAsUnit_TrueCase() throws Exception // [FIXME] This Exception should be deleted once possible.
 	{
-		Unit unit = world.spawnUnit(false);
+		Unit unit =  new Unit ("Hillbilly", 10, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
+		world.addUnit(unit);
 		faction.addUnit(unit);
-		unit.setFaction(null);
+		unit.die();
 		assertTrue(faction.canRemoveAsUnit(unit));
 	}
 	
@@ -163,7 +190,7 @@ public class FactionTest {
 	}
 	
 	@Test
-	public void canRemoveAsUnit_IllegalUnit() throws Exception
+	public void canRemoveAsUnit_IllegalUnit() throws Exception  // [FIXME] This Exception should be deleted once possible.
 	{
 		Unit unit = new Unit ("Hillbilly", 10, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
 		world.addUnit(unit);
@@ -171,16 +198,19 @@ public class FactionTest {
 	}
 	
 	@Test
-	public void canRemoveAsUnit_UnitWithFaction() throws Exception
+	public void canRemoveAsUnit_UnitWithFaction() throws Exception // [FIXME] This Exception should be deleted once possible.
 	{
+		Faction theFaction = new Faction(world);
+		world.addFaction(theFaction);
 		Unit unit = new Unit ("Hillbilly", 10, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
 		world.addUnit(unit);
-		faction.addUnit(unit);
-		assertFalse(faction.canRemoveAsUnit(unit));
+		theFaction.addUnit(unit);
+		unit.setFaction(faction);
+		assertFalse(theFaction.canRemoveAsUnit(unit));
 	}
 	
 	@Test
-	public void removeUnit_LegalCase() throws Exception
+	public void removeUnit_LegalCase() throws Exception // [FIXME] This Exception should be deleted once possible.
 	{
 		Unit unit = new Unit ("Hillbilly", 10, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
 		world.addUnit(unit);
@@ -197,7 +227,7 @@ public class FactionTest {
 	}
 	
 	@Test
-	public void hasProperUnits_TrueCase() throws ModelException
+	public void hasProperUnits_TrueCase() throws Exception // [FIXME] This Exception should be deleted once possible.
 	{
 		Unit unit;
 		for (int i = 0; i < 10; i++)
@@ -205,6 +235,7 @@ public class FactionTest {
 			unit = new Unit("Hillbilly", DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
 			world.addUnit(unit);
 			faction.addUnit(unit);
+			unit.setFaction(faction);
 		}
 		assertTrue(faction.hasProperUnits());
 	}
@@ -218,41 +249,65 @@ public class FactionTest {
 			unit = new Unit("Hillbilly", DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
 			world.addUnit(unit);
 			faction.addUnit(unit);
+			unit.setFaction(faction);
 		}
 		unit = new Unit("Hillbilly", DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, DEFAULT_PROPERTY_VALUE, POSITION, false, world);
 		world.addUnit(unit);
 		faction.addUnit(unit);
-		unit.setFaction(null);
 		assertFalse(faction.hasProperUnits());
+	}
+	
+	@Test
+	public void canHaveAsWorld_TrueCase()
+	{
+		assertTrue(faction.canHaveAsWorld(world));
+	}
+	
+	@Test
+	public void canHaveAsWorld_FactionTerminated()
+	{
+		faction.terminate();
+		assertFalse(faction.canHaveAsWorld(world));
+	}
+	
+	@Test
+	public void canHaveAsWorld_NonEffectiveWorldNonTerminatedFaction()
+	{
+		assertFalse(faction.canHaveAsWorld(null));
 	}
 	
 	@Test
 	public void canHaveAsScheduler_TrueCase() throws Exception
 	{
-		Scheduler theScheduler = new Scheduler(null, world);
-		faction.setScheduler(null);
-		assertNull(faction.getScheduler());
-		theScheduler.setFaction(faction);
-		assertTrue(faction.canHaveAsScheduler(theScheduler));
-		assertTrue(faction.canHaveAsScheduler(null));
-		faction.setScheduler(theScheduler);
+		faction.canHaveAsScheduler(faction.getScheduler());
 	}
 	
 	@Test
-	public void canHaveAsScheduler_SchedulerAlreadyAttached() throws Exception
+	public void canHaveAsScheduler_NonEffectiveSchedulerNonTerminatedFaction()
 	{
-		Scheduler theScheduler = new Scheduler(null, world);
-		assertFalse(faction.canHaveAsScheduler(theScheduler));
+		assertFalse(faction.canHaveAsScheduler(null));
 	}
 	
-	@Test
-	public void canHaveAsScheduler_SchedulerReferencingOtherFaction() throws Exception
-	{
-		Faction faction2 = new Faction(world);
-		faction2.setScheduler(null);
-		Scheduler theScheduler = new Scheduler(faction2, world);
-		faction2.setScheduler(theScheduler);
-		assertFalse(faction.canHaveAsScheduler(theScheduler));
-		world.removeFaction(faction2);
-	}
+	/*
+	 * We cannot further implement these test cases, since it is IMPOSSIBLE to create a Scheduler on its own.
+	 */
+//	@Test 
+//	public void canHaveAsScheduler_SchedulerAlreadyAttached() throws Exception
+//	{
+//		Faction theFaction = new Faction(world);
+//		world.addFaction(theFaction);
+//		Scheduler theScheduler = new Scheduler(null, world);
+//		assertFalse(faction.canHaveAsScheduler(theScheduler));
+//	}
+//	
+//	@Test
+//	public void canHaveAsScheduler_SchedulerReferencingOtherFaction() throws Exception
+//	{
+//		Faction faction2 = new Faction(world);
+//		faction2.setScheduler(null);
+//		Scheduler theScheduler = new Scheduler(faction2, world);
+//		faction2.setScheduler(theScheduler);
+//		assertFalse(faction.canHaveAsScheduler(theScheduler));
+//		world.removeFaction(faction2);
+//	}
 }

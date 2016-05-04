@@ -26,7 +26,7 @@ public class Faction {
 	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 */
-	public Faction(World world) throws IllegalArgumentException
+	public Faction(World world) throws IllegalArgumentException, IllegalStateException
 	{
 		setWorld(world);
 		setScheduler(new Scheduler(this, world));
@@ -110,7 +110,6 @@ public class Faction {
 	 * 			The {@link Unit} to add.
 	 * @post	The number of Units of this Faction is incremented by 1.
 	 * @post	This Faction has the given unit as one of its units.
-	 * @effect	The Faction of the given Unit is set to this Faction.
 	 * @throws 	IllegalArgumentException
 	 * 			This Faction cannot have the given Unit as one of its Units.
 	 * @throws	IllegalArgumentException
@@ -122,7 +121,6 @@ public class Faction {
 		if (! canHaveAsUnit(unit))
 			throw new IllegalArgumentException("This Faction cannot have the given Unit as one of its Units.");
 		units.add(unit);
-		unit.setFaction(this);
 	}
 	
 	/**
@@ -161,7 +159,11 @@ public class Faction {
 		
 		// Remove this Faction once it has no more Units left after removing the last Unit.
 		if (units.isEmpty())
-			getWorld().removeFaction(this);
+		{
+			World formerWorld = getWorld();
+			terminate();
+			formerWorld.removeFaction(this);
+		}
 	}
 	
 	/**
@@ -240,12 +242,19 @@ public class Faction {
 	 * @param 	world
 	 * 			The new {@link World} for this Faction.
 	 * @post	The World of this Faction is equal to the given World.
+	 * @throws	IllegalArgumentException
+	 * 			This Faction cannot have the given World as its World.
+	 * @throws	IllegalStateException
+	 * 			This Faction already has an effective World.
+	 * @note	A Faction can only have an effective World assigned just once.
 	 */
 	@Raw
-	public void setWorld(World world) throws IllegalArgumentException
+	public void setWorld(World world) throws IllegalArgumentException, IllegalStateException
 	{
 		if (!canHaveAsWorld(world))
 			throw new IllegalArgumentException("Invalid World for this Faction!");
+		if (getWorld() != null && world != null)
+			throw new IllegalStateException("This Faction already has a World!");
 		this.world = world;
 	}
 	
@@ -288,7 +297,7 @@ public class Faction {
 	{
 		if (isTerminated())
 			return scheduler == null;
-		return (getScheduler() == null) && (scheduler != null) && (!scheduler.isTerminated());
+		return (scheduler != null) && (!scheduler.isTerminated());
 	}
 	
 	/**
@@ -298,13 +307,18 @@ public class Faction {
 	 * 			The new {@link Scheduler} for this Faction.
 	 * @throws 	IllegalArgumentException
 	 * 			This Faction cannot have the given Scheduler as its Scheduler.
+	 * @throws	IllegalStateException
+	 * 			This Faction already has an effective Scheduler.
 	 * @post	The Scheduler of this new Faction is equal to the given Scheduler.
+	 * @note	A Faction can only have an effective Scheduler assigned just once.
 	 */
 	@Raw
-	public void setScheduler(Scheduler scheduler) throws IllegalArgumentException
+	public void setScheduler(Scheduler scheduler) throws IllegalArgumentException, IllegalStateException
 	{
 		if (!canHaveAsScheduler(scheduler))
 			throw new IllegalArgumentException("This Faction cannot have the given Scheduler as its Scheduler!");
+		if (getScheduler() != null && scheduler != null)
+			throw new IllegalStateException("This Faction already has a Scheduler!");
 		this.scheduler = scheduler;
 	}
 	
@@ -316,7 +330,7 @@ public class Faction {
 	 */
 	public boolean hasProperScheduler()
 	{
-		return canHaveAsScheduler(getScheduler()) && (getScheduler() == null || getScheduler().getFaction().equals(this));
+		return canHaveAsScheduler(getScheduler()) && (getScheduler() == null || (getScheduler().getFaction() == this));
 	}
 	
 	/**

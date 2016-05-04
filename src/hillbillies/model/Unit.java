@@ -1302,8 +1302,9 @@ public class Unit {
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * [TODO]	Effects, post conditions, etc.
+	 * [FIXME] 	Add checker to see if hitpoints is zero.
 	 */
-	private void die() throws ModelException
+	public void die() throws ModelException
 	{
 		if (isCarryingLog())
 			dropLog(getUnitPosition());
@@ -1323,8 +1324,7 @@ public class Unit {
 		
 		// Delete the Unit:
 		setFaction(null);
-		getFaction().removeUnit(this);
-		getWorld().removeUnit(this);
+		setWorld(null);
 	}
 	
 	// ----------------------
@@ -4567,16 +4567,11 @@ public class Unit {
 	*/
 	public boolean canHaveAsFaction(Faction faction)
 	{
-		if (isAlive())
+		if (!isAlive())
 			return faction == null;
 		else
 		{
-			for (Faction factionWorld : getWorld().getAllFactions())
-			{
-				if (factionWorld == faction && faction.hasAsUnit(this))
-					return true;
-			}
-			return false;
+			return getWorld().hasAsFaction(faction) && faction.canHaveAsUnit(this);
 		}
 	}
 	

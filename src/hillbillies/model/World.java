@@ -565,7 +565,6 @@ public class World {
 	@Raw
 	public void removeUnit(Unit unit) throws ModelException
 	{
-		unit.setWorld(null);
 		if (!canRemoveAsUnit(unit))
 			throw new ModelException("The given Unit cannot be removed from this World's Units.");
 		units.remove(unit);
@@ -766,7 +765,7 @@ public class World {
 	@Raw
 	public boolean canRemoveAsFaction(Faction faction)
 	{
-		return (faction != null) && (faction.getNbOfUnits() == 0) && (faction.getWorld() == null) && (faction.getScheduler() == null);
+		return (faction != null) && (faction.isTerminated());
 	}
 	
 	/**
@@ -784,7 +783,6 @@ public class World {
 	@Raw
 	public void removeFaction(Faction faction) throws IllegalArgumentException
 	{
-		faction.terminate();
 		if (!canRemoveAsFaction(faction))
 			throw new IllegalArgumentException("This World cannot remove the given Faction from its Factions");
 		factions.remove(faction);

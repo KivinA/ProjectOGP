@@ -296,7 +296,7 @@ public class Scheduler {
 	{
 		if (isTerminated())
 			return faction == null;
-		return faction != null && faction.canHaveAsScheduler(this);
+		return (faction != null) && faction.canHaveAsScheduler(this);
 	}
 	
 	/**
