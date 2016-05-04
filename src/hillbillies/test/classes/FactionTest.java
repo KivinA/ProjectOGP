@@ -7,6 +7,12 @@ import ogp.framework.util.ModelException;
 import hillbillies.model.*;
 import hillbillies.part2.listener.DefaultTerrainChangeListener;
 
+/**
+ * A class collecting tests for {@link Faction}s.
+ * 
+ * @author 	Kevin Algoet & Jeroen Depuydt
+ * @version	0.9
+ */
 public class FactionTest {
 	
 	private Faction faction;

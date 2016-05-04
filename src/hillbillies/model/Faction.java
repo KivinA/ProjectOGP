@@ -3,7 +3,6 @@ package hillbillies.model;
 import java.util.HashSet;
 import java.util.Set;
 import be.kuleuven.cs.som.annotate.*;
-import ogp.framework.util.ModelException;
 
 /**
  * A class describing Factions that are active in the {@link World}, with a set of {@link Unit}s 
@@ -24,10 +23,10 @@ public class Faction {
 	 * @effect	Set the World of this Faction to the given World.
 	 * @effect	Add this Faction to the list of Factions of the given World.
 	 * @effect	Set the Scheduler of this Faction to the given Scheduler.
-	 * @throws	ModelException
+	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 */
-	public Faction(World world) throws ModelException
+	public Faction(World world) throws IllegalArgumentException
 	{
 		setWorld(world);
 		world.addFaction(this);
@@ -40,15 +39,15 @@ public class Faction {
 	 * @effect	Set the World of this Faction ineffective.
 	 * @effect	Terminate the Scheduler of this Faction.
 	 * @effect	Set the Scheduler of this Faction ineffective.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * @throws 	ModelException
+	 * @throws 	IllegalStateException
 	 * 			There are still Units attached to this Faction.
 	 */
-	public void terminate() throws ModelException
+	public void terminate() throws IllegalArgumentException, IllegalStateException
 	{
 		if (getNbOfUnits() != 0)
-			throw new ModelException();
+			throw new IllegalStateException("This Faction still has Units attached to it!");
 		setWorld(null);
 		getScheduler().terminate();
 		setScheduler(null);
@@ -97,16 +96,16 @@ public class Faction {
 	 * @post	The number of Units of this Faction is incremented by 1.
 	 * @post	This Faction has the given unit as one of its units.
 	 * @effect	The Faction of the given Unit is set to this Faction.
-	 * @throws 	ModelException 
+	 * @throws 	IllegalArgumentException
 	 * 			This Faction cannot have the given Unit as one of its Units.
-	 * @throws	ModelException
+	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 */
 	@Raw
-	public void addUnit(@Raw Unit unit) throws ModelException
+	public void addUnit(@Raw Unit unit) throws IllegalArgumentException
 	{
 		if (! canHaveAsUnit(unit))
-			throw new ModelException("This Faction cannot have the given Unit as one of its Units.");
+			throw new IllegalArgumentException("This Faction cannot have the given Unit as one of its Units.");
 		units.add(unit);
 		unit.setFaction(this);
 	}
@@ -130,18 +129,20 @@ public class Faction {
 	 * 
 	 * @param 	unit
 	 * 			The {@link Unit} to remove.
-	 * @throws	ModelException
+	 * @throws	IllegalArgumentException
 	 * 			This Faction cannot remove the given Unit from its Units.
+	 * @throws	IllegalArgumentException
+	 * 			A condition was violated or an error was thrown.
 	 * @post	The number of Units of this Faction is decremented by 1.
 	 * @post	This Faction no longer has the given Unit as one of its Units.
 	 * @effect	If the list of Units is empty after removing the given Unit, remove this Faction from the World.
 	 */
 	@Raw
-	public void removeUnit(@Raw Unit unit) throws ModelException
+	public void removeUnit(@Raw Unit unit) throws IllegalArgumentException
 	{
 		unit.setFaction(null);
 		if (!canRemoveAsUnit(unit))
-			throw new ModelException("The given Unit cannot be removed from this Faction's units.");
+			throw new IllegalArgumentException("The given Unit cannot be removed from this Faction's units.");
 		units.remove(unit);
 		
 		if (units.isEmpty())
@@ -248,15 +249,15 @@ public class Faction {
 	 * 
 	 * @param 	scheduler
 	 * 			The new {@link Scheduler} for this Faction.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			This Faction cannot have the given Scheduler as its Scheduler.
 	 * @post	The Scheduler of this new Faction is equal to the given Scheduler.
 	 */
 	@Raw
-	public void setScheduler(Scheduler scheduler) throws ModelException
+	public void setScheduler(Scheduler scheduler) throws IllegalArgumentException
 	{
 		if (!canHaveAsScheduler(scheduler))
-			throw new ModelException("This Faction cannot have the given Scheduler as its Scheduler.");
+			throw new IllegalArgumentException("This Faction cannot have the given Scheduler as its Scheduler.");
 		this.scheduler = scheduler;
 	}
 	

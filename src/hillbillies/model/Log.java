@@ -4,35 +4,29 @@ import be.kuleuven.cs.som.annotate.*;
 import ogp.framework.util.ModelException;
 
 /**
- * A class describing Logs that are active in the World.
+ * A class describing Logs that are active in the {@link World}.
  * 
- * @author Kevin Algoet & Jeroen Depuydt
- * @version 0.7
+ * @author 	Kevin Algoet & Jeroen Depuydt
+ * @version 0.9
  * 
  * @invar	The weight of each Log must be a valid weight for any Log.
- * 
- * @invar  	Each Log can have its position as position.
- * 
+ * @invar  	Each Log can have its position as its position.
  * @invar	Each Log can have its isFalling indicator as its isFalling indicator.
  */
 public class Log {
 	/**
-	 * Initialize this new Log with the given position, weight and world.
+	 * Initialize this new Log with the given position, weight and {@link World}.
 	 * 
 	 * @param 	position
 	 * 			The position for this new Log.
 	 * @param 	weight
 	 * 			The weight for this new Log.
 	 * @param 	world
-	 * 			The world for this new Log.
-	 * 
+	 * 			The {@link World} for this new Log.
 	 * @throws 	ModelException 
 	 * 			The given weight for this new Log is an invalid weight for any Log.
-	 * 
 	 * @effect	The position of this new Log is set to the given position.
-	 * 
 	 * @effect	The World of this new Log is set to the given World.
-	 * 
 	 * @post   	The weight of this new Log is equal to the given weight.
 	 */
 	public Log(double[] position, int weight, World world) throws ModelException

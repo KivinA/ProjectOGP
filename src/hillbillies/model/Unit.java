@@ -13,6 +13,9 @@ import ogp.framework.util.ModelException;
  *					we actually cannot invoke methods against the object?
  *		3.	I read that ModelException can only be used in Facade.java. Does this mean we have to invoke other exceptions in all
  *			of our classes? Because we didn't notice this and now we only throw ModelExceptions for every exception.
+ *		4.	I tried reading something about it, but I want some more opinions: What's better, an interface or an abstract class to apply 
+ *			to Log and Boulder?
+ *
  * STUFF TODO:
  * 		1. Check all TODO's.
  * 		2. Check which methods can be private.
@@ -4591,10 +4594,10 @@ public class Unit {
 	 *       	| ! canHaveAsFaction(getFaction())
 	 */
 	@Raw
-	public void setFaction(Faction faction) throws ModelException 
+	public void setFaction(Faction faction) throws IllegalArgumentException
 	{
 		if (! canHaveAsFaction(faction))
-			throw new ModelException("The given faction is invalid for any Unit.");
+			throw new IllegalArgumentException("The given faction is invalid for any Unit.");
 		this.faction = faction;
 	}
 	

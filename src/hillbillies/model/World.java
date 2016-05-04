@@ -748,10 +748,10 @@ public class World {
 	 * @post	The number of Factions of this World is incremented by 1.
 	 * @post	This World has the given Faction as one of its Factions.
 	 */
-	public void addFaction(Faction faction) throws ModelException
+	public void addFaction(Faction faction) throws IllegalArgumentException
 	{
 		if (!canHaveAsFaction(faction))
-			throw new ModelException("This World cannot have the given Faction as one of its Factions.");
+			throw new IllegalArgumentException("This World cannot have the given Faction as one of its Factions.");
 		factions.add(faction);
 	}
 	
@@ -781,11 +781,11 @@ public class World {
 	 * @post	This World no longer has the given Faction as one of its Factions.
 	 */
 	@Raw
-	public void removeFaction(Faction faction) throws ModelException
+	public void removeFaction(Faction faction) throws IllegalArgumentException
 	{
 		faction.terminate();
 		if (!canRemoveAsFaction(faction))
-			throw new ModelException("This World cannot remove the given Faction from its Factions");
+			throw new IllegalArgumentException("This World cannot remove the given Faction from its Factions");
 		factions.remove(faction);
 	}
 	

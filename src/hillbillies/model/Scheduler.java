@@ -34,7 +34,7 @@ public class Scheduler {
 	 * @effect	The World of this new Scheduler is set to the given World.
 	 * 			| this.setWorld(world)
 	 */
-	public Scheduler(Faction faction, World world) throws ModelException
+	public Scheduler(Faction faction, World world) throws IllegalArgumentException
 	{
 		setWorld(world);
 		setFaction(faction);
@@ -49,7 +49,7 @@ public class Scheduler {
 	 * @throws 	ModelException
 	 * 			A condition was violated or an error was thrown.
 	 */
-	public void terminate() throws ModelException
+	public void terminate()
 	{
 		tasks.clear();
 		setWorld(null);
@@ -299,10 +299,10 @@ public class Scheduler {
 	 * 			|	then this.setWorld(null)
 	 */
 	@Raw
-	public void setFaction(Faction faction) throws ModelException
+	public void setFaction(Faction faction) throws IllegalArgumentException
 	{
 		if (!canHaveAsFaction(faction))
-			throw new ModelException("This Scheduler cannot have the given Faction as its Faction.");
+			throw new IllegalArgumentException("This Scheduler cannot have the given Faction as its Faction.");
 		this.faction = faction;
 	}
 	
