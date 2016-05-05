@@ -6,15 +6,8 @@ import ogp.framework.util.ModelException;
 
 /* 
  * QUESTIONS PART 3:
- *		1.	Explain Statement/Expression.
- *		2.	Is it necessary to check whether the object is terminated if we know there won't be any reference to it once it is terminated?
- *			e.g.: I terminated a Faction, no more references to it. Is it necessary to make a boolean isTerminated() to make sure
- *					no more methods can be invoked on this Faction, even though we know there are no references and thus 
- *					we actually cannot invoke methods against the object?
- *		3.	I read that ModelException can only be used in Facade.java. Does this mean we have to invoke other exceptions in all
- *			of our classes? Because we didn't notice this and now we only throw ModelExceptions for every exception.
- *		4.	I tried reading something about it, but I want some more opinions: What's better, an interface or an abstract class to apply 
- *			to Log and Boulder?
+ *		1.	Is an abstract checker method an invariant? Or can we simply state the invariant at the level of the subclass, where
+ *			we implement the method? (see canHaveAsWorld for Boulder and Log)
  *
  * STUFF TODO:
  * 		1. Check all TODO's.
