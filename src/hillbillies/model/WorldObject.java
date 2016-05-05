@@ -30,7 +30,7 @@ public abstract class WorldObject {
 	protected WorldObject(int weight, double[] position, World world) {
 		setWorld(world);
 		if (!isValidWeight(weight))
-			throw new IllegalArgumentException("The given weight is invalid for any ..."); // [FIXME] Try to add the subclass name here!
+			throw new IllegalArgumentException("The given weight is invalid for any " + getClass().getSimpleName() + ".");
 		this.weight = weight;
 		setPosition(position);
 	}
@@ -57,9 +57,13 @@ public abstract class WorldObject {
 	 * @post	The terminated state of this WorldObject is enabled.
 	 * @effect	Set the World of this WorldObject ineffective.
 	 * @effect	Set the position of this WorldObject ineffective.
+	 * @throws	IllegalStateException
+	 * 			This WorldObject is already terminated.
 	 */
 	public void terminate()
 	{
+		if (isTerminated())
+			throw new IllegalStateException("This " + getClass().getSimpleName() + " is already terminated!");
 		this.isTerminated = true;
 		setWorld(null);
 		setPosition(null);
@@ -106,7 +110,9 @@ public abstract class WorldObject {
 	public void setWorld(World world)
 	{
 		if (!canHaveAsWorld(world))
-			throw new IllegalArgumentException("This" + this.getClass() + "cannot have the given World as its World."); // [FIXME] Try to add the name of the subclass calling this.
+			throw new IllegalArgumentException("This" + this.getClass().getSimpleName() + "cannot have the given World as its World."); // [FIXME] Try to add the name of the subclass calling this.
+		if (getWorld() != null && world != null)
+			throw new IllegalStateException("This " + this.getClass().getSimpleName() + " already has a World!");
 		this.world = world;
 	}
 	
@@ -146,7 +152,9 @@ public abstract class WorldObject {
 	 */
 	public double[] getPosition()
 	{
-		return Arrays.copyOf(position, 3);
+		if (this.position != null)
+			return Arrays.copyOf(position, 3);
+		return this.position;
 	}
 	
 	/**
@@ -154,14 +162,15 @@ public abstract class WorldObject {
 	 * 
 	 * @param 	position
 	 * 			The position to check.
-	 * @return	True if and only if the given position is between the boundaries of the World of this WorldObject and if
-	 * 			the cube which holds this position is passable.
+	 * @return	If this WorldObject is terminated, true if and only if the given position is ineffective.
+	 * 			Otherwise, true if and only if the given position is effective, between the boundaries of the World of this WorldObject,
+	 * 			and if the given cube is passable.
 	 */
 	public boolean canHaveAsPosition(int[] coordinates)
 	{
 		if (isTerminated())
 			return coordinates == null;
-		return getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2]) 
+		return coordinates != null && getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2]) 
 				&& getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2]);
 	}
 	
@@ -178,14 +187,14 @@ public abstract class WorldObject {
 	{
 		int[] coordinates = getCubeCoordinates(position);
 		if (!canHaveAsPosition(coordinates))
-			throw new IllegalArgumentException("This " + this.getClass() + " cannot have the given position as its position.");
-		this.position = Arrays.copyOf(position, position.length);
+			throw new IllegalArgumentException("This " + getClass().getSimpleName() + " cannot have the given position as its position.");
 		
 		if (position != null)
 		{
+			this.position = Arrays.copyOf(position, position.length);
 			if (coordinates[2] != 0)
 			{
-				if (!getWorld().isSolidCube(coordinates[0], coordinates[1], coordinates[2]))
+				if (getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2] - 1))
 					setFalling(true);
 				else if (isFalling())
 					setFalling(false);
@@ -193,6 +202,8 @@ public abstract class WorldObject {
 			else if (isFalling())
 				setFalling(false);
 		}
+		else 
+			this.position = position;
 	}
 	
 	/**
@@ -244,15 +255,15 @@ public abstract class WorldObject {
 	public boolean canHaveAsFallingState(boolean isFalling)
 	{
 		int[] coordinates = getCubeCoordinates(getPosition());
-		if (isFalling())
+		if (isFalling)
 		{
-			return (getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2]));	
+			return (getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2] - 1));	
 		}
 		else
 		{
 			if (coordinates[2] == 0)
 				return true;
-			return getWorld().isSolidCube(coordinates[0], coordinates[1], coordinates[2]);
+			return getWorld().isSolidCube(coordinates[0], coordinates[1], coordinates[2] - 1);
 		}
 	}
 	

@@ -1049,7 +1049,7 @@ public class World {
 	@Raw
 	public boolean canRemoveAsBoulder(Boulder boulder)
 	{
-		return isValidBoulder(boulder) && hasAsBoulder(boulder) && (boulder.getWorld() == null);
+		return isValidBoulder(boulder) && hasAsBoulder(boulder) && boulder.isTerminated();
 	}
 	
 	/**
