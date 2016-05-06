@@ -7,22 +7,22 @@ import hillbillies.util.ConnectedToBorder;
 import ogp.framework.util.ModelException;
 
 /**
- * A class describing the World in which the game is played.
+ * A class describing the World in which the game is played, containing a {@link TerrainChangeListener}, a 3D array which
+ * describes the terrain, a {@link ConnectedToBorder} object, a set of {@link Unit}s, a set of {@link Faction}s,
+ * a set of {@link Boulder}s and a set of {@link Log}s.
  * 
- * @version 0.7
+ * @version 0.9
  * @author 	Kevin Algoet & Jeroen Depuydt
  *
+ * @invar	The TerrainChangeListener of each World must be a valid TerrainChangeListener for any World.
  * @invar	Each World must have proper Units.
- * 
  * @invar	Each World must have proper Factions.
- * 
  * @invar	Each World must have proper Logs.
- * 
  * @invar	Each World must have proper Boulders.
- * 
  * @invar	The terrain of each World must be a valid terrain for any World.
  */
 public class World {
+	
 	// ----------------------
 	// |					|
 	// |					|
@@ -32,24 +32,33 @@ public class World {
 	// ----------------------
 	
 	/**
-	 * Initialize this new World with the given terrainTypes and modelListener.
+	 * Initialize this new World with the given terrainTypes and {@link TerrainChangeListener}.
 	 * 
 	 * @param 	terrainTypes
 	 * 			The terrainTypes for this new World.
 	 * @param 	modelListener
-	 * 			The modelListener for this new World.
-	 * 
-	 * @throws 	ModelException
+	 * 			The {@link TerrainChangeListener} for this new World.
+	 * @throws	IllegalArgumentException
+	 * 			The given TerrainChangeListener is invalid for any World.
+	 * @throws	IllegalArgumentException
+	 * 			The given terrain is invalid for any World.
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an exception was thrown.
-	 * 
-	 * @effect	The terrain of this new World is set to the given terrainTypes.
-	 * 
-	 * @post	The modelListener of this new World is equal to the given modelListener.
+	 * @post	The TerrainChangeListener of this new World is equal to the given modelListener.
+	 * @post	The terrain of this World is initialized as a new 3D array with the corresponding lengths of the given 3D array terrain.
+	 * @post	The connectedToBorderObject is initialized as a new ConnectedToBorder with the number of x, y and z cubes.
+	 * @effect	Initialize the terrain of this World according to the given terrain.
 	 */
-	public World(int[][][] terrainTypes, TerrainChangeListener modelListener) throws ModelException
+	public World(int[][][] terrain, TerrainChangeListener modelListener) throws IllegalArgumentException
 	{
-		setTerrain(terrainTypes);
+		if (!isValidTerrainChangeListerener(modelListener))
+			throw new IllegalArgumentException("The given TerrainChangeListener is invalid for any World");
+		if (!isValidTerrain(terrain))
+			throw new IllegalArgumentException("The given terrain is invalid for any World!");
 		this.modelListener = modelListener;
+		this.terrain = new int[terrain.length][terrain[0].length][terrain[0][0].length];
+		this.connectedToBorderObject = new ConnectedToBorder(getNbCubesX(), getNbCubesY(), getNbCubesZ());
+		initializeTerrain(terrain);
 	}
 	
 	// ----------------------
@@ -61,7 +70,7 @@ public class World {
 	// ----------------------
 	
 	/**
-	 * Return the modelListener of this World.
+	 * Return the {@link TerrainChangeListener} of this World.
 	 */
 	@Basic @Raw @Immutable
 	public TerrainChangeListener getModelListener()
@@ -70,7 +79,19 @@ public class World {
 	}
 	
 	/**
-	 * Variable registering the modelListener of this World.
+	 * Check whether the given {@link TerrainChangeListener} is a valid {@link TerrainChangeListener} for any World.
+	 * 
+	 * @param 	modelListener
+	 * 			The {@link TerrainChangeListener} to check.
+	 * @return	True if and only if the given TerrainChangeListener is effective.
+	 */
+	public static boolean isValidTerrainChangeListerener(TerrainChangeListener modelListener)
+	{
+		return (modelListener != null);
+	}
+	
+	/**
+	 * Variable referencing the {@link TerrainChangeListener} of this World.
 	 */
 	private final TerrainChangeListener modelListener;
 	
@@ -92,23 +113,19 @@ public class World {
 	 */
 	public void advanceTime(double duration) throws ModelException
 	{
-		if (!notConnected.isEmpty())
+		if (!getAllNotConnected().isEmpty())
 		{
-			
-			int x = notConnected.get(0)[0];
-			int y = notConnected.get(0)[1];
-			int z = notConnected.get(0)[2];
-			int oldCubeType = getCubeType(x, y, z);
+			int[] cube = getNotConnectedCubeAt(0);
+			int oldCubeType = getCubeType(cube[0], cube[1], cube[2]);
 			
 			// Set the cube type to air:
-			setCubeType(x, y, z, DEFAULT_CUBE_TYPE);
-			modelListener.notifyTerrainChanged(x, y, z);
+			setCubeType(cube[0], cube[1], cube[2], DEFAULT_CUBE_TYPE);
+			modelListener.notifyTerrainChanged(cube[0], cube[1], cube[2]);
 			
 			// Check if a rock or log has to be spawned.
 			if (spawnLogOrBoulder())
 			{
-				double[] coordinates = {x + (getCubeLength() / 2.0), y + (getCubeLength() / 2.0), z + (getCubeLength() / 2.0)};
-				
+				double[] coordinates = {cube[0] + (getCubeLength() / 2.0), cube[0] + (getCubeLength() / 2.0), cube[0] + (getCubeLength() / 2.0)};
 				if (oldCubeType == 1)
 				{
 					spawnBoulder(coordinates);
@@ -120,7 +137,7 @@ public class World {
 			}
 			
 			// Remove this element from the list, since we have finished changing it:
-			notConnected.remove(0);
+			removeNotConnected(cube);
 		}
 		
 		// Units advance time:
@@ -156,6 +173,7 @@ public class World {
 	 * 
 	 * @return	True if and only if the newly made random double is lower or equal than 0.25.
 	 */
+	@Model @Raw
 	private boolean spawnLogOrBoulder()
 	{
 		return new Random().nextDouble() <= 0.25;
@@ -173,14 +191,14 @@ public class World {
 	 * Check whether the given cube is attached to the borders of this World.
 	 * 
 	 * @param 	x
-	 * 			The x coordinate of the given cube.
+	 * 			The x coordinate of the cube to check.
 	 * @param 	y
-	 * 			The y coordinate of the given cube.
+	 * 			The y coordinate of the cube to check.
 	 * @param 	z
-	 * 			The z coordinate of the given cube.
-	 * 
+	 * 			The z coordinate of the cube to check.
 	 * @return	True if and only if the given cube is indeed connected to one of the borders of this World.
 	 */
+	@Raw
 	public boolean isConnectedToBorder(int x, int y, int z)
 	{
 		return connectedToBorderObject.isSolidConnectedToBorder(x, y, z);
@@ -190,14 +208,14 @@ public class World {
 	 * Check whether the given cube has a solid neighbouring cube.
 	 * 
 	 * @param 	x
-	 * 			The x coordinate of the given cube to check.
+	 * 			The x coordinate of the cube to check.
 	 * @param 	y
-	 * 			The y coordinate of the given cube to check.
+	 * 			The y coordinate of the cube to check.
 	 * @param 	z
-	 * 			The z coordinate of the given cube to check.
-	 * 
+	 * 			The z coordinate of the cube to check.
 	 * @return	True if and only if one of the neigbouring cubes (X+- 0..1, Y+- 0..1, Z+- 0..1) is solid.
 	 */
+	@Raw
 	public boolean hasSolidNeighbouringCube(int x, int y, int z)
 	{
 		for (int i = -1; i <= 1; i++)
@@ -219,15 +237,15 @@ public class World {
 	 * Check whether the given cube is between the boundaries of this World.
 	 * 
 	 * @param 	x
-	 * 			The x coordinate of the given cube to check.
+	 * 			The x coordinate of the cube to check.
 	 * @param 	y
-	 * 			The y coordinate of the given cube to check.
+	 * 			The y coordinate of the cube to check.
 	 * @param 	z
-	 * 			The z coordinate of the given cube to check.
-	 * 
-	 * @return	True if and only if each coordinate is between the lower boundary and amount of cubes of this dimension (which is the upper
-	 * 			boundary).
+	 * 			The z coordinate of the cube to check.
+	 * @return	True if and only if each coordinate is between the lower boundary and amount of cubes of this dimension 
+	 * 			(which is the upper boundary).
 	 */
+	@Raw
 	public boolean isBetweenBoundaries(int x, int y, int z)
 	{
 		return ((x >= LOWER_BOUNDARY) && (y >= LOWER_BOUNDARY) && (z >= LOWER_BOUNDARY)) 
@@ -238,14 +256,14 @@ public class World {
 	 * Check if the given cube is passable.
 	 * 
 	 * @param	x
-	 * 			The x coordinate of the given cube to check.
+	 * 			The x coordinate of the cube to check.
 	 * @param 	y
-	 * 			The y coordinate of the given cube to check.
+	 * 			The y coordinate of the cube to check.
 	 * @param 	z
-	 * 			The z coordinate of the given cube to check.
-	 * 
-	 * @return	True if and only if the given cube type is equal to 0 (air) or 3 (workshop).
+	 * 			The z coordinate of the cube to check.
+	 * @return	True if and only if the cube type of the given cube type is equal to 0 (air) or 3 (workshop).
 	 */
+	@Raw
 	public boolean isPassableCube(int x, int y, int z)
 	{
 		return (getCubeType(x, y, z) == 0) || (getCubeType(x, y, z) == 3);
@@ -255,12 +273,11 @@ public class World {
 	 * Check if the given cube is solid.
 	 * 
 	 * @param 	x
-	 * 			The x coordinate of the given cube to check.
+	 * 			The x coordinate of the cube to check.
 	 * @param 	y
-	 * 			The y coordinate of the given cube to check.
+	 * 			The y coordinate of the cube to check.
 	 * @param 	z
-	 * 			The z coordinate of the given cube to check.
-	 * 
+	 * 			The z coordinate of the cube to check.
 	 * @return	True if and only if the cube type of the given cube is either equal to 1 (rock) or 2 (tree).
 	 */
 	public boolean isSolidCube(int x, int y, int z)
@@ -295,24 +312,19 @@ public class World {
 	}
 	
 	/**
-	 * Set the terrain of this World to the given terrain.
+	 * Initialize each cube in the terrain of this World.
 	 * 
-	 * @param  	terrain
-	 *         	The new terrain for this World.
-	 * @throws 	ModelException 
-	 *         	The given terrain is invalid for any World.
-	 * @post   	The terrain of this new World is equal to the given terrain.
+	 * @param 	terrain
+	 * 			The terrain which contains the values for the cubes.
+	 * @throws	IllegalArgumentException
+	 * 			A condition was violated or an error was thrown.
+	 * @effect	Set the cube type of each cube to the given value contained in terrain.
+	 * @effect	If the selected cube is passable, change the given cube from solid to passable in the ConnectedToBorderObject and add
+	 * 			the changed cubes to the notConnected list.
 	 */
-	@Raw
-	public void setTerrain(int[][][] terrain) throws ModelException{
-		if (!isValidTerrain(terrain))
-			throw new ModelException("The given terrain is invalid for any World.");
-		// Initialize new terrain:
-		this.terrain = new int[terrain.length][terrain[0].length][terrain[0][0].length];
-		
-		// Initialize the connectedToBorder object:
-		connectedToBorderObject = new ConnectedToBorder(getNbCubesX(), getNbCubesY(), getNbCubesZ());
-		
+	@Model
+	private void initializeTerrain(int[][][] terrain)
+	{		
 		// Initialize each cube:
 		for (int x = 0; x < terrain.length; x++)
 		{
@@ -324,7 +336,7 @@ public class World {
 					
 					// Change solid to passable terrain where needed and add all cubes that changed to a list.
 					if (isPassableCube(x, y, z))
-						notConnected.addAll(connectedToBorderObject.changeSolidToPassable(x, y, z));
+						addAllNotConnected(connectedToBorderObject.changeSolidToPassable(x, y, z));
 				}
 			}
 		}
@@ -333,7 +345,7 @@ public class World {
 	/**
 	 * Variable registering the terrain of this World.
 	 */
-	private int[][][] terrain;
+	private final int[][][] terrain;
 	
 	/**
 	 * Return the lower boundary of this World.
@@ -350,9 +362,9 @@ public class World {
 	private final int LOWER_BOUNDARY = 0;
 	
 	/**
-	 * Variable registering the ConnectedToBorder object of this World.
+	 * Variable referencing the {@link ConnectedToBorder} object of this World.
 	 */
-	private ConnectedToBorder connectedToBorderObject;
+	private final ConnectedToBorder connectedToBorderObject;
 	
 	/**
 	 * Return the cube length of any World.
@@ -396,11 +408,11 @@ public class World {
 	 * Return the cube type of the given cube.
 	 * 
 	 * @param 	x
-	 * 			The x coordinate of the given cube.
+	 * 			The x coordinate of the cube.
 	 * @param 	y
-	 * 			The y coordinate of the given cube.
+	 * 			The y coordinate of the cube.
 	 * @param 	z
-	 * 			The z coordinate of the given cube.
+	 * 			The z coordinate of the cube.
 	 */
 	public int getCubeType(int x, int y, int z)
 	{
@@ -408,11 +420,11 @@ public class World {
 	}
 	
 	/**
-	 * Check whether the given cube type value is a valid cube type value for any cube.
+	 * Check whether the given value is a valid value for any cube.
 	 * 
 	 * @param 	value
-	 * 			The given cubeType value to check.
-	 * @return	True if and only if the given value is between 0 and 3.
+	 * 			The value to check.
+	 * @return	True if and only if the given value is between 0 and 3 (inclusive).
 	 */
 	public static boolean isValidCubeType(int value)
 	{
@@ -430,18 +442,18 @@ public class World {
 	 * 			The z coordinate of the given cube to set the cube type.
 	 * @param 	value
 	 * 			The given value to set as the cube type of the given cube.
-	 * 
-	 * @throws	ModelException
-	 * 			The given cube is out of bounds or the given value is invalid for any cube.
-	 * 
+	 * @throws	IllegalArgumentException
+	 * 			The given cube is out of bounds.
+	 * @throws	IllegalArgumentException
+	 * 			The given value is invalid for any cube.
 	 * @post	The cubeType of the given cube is set to the given value.
 	 */
-	public void setCubeType(int x, int y, int z, int value) throws ModelException
+	public void setCubeType(int x, int y, int z, int value) throws IllegalArgumentException
 	{
 		if (!isBetweenBoundaries(x, y, z))
-			throw new ModelException("The given coordinates are out of bounds.");
+			throw new IllegalArgumentException("The given coordinates are out of bounds.");
 		if (!isValidCubeType(value))
-			throw new ModelException("The given value is invalid for any cube.");
+			throw new IllegalArgumentException("The given value is invalid for any cube.");
 		this.terrain[x][y][z] = value;
 	}
 	
@@ -452,10 +464,53 @@ public class World {
 
 	/**
 	 * Return a list containing all cubes that aren't connected to a border of this World.
+	 * 
+	 * @note	We are currently using the reference to the notConnected list, because we have no use of a copy list.
+	 * 			If we would iterate over the list, we would be obligated to return a copy.
 	 */
-	public List<int[]> getAllNotConnected()
+	@Model @Raw @Basic
+	private List<int[]> getAllNotConnected()
 	{
 		return this.notConnected;
+	}
+	
+	/**
+	 * Get the cube at the given index from the list of cubes that aren't connected to a border of this World.
+	 * 
+	 * @param 	index
+	 * 			The index for the cube to be retrieved.
+	 */
+	@Model @Raw @Basic
+	private int[] getNotConnectedCubeAt(int index)
+	{
+		return this.notConnected.get(index);
+	}
+	
+	/**
+	 * Add the given collection to the list of cubes that aren't connected to a border.
+	 * 
+	 * @param 	collection
+	 * 			The collection to add.
+	 * @post	Each element that is an element of the given collection is an element of the list of cubes that aren't
+	 * 			connected to a border.
+	 */
+	@Model @Raw
+	private void addAllNotConnected(Collection<? extends int[]> collection)
+	{
+		notConnected.addAll(collection);
+	}
+	
+	/**
+	 * Remove the given cube from the list of cubes that aren't connected to a border.
+	 * 
+	 * @param 	cube
+	 * 			The cube to remove.
+	 * @post	The list of cubes no longer contains the given cube as one of its cubes.
+	 */
+	@Model @Raw
+	private void removeNotConnected(int[] cube)
+	{
+		notConnected.remove(cube);
 	}
 	
 	/**
@@ -463,8 +518,6 @@ public class World {
 	 * 
 	 * @invar	The referenced list is effective.
 	 * @invar	Each cube referenced in the list is effective.
-	 * 
-	 * [FIXME] 	Add methods to add/remove elements from this list. There are possibly no real checkers? 
 	 */
 	private List<int[]> notConnected = new ArrayList<>();
 	
@@ -477,7 +530,7 @@ public class World {
 	// ----------------------
 	
 	/**
-	 * Return the amount of units of this World.
+	 * Return the amount of {@link Unit}s of this World.
 	 */
 	@Basic @Raw
 	public int getNbOfUnits() 
@@ -486,92 +539,91 @@ public class World {
 	}	
 	
 	/**
-	 * Check whether this World has the given Unit as one of its Units.
+	 * Check whether this World has the given {@link Unit} as one of its {@link Unit}s.
 	 * 
 	 * @param 	unit
-	 * 			The given Unit to check.
+	 * 			The {@link Unit} to check.
 	 * @return	True if and only if the given Unit is registered as one of the Units of this World.
 	 */
-	public boolean hasAsUnit(Unit unit)
+	@Raw
+	public boolean hasAsUnit(@Raw Unit unit)
 	{
 		return units.contains(unit);
 	}
 	
 	/**
-	 * Check whether this World can have the given Unit as one of its Units.
+	 * Check whether this World can have the given {@link Unit} as one of its {@link Unit}s.
 	 * 
 	 * @param 	unit
-	 * 			The given Unit to check.
-	 * @return	True if and only if the given Unit is effective and the current amount of Units is lower than the maximum amount of Units.
+	 * 			The {@link Unit} to check.
+	 * @return	True if and only if the given Unit is effective and the current amount of Units is lower 
+	 * 			than the maximum amount of Units.
 	 */
 	@Raw
-	public boolean canHaveAsUnit(Unit unit)
+	public boolean canHaveAsUnit(@Raw Unit unit)
 	{
 		return (unit != null) && (getNbOfUnits() < MAX_AMOUNT_OF_UNITS);
 	}
 	
 	/**
-	 * Add a given Unit to this World.
+	 * Add the given {@link Unit} to this World.
 	 * 
 	 * @param 	unit
-	 * 			The given Unit to add to this World.
-	 * 
-	 * @throws	ModelException
+	 * 			The {@link Unit} to add to this World.
+	 * @throws	IllegalArgumentException
 	 * 			This World cannot have the given Unit as one of its Units.
-	 * 
 	 * @post	The number of Units of this World is incremented by 1.
 	 * @post	This World has the given Unit as one of its Units.
 	 */
-	public void addUnit(Unit unit) throws ModelException
+	@Raw
+	public void addUnit(@Raw Unit unit) throws IllegalArgumentException
 	{
 		if (!canHaveAsUnit(unit))
-			throw new ModelException("This World cannot have the given Unit as one of its Units.");
+			throw new IllegalArgumentException("This World cannot have the given Unit as one of its Units.");
 		units.add(unit);
 	}
 	
 	/**
-	 * Check whether this World can remove the given Unit from its Units.
+	 * Check whether this World can remove the given {@link Unit} from its {@link Unit}s.
 	 * 
 	 * @param 	unit
-	 * 			The given Unit to check.
+	 * 			The {@link Unit} to check.
 	 * @return	True if and only if the given Unit is effective, if this World has the given Unit as one of its Units and if the 
-	 * 			given Unit doesn't reference any World.
+	 * 			given Unit is dead.
 	 */
 	@Raw
-	public boolean canRemoveAsUnit(Unit unit)
+	public boolean canRemoveAsUnit(@Raw Unit unit)
 	{
-		return (unit != null) && hasAsUnit(unit) && (unit.getWorld() == null);
+		return (unit != null) && hasAsUnit(unit) && (!unit.isAlive());
 	}
 	
 	/**
-	 * Remove the given Unit from this World.
+	 * Remove the given {@link Unit} from this World.
 	 * 
 	 * @param 	unit
-	 * 			The given Unit to remove.		
-	 * 
-	 * @throws	ModelException
+	 * 			The {@link Unit} to remove.		
+	 * @throws	IllegalArgumentException
 	 * 			This World cannot remove the given Unit from its Units.
-	 * 
 	 * @post	The number of Units of this World is decremented by 1.
 	 * @post	This World no longer has the given Unit as one of its Units.
 	 */
 	@Raw
-	public void removeUnit(Unit unit) throws ModelException
+	public void removeUnit(@Raw Unit unit) throws IllegalArgumentException
 	{
 		if (!canRemoveAsUnit(unit))
-			throw new ModelException("The given Unit cannot be removed from this World's Units.");
+			throw new IllegalArgumentException("The given Unit cannot be removed from this World's Units.");
 		units.remove(unit);
 	}
 	
 	/**
-	 * Check whether this World has proper Units attached to it.
+	 * Check whether this World has proper {@link Unit}s attached to it.
 	 * 
 	 * @return	True if and only if this World can have each Unit as one of its Units and if each Unit
 	 * 			references this World as the World to which they are attached.
 	 */
 	public boolean hasProperUnits()
 	{
-		Iterator<Unit> iterator = units.iterator();
+		Iterator<Unit> iterator = getAllUnits().iterator();
 		while (iterator.hasNext())
 		{
 			Unit unit = iterator.next();
@@ -584,39 +636,45 @@ public class World {
 	}
 	
 	/**
-	 * Return a set containing all the Units of this World.
+	 * Return a set containing all the {@link Unit}s of this World.
+	 * 
+	 * @return	The resulting set is effective.
+	 * @return	The number of elements in the resulting set is equal to the number of Units attached to this World.
+	 * @return	Each element of the resulting set equals a Unit that is attached to this World.
 	 */
 	@Basic @Raw
 	public Set<Unit> getAllUnits()
 	{
-		return this.units;
+		return new HashSet<Unit>(units);
 	}
 	
 	/**
-	 * Spawn a new Unit with random initial attributes at a random position of the Game world. Initial positions
+	 * Spawn a new Unit with random initial attributes at a random position of the World. Initial positions
 	 * shall be chosen such that a new Unit is occupying a passable cube at (x, y, z), where (x, y, z - 1) must be
 	 * a solid cube or z = 0.
 	 * 
 	 * @return 	The new Unit that has been created.
-	 * 
-	 * @throws 	ModelException
+	 * @throws	IllegalStateException
+	 * 			The maximum amount of Units has been reached.
+	 * @throws	IllegalArgumentException
+	 * 			A condition was violated or an error was thrown.
+	 * @throws 	ModelException // TODO FUCKING DELETE THIS
 	 * 			The amount of Units exceeds the maximum amount of Units.
-	 * 
+	 * @effect	A new Unit is created with a random strength, agility, toughness, weight, valid position, name, a default behaviour
+	 * 			state and this World as its World.
 	 * @effect	The newly created Unit is added to this World's Units.
-	 * 
-	 * @effect	If the amount of Factions is lower than the maximum amount of Factions, create a new Faction and add this 
-	 * 			Faction to this World's Factions.
-	 * 
-	 * @effect	If the amount of Factions is lower than the maximum amount of Factions, create a new Faction and set this
-	 * 			Faction as the Faction of the newly created Unit.
-	 * 
-	 * @effect	If this World has the maximum amount of Factions, set the Faction with the lowest number of Units as the 
-	 * 			Faction of the newly created Unit.
+	 * @effect	If the amount of Factions is lower than the maximum amount of Factions, a new Faction is created and this 
+	 * 			Faction is added to this World's Factions.
+	 * @effect	If a new Faction is added, this new Unit is added to the created Faction.
+	 * 			Otherwise, the Unit is added to the Faction with the least amount of Units.
+	 * @effect	Set the faction of this newly created Unit to the Faction that has added this Unit.
 	 */
-	public Unit spawnUnit(boolean enableDefaultBehaviour) throws ModelException
+	public Unit spawnUnit(boolean enableDefaultBehaviour) throws IllegalStateException, IllegalArgumentException, ModelException
 	{
-		
-			String name = "Hillbilly";
+			if (getNbOfUnits() >= MAX_AMOUNT_OF_UNITS)
+				throw new IllegalStateException("Cannot spawn Unit, maximum amount of Units has been reached!");
+			
+			String name = "Hillbilly_" + getNbOfUnits();
 			int strength = new Random().nextInt(101);
 			int agility = new Random().nextInt(101);
 			int toughness = new Random().nextInt(101);
@@ -626,6 +684,7 @@ public class World {
 			int x;
 			int y;
 			int z;
+			
 			while (true)
 			{
 				x = new Random().nextInt(getNbCubesX());
@@ -640,42 +699,35 @@ public class World {
 			}
 			
 			int[] initialPosition = {x ,y ,z};
-			Unit newUnit;
-			if (getNbOfUnits() < MAX_AMOUNT_OF_UNITS)
-			{
-				newUnit = new Unit(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, this);
-				addUnit(newUnit);
-			}
-			else
-				throw new ModelException("Maximum amount of units reached.");
+			Unit newUnit = new Unit(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, this);
+			addUnit(newUnit);
 			
 			// Factions:
+			Faction theFaction;
 			if (getNbOfFactions() < MAX_AMOUNT_OF_FACTIONS)
 			{
-				Faction newFaction = new Faction(this);
-				addFaction(newFaction);
-				newFaction.addUnit(newUnit);
+				theFaction = new Faction(this);
+				addFaction(theFaction);
 			}
 			else
 			{
-				Iterator<Faction> iterator = getAllFactions().iterator();
-				Faction smallestFaction = iterator.next();
-				
-				while (iterator.hasNext())
+				Faction smallestFaction = null;
+				for (Faction faction : getAllFactions())
 				{
-					Faction selectedFaction = iterator.next();
-					if (smallestFaction.getNbOfUnits() > selectedFaction.getNbOfUnits())
-						smallestFaction = selectedFaction;
+					if (smallestFaction == null)
+						smallestFaction = faction;
+					else if (smallestFaction.getNbOfUnits() > faction.getNbOfUnits())
+						smallestFaction = faction;
 				}
-				
-				newUnit.setFaction(smallestFaction);
+				theFaction = smallestFaction;
 			}
-			
+			theFaction.addUnit(newUnit);
+			newUnit.setFaction(theFaction);
 			return newUnit;
 }
 	
 	/**
-	 * Variable referencing a set of Units available in this World.
+	 * Variable referencing a set of {@link Unit}s attached to this World.
 	 * 
 	 * @invar	The referenced set is effective.
 	 * @invar	Each Unit registered in the referenced set is effective.
@@ -684,7 +736,7 @@ public class World {
 	private Set<Unit> units = new HashSet<Unit>();
 	
 	/**
-	 * Constant registering the maximal amount of units of any World.
+	 * Constant registering the maximal amount of {@link Unit}s of any World.
 	 */
 	private final static int MAX_AMOUNT_OF_UNITS = 100;
 	
@@ -697,7 +749,7 @@ public class World {
 	// ----------------------
 
 	/**
-	 * Return the amount of factions of this World.
+	 * Return the amount of {@link Faction}s of this World.
 	 */
 	@Basic @Raw
 	public int getNbOfFactions() 
@@ -706,10 +758,10 @@ public class World {
 	}
 	
 	/**
-	 * Check whether this World has the given Faction as one of its Factions.
+	 * Check whether this World has the given {@link Faction} as one of its {@link Faction}s.
 	 * 
 	 * @param 	faction
-	 * 			The given Faction to check.
+	 * 			The {@link Faction} to check.
 	 * @return	True if and only if the given Faction is registered as one of the Factions of this World.
 	 */
 	public boolean hasAsFaction(Faction faction)
@@ -718,11 +770,12 @@ public class World {
 	}
 	
 	/**
-	 * Check whether this World can have the given Faction as one of its Factions.
+	 * Check whether this World can have the given {@link Faction} as one of its {@link Faction}s.
 	 * 
 	 * @param 	faction
-	 * 			The given Faction to check.
-	 * @return	True if and only if the given Faction is effective and if the number of Factions is lower than the maximum amount of factions.
+	 * 			The {@link Faction} to check.
+	 * @return	True if and only if the given Faction is effective and if the number of Factions 
+	 * 			is lower than the maximum amount of factions.
 	 */
 	@Raw
 	public boolean canHaveAsFaction(Faction faction)
@@ -731,16 +784,16 @@ public class World {
 	}
 	
 	/**
-	 * Add the given Faction to a set of active factions and add 1 to the amountOfFactions.
+	 * Add the given {@link Faction} to a set of active {@link Faction}s.
 	 * 
 	 * @param 	faction
-	 * 			The given faction to add to the set.
-	 * @throws 	ModelException
-	 * 			A condition was violated or an exception was thrown.
-	 * 
+	 * 			The {@link Faction} to add.
+	 * @throws 	IllegalArgumentException
+	 * 			This World cannot have the given Faction as one its Factions.
 	 * @post	The number of Factions of this World is incremented by 1.
 	 * @post	This World has the given Faction as one of its Factions.
 	 */
+	@Raw
 	public void addFaction(Faction faction) throws IllegalArgumentException
 	{
 		if (!canHaveAsFaction(faction))
@@ -749,11 +802,11 @@ public class World {
 	}
 	
 	/**
-	 * Check whether this World can remove the given Faction from its Factions.
+	 * Check whether this World can remove the given {@link Faction} from its {@link Faction}s.
 	 * 
 	 * @param 	faction
-	 * 			The given Faction to check.
-	 * @return	True if and only if the given Faction is effective, if it has no Units, if it has no World and Scheduler attached to it.
+	 * 			The {@link Faction} to check.
+	 * @return	True if and only if the given Faction is effective and if it is terminated.
 	 */
 	@Raw
 	public boolean canRemoveAsFaction(Faction faction)
@@ -766,10 +819,8 @@ public class World {
 	 * 
 	 * @param 	faction
 	 * 			The given Faction to remove.
-	 * 
-	 * @throws	ModelException
+	 * @throws	IllegalArgumentException
 	 * 			This World cannot remove the given Faction from its Factions.
-	 * 
 	 * @post	The number of Factions of this World is decremented by 1.
 	 * @post	This World no longer has the given Faction as one of its Factions.
 	 */
@@ -782,7 +833,7 @@ public class World {
 	}
 	
 	/**
-	 * Return a set collecting all Factions of this World.
+	 * Return a reference to the set collecting all {@link Faction}s of this World.
 	 */
 	@Basic @Raw
 	public Set<Faction> getAllFactions()
@@ -791,24 +842,25 @@ public class World {
 	}
 	
 	/**
-	 * Check whether this World has proper Factions attached to it.
+	 * Check whether this World has proper {@link Faction}s attached to it.
 	 * 
-	 * @return	True if and only if this World can have each Faction as one of its Factions.
+	 * @return	True if and only if this World can have each Faction as one of its Factions and if each Faction refernces this World 
+	 * 			as its World.
 	 */
 	public boolean hasProperFactions()
 	{
-		Iterator<Faction> iterator = factions.iterator();
-		while (iterator.hasNext())
+		for (Faction faction : getAllFactions())
 		{
-			Faction faction = iterator.next();
 			if (!canHaveAsFaction(faction))
+				return false;
+			if (faction.getWorld() != this)
 				return false;
 		}
 		return true;
 	}
 	
 	/**
-	 * Variable referencing a set of Factions of this World.
+	 * Variable referencing a set of {@link Faction}s of this World.
 	 * 
 	 * @invar	The referenced set is effective.
 	 * @invar	Each Faction registered in the referenced set is effective.
@@ -817,7 +869,7 @@ public class World {
 	private Set<Faction> factions = new HashSet<Faction>();
 	
 	/**
-	 * Constant registering the maximum amount of factions of this World.
+	 * Constant registering the maximum amount of {@link Faction}s of this World.
 	 */
 	private static final int MAX_AMOUNT_OF_FACTIONS = 5;
 	
@@ -830,19 +882,19 @@ public class World {
 	// ----------------------
 	
 	/**
-	 * Return a set collecting all Logs in this World.
+	 * Return a set collecting all {@link Log}s in this World.
 	 */
 	@Basic @Raw
 	public Set<Log> getAllLogs()
 	{
-		return this.logs;
+		return new HashSet<Log>(logs);
 	}
 	
 	/**
-	 * Check whether this World has the given Log as one of its Logs.
+	 * Check whether this World has the given {@link Log} as one of its {@link Log}s.
 	 * 
 	 * @param 	log
-	 * 			The given Log to check.
+	 * 			The {@link Log} to check.
 	 * @return	True if and only if the given Log is registered as one of the Logs of this World.
 	 */
 	public boolean hasAsLog(Log log)
@@ -851,44 +903,41 @@ public class World {
 	}
 	
 	/**
-	 * Check whether the given Log is a valid Log for any World.
+	 * Check whether the given {@link Log} is a valid {@link Log} for any World.
 	 * 
 	 * @param 	log
-	 * 			The given Log to check.
+	 * 			The {@link Log} to check.
 	 * @return	True if and only if the given Log is effective.
 	 */
-	@Raw
 	public static boolean isValidLog(Log log)
 	{
 		return (log != null);
 	}
 	
 	/**
-	 * Add a given Log to this World.
+	 * Add a given {@link Log} to this World's collection of {@link Log}s.
 	 * 
 	 * @param 	log
-	 * 			The given Log to add to this World.
-	 * 
-	 * @throws	ModelException
+	 * 			The Log to add.
+	 * @throws	IllegalArgumentException
 	 * 			The given Log is invalid for any World.
-	 * 
 	 * @post	The number of Logs in this World is incremented by 1.
 	 * @post	This World has the given Log as one of its Logs.
 	 */
-	public void addLog(Log log) throws ModelException
+	public void addLog(Log log) throws IllegalArgumentException
 	{
 		if (!isValidLog(log))
-			throw new ModelException("The given Log is invalid for any World.");
+			throw new IllegalArgumentException("The given Log is invalid for any World.");
 		logs.add(log);
 	}
 	
 	/**
-	 * Check whether this World can remove the given Log from its Logs.
+	 * Check whether this World can remove the given {@link Log} from its {@link Log}s.
 	 * 
 	 * @param 	log
-	 * 			The given Log to check.
+	 * 			The {@link Log} to check.
 	 * @return	True if and only if the given Log is valid, if the given Log is registered as one of the Logs of this World and if 
-	 * 			the given Log doesn't reference any World.
+	 * 			the given Log is terminated.
 	 */
 	@Raw
 	public boolean canRemoveAsLog(Log log)
@@ -897,37 +946,33 @@ public class World {
 	}
 	
 	/**
-	 * Remove the given Log from this World.
+	 * Remove the given {@link Log} from this World's collection of {@link Log}s.
 	 * 
 	 * @param 	log
-	 * 			The given Log to remove.
-	 * 
-	 * @throws	ModelException
+	 * 			The {@link Log} to remove.
+	 * @throws	IllegalArgumentException
 	 * 			This World cannot remove the given Log as one of its Logs.
-	 * 
 	 * @post	The number of Logs in this World is decremented by 1.
 	 * @post 	This World no longer has the given Log as one of its Logs.
 	 */
 	@Raw
-	public void removeLog(Log log) throws ModelException
+	public void removeLog(Log log) throws IllegalArgumentException
 	{
 		if (!canRemoveAsLog(log))
-			throw new ModelException("This World cannot remove the given Log from its Logs.");
+			throw new IllegalArgumentException("This World cannot remove the given Log from its Logs.");
 		logs.remove(log);
 	}
 	
 	/**
-	 * Check whether this World has proper Logs attached to it.
+	 * Check whether this World has proper {@link Log}s attached to it.
 	 * 
-	 * @return	True if and only if each Log of this World is a valid Log for any World and if each Log references this World as the World
-	 * 			to which they are attached.
+	 * @return	True if and only if each Log of this World is a valid Log for any World and if each Log references this World 
+	 * 			as the World to which they are attached.
 	 */
 	public boolean hasProperLogs()
 	{
-		Iterator<Log> iterator = logs.iterator();
-		while (iterator.hasNext())
+		for (Log log : getAllLogs())
 		{
-			Log log = iterator.next();
 			if (!isValidLog(log))
 				return false;
 			if (log.getWorld() != this)
@@ -937,32 +982,31 @@ public class World {
 	}
 	
 	/**
-	 * Spawn a new Log with a random weight in a given cube in this World.
+	 * Spawn a new {@link Log} with a random weight in a given cube in this World.
 	 * 
 	 * @param 	targetCube
-	 * 			The given cube in which the new Log spawns.
-	 * 
-	 * @throws 	ModelException
-	 * 			A condition was violated or an error was thrown.
+	 * 			The given cube in which the new {@link Log} spawns.
+	 * @throws 	IllegalArgumentException
 	 * 			The given targetCube cannot be null.
-	 * 
+	 * @throws	IllegalArgumentException
+	 * 			A condition was violated or an error was thrown.
 	 * @effect	If the given targetCube isn't passable, change the cube type to air.
-	 * 
 	 * @effect	Initialize a new Log with the given targetCube, a random weight and this World as its World.
-	 * 
 	 * @effect	Add this newly created Log to this World's collection of Logs.
 	 */
-	public void spawnLog(double[] targetCube) throws ModelException
+	@Raw
+	public void spawnLog(double[] targetCube) throws IllegalArgumentException
 	{
 		if (targetCube == null)
-			throw new ModelException("The targetCube cannot be null.");
+			throw new IllegalArgumentException("The targetCube cannot be null.");
 		if (!isPassableCube((int) (targetCube[0] - getCubeLength() / 2.0), (int) (targetCube[1] - getCubeLength() / 2.0), (int) (targetCube[2] - getCubeLength() / 2.0)))
 			changeCubeTypeAir(targetCube);
-		new Log(targetCube, calculateRandomWeight(), this);
+		Log log = new Log(targetCube, calculateRandomWeight(), this);
+		addLog(log);
 	}
 	
 	/**
-	 * Variable referencing a set of Logs of this World.
+	 * Variable referencing a set of {@link Log}s of this World.
 	 * 
 	 * @invar	The referenced set is effective.
 	 * @invar	Each Log registered in the referenced set is effective.
@@ -979,19 +1023,19 @@ public class World {
 	// ----------------------
 	
 	/**
-	 * Return a set collecting all Boulders in this World.
+	 * Return a set collecting all {@link Boulder}s in this World.
 	 */
 	@Basic @Raw
 	public Set<Boulder> getAllBoulders()
 	{
-		return this.boulders;
+		return new HashSet<Boulder>(boulders);
 	}
 	
 	/**
-	 * Check whether this World has the given Boulder as one of its Boulders.
+	 * Check whether this World has the given {@link Boulder} as one of its {@link Boulder}s.
 	 * 
 	 * @param 	boulder
-	 * 			The given Boulder to check.
+	 * 			The {@link Boulder} to check.
 	 * @return	True if and only if the given Boulder is registered as on of the Boulders of this World.
 	 */
 	public boolean hasAsBoulder(Boulder boulder)
@@ -1000,44 +1044,41 @@ public class World {
 	}
 	
 	/**
-	 * Check whether the given Boulder is a valid Boulder for any World.
+	 * Check whether the given {@link Boulder} is a valid {@link Boulder} for any World.
 	 * 
 	 * @param 	boulder
-	 * 			The given Boulder to check.
+	 * 			The {@link Boulder} to check.
 	 * @return	True if and only if the given Boulder is effective.
 	 */
-	@Raw
 	public static boolean isValidBoulder(Boulder boulder)
 	{
-		return boulder != null;
+		return (boulder != null);
 	}
 	
 	/**
-	 * Add a given Boulder to this World.
+	 * Add the given {@link Boulder} to this World's collection of {@link Boulder}s.
 	 * 
 	 * @param 	boulder
-	 * 			The given Boulder to add to this World.
-	 * 
-	 * @throws	ModelException
+	 * 			The {@link Boulder} to add.
+	 * @throws	IllegalArgumentException
 	 * 			The given Boulder is an invalid Boulder for any World.
-	 * 
 	 * @post 	The number of Boulders in this World is incremented by 1.
 	 * @post	This World has the given Boulder as one of its Boulders.
 	 */
-	public void addBoulder(Boulder boulder) throws ModelException
+	public void addBoulder(Boulder boulder) throws IllegalArgumentException
 	{
 		if (!isValidBoulder(boulder))
-			throw new ModelException("The given Boulder is an invalid Boulder for any World.");
+			throw new IllegalArgumentException("The given Boulder is an invalid Boulder for any World.");
 		boulders.add(boulder);
 	}
 	
 	/**
-	 * Check whether this World can remove the given Boulder from its Boulders.
+	 * Check whether this World can remove the given {@link Boulder} from its {@link Boulder}s.
 	 * 
 	 * @param 	boulder
-	 * 			The given Boulder to check.
+	 * 			The {@link Boulder} to check.
 	 * @return	True if and only if the given Boulder is valid, if this World has the given Boulder as one of its Boulders and
-	 * 			if the given Boulder doesn't reference any World.
+	 * 			if the given Boulder is terminated.
 	 */
 	@Raw
 	public boolean canRemoveAsBoulder(Boulder boulder)
@@ -1046,37 +1087,33 @@ public class World {
 	}
 	
 	/**
-	 * Remove the given Boulder from this World.
+	 * Remove the given {@link Boulder} from this World's collection of {@link Boulder}s.
 	 * 
 	 * @param 	boulder
-	 * 			The given Boulder to remove.
-	 * 
-	 * @throws	ModelException
+	 * 			The {@link Boulder} to remove.
+	 * @throws	IllegalArgumentException
 	 * 			This World cannot remove the given Boulder from its Boulders.
-	 * 
 	 * @post	The number of Boulders in this World is decremented by 1.
 	 * @post 	This World no longer has the given Boulder as one of its Boulders.
 	 */
 	@Raw
-	public void removeBoulder(Boulder boulder) throws ModelException
+	public void removeBoulder(Boulder boulder) throws IllegalArgumentException
 	{
 		if (!canRemoveAsBoulder(boulder))
-			throw new ModelException("This World cannot remove the given Boulder from its Boulders.");
+			throw new IllegalArgumentException("This World cannot remove the given Boulder from its Boulders.");
 		boulders.remove(boulder);
 	}
 	
 	/**
-	 * Check whether this World has proper Boulders attached to it.
+	 * Check whether this World has proper {@link Boulder}s attached to it.
 	 * 
 	 * @return	True if and only if each Boulder of this World is a valid Boulder for any World and if each Boulder references this World
 	 * 			as the World to which they are attached.
 	 */
 	public boolean hasProperBoulders()
 	{
-		Iterator<Boulder> iterator = boulders.iterator();
-		while (iterator.hasNext())
+		for (Boulder boulder : getAllBoulders())
 		{
-			Boulder boulder = iterator.next();
 			if (!isValidBoulder(boulder))
 				return false;
 			if (boulder.getWorld() != this)
@@ -1086,29 +1123,30 @@ public class World {
 	}
 	
 	/**
-	 * Spawn a Boulder in a given cube in this World.
+	 * Spawn a {@link Boulder} in a given cube in this World.
 	 * 
 	 * @param 	targetCube
-	 * 			The given cube in which the new Boulder spawns.	
-	 * 
-	 * @throws 	ModelException
+	 * 			The given cube in which the new {@link Boulder} spawns.	
+	 * @throws 	IllegalArgumentException
+	 * 			The given targetCube is ineffective.
+	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
 	 * @effect	If the given targetCube isn't passable, change the cube type to air.
-	 * 
 	 * @effect	Initialize a new Boulder with the given targetCube, a random weight and this World as its World.
-	 * 
 	 * @effect	Add this newly created Boulder to this World's collection of Boulders.
 	 */
-	public void spawnBoulder(double[] targetCube) throws ModelException
+	public void spawnBoulder(double[] targetCube) throws IllegalArgumentException
 	{
+		if (targetCube == null)
+			throw new IllegalArgumentException("Target cube cannot be ineffective!");
 		if (!isPassableCube((int) (targetCube[0] - getCubeLength() / 2.0), (int) (targetCube[1] - getCubeLength() / 2.0), (int) (targetCube[2] - getCubeLength() / 2.0)))
 			changeCubeTypeAir(targetCube);
-		new Boulder(targetCube, calculateRandomWeight(), this);
+		Boulder boulder = new Boulder(targetCube, calculateRandomWeight(), this);
+		addBoulder(boulder);
 	}
 	
 	/**
-	 * Variable referencing a set of Boulders of this World.
+	 * Variable referencing a set of {@link Boulder}s of this World.
 	 * 
 	 * @invar	The referenced set is effective.
 	 * @invar	Each Boulder registered in the referenced set is effective.
@@ -1139,26 +1177,23 @@ public class World {
 	 * Change the cube type of the given targetCube to air.
 	 * 
 	 * @param 	targetCube
-	 * 			The given targetCube to change.
-	 * 
-	 * @throws 	ModelException
+	 * 			The targetCube to change.
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	Set the cube type of the given targetCube to 0 (air).
-	 * 
 	 * @effect	Add all positions that aren't connected to any border thanks to the change of the cube to this World's collection of 
 	 * 			cubes that aren't connected.
-	 * 
 	 * @effect	Notify the model listener that the targetCube has changed in the terrain.
 	 */
-	private void changeCubeTypeAir(double[] targetCube) throws ModelException
+	private void changeCubeTypeAir(double[] targetCube) throws IllegalArgumentException
 	{
 		int x = (int) (targetCube[0] - 0.5);
 		int y = (int) (targetCube[1] - 0.5);
 		int z = (int) (targetCube[2] - 0.5);
 		
 		setCubeType(x, y, z, 0);
-		getAllNotConnected().addAll(connectedToBorderObject.changeSolidToPassable(x, y, z));
+		addAllNotConnected(connectedToBorderObject.changeSolidToPassable(x, y, z));
 		getModelListener().notifyTerrainChanged(x, y, z);
 	}
 	

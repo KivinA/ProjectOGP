@@ -169,6 +169,7 @@ public class Faction {
 	/**
 	 * Return a set containing all the {@link Unit}s of this Faction.
 	 * 
+	 * @return	The resulting set is effective.
 	 * @return	The number of elements in the resulting list is equal to the number of Units attached to this Faction.
 	 * @return	Each element of the resulting set equals a Unit that is attached to this Faction.
 	 */

@@ -12,7 +12,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public World createWorld(int[][][] terrainTypes, TerrainChangeListener modelListener) throws ModelException {
-		return new World(terrainTypes, modelListener);
+		try
+		{
+			return new World(terrainTypes, modelListener);
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override

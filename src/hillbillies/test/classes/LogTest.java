@@ -6,7 +6,7 @@ import hillbillies.model.*;
 import hillbillies.part2.listener.DefaultTerrainChangeListener;
 
 public class LogTest {
-	
+
 	private static World world;
 	private Log log;
 	private static int TYPE_ROCK = 1;
