@@ -26,8 +26,18 @@ public abstract class WorldObject {
 	 * 			The position for this new WorldObject.
 	 * @param 	world
 	 * 			The {@link World} for this WorldObject.
+	 * @effect	Set the World of this WorldObject to the given World.
+	 * @effect	Set the position of this WorldObject to the given position.
+	 * @post	The weight of this WorldObject is equal to the given World.
+	 * @throws	IllegalArgumentException
+	 * 			The given weight is invalid for any WorldObject.
+	 * @throws	IllegalArgumentException
+	 * 			A condition was violated or an error was thrown.
+	 * @throws	IllegalStateException
+	 * 			A condition was violated or an error was thrown.
 	 */
-	protected WorldObject(int weight, double[] position, World world) {
+	protected WorldObject(int weight, double[] position, World world) throws IllegalArgumentException, IllegalStateException
+	{
 		setWorld(world);
 		if (!isValidWeight(weight))
 			throw new IllegalArgumentException("The given weight is invalid for any " + getClass().getSimpleName() + ".");
@@ -106,8 +116,10 @@ public abstract class WorldObject {
 	 * @post	The World of this WorldObject is equal to the given World.
 	 * @throws	IllegalArgumentException
 	 * 			This WorldObject cannot have the given World as its World.
+	 * @throws	IllegalStateException
+	 * 			This WorldObject already has a World.
 	 */
-	public void setWorld(World world)
+	public void setWorld(World world) throws IllegalArgumentException, IllegalStateException
 	{
 		if (!canHaveAsWorld(world))
 			throw new IllegalArgumentException("This" + this.getClass().getSimpleName() + "cannot have the given World as its World."); // [FIXME] Try to add the name of the subclass calling this.
@@ -122,7 +134,7 @@ public abstract class WorldObject {
 	private World world;
 	
 	/**
-	 * Return the weight of this WorldObject
+	 * Return the weight of this WorldObject.
 	 */
 	@Basic @Raw
 	public int getWeight()
@@ -149,6 +161,12 @@ public abstract class WorldObject {
 	
 	/**
 	 * Return the position of this WorldObject.
+	 * 
+	 * @return	An ineffective position if the position of this WorldObject is ineffective.
+	 * @return	The number of elements in the resulting array is equal to the number of elements in the position array 
+	 * 			of this WorldObject.
+	 * @return	Each element in the resulting array is equal to the element in the position array of this WorldObjects
+	 * 			at the same index.
 	 */
 	public double[] getPosition()
 	{
@@ -180,6 +198,9 @@ public abstract class WorldObject {
 	 * @param 	position
 	 * 			The position for this WorldObject.
 	 * @post	The position of this worldObject is equal to the given position.
+	 * @effect	Enable the falling state if the cube beneath the given position is passable.
+	 * @effect	Disable the falling state if it was already enabled and if the z-position of this WorldObject is 0 or if 
+	 * 			the cube beneath the given position is solid.
 	 * @throws	IllegalArgumentException
 	 * 			This WorldObject cannot have the given position as its position.
 	 */
@@ -274,6 +295,7 @@ public abstract class WorldObject {
 	 * 			The falling state for this WorldObject.
 	 * @throws	IllegalArgumentException
 	 * 			This WorldObject cannot have the given falling state as its falling state.
+	 * @post	The falling state of this WorldObject is equal to the given flag.
 	 */
 	@Raw
 	public void setFalling(boolean flag) throws IllegalArgumentException
