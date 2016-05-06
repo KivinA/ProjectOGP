@@ -117,13 +117,13 @@ public class BoulderTest {
 	@Test
 	public void isValidWeight_TrueCase()
 	{
-		assertTrue(WorldObject.isValidWeight(25));
+		assertTrue(Boulder.isValidWeight(25));
 	}
 	
 	@Test
 	public void isValidWeight_FalseCase()
 	{
-		assertFalse(WorldObject.isValidWeight(55));
+		assertFalse(Boulder.isValidWeight(55));
 	}
 	
 	@Test
@@ -175,6 +175,18 @@ public class BoulderTest {
 		boulder.setPosition(coordinates);
 	}
 	
+	// This test exists because we needed to test whether or not the position can also be different from 0.5
+	// Since there is no specification whether or not this should be possible, we didn't implement a checker to check if the given
+	// position is in the middle of the cube.
+	// However, insider our implementation we only use the middle of cubes. So this is actually just a trivial test.
+	@Test
+	public void setPosition_NotMiddle()
+	{
+		double[] coordinates = {0.8, 0.6, 0.7};
+		boulder.setPosition(coordinates);
+		assertArrayEquals(coordinates, boulder.getPosition(), 0);
+	}
+	
 	@Test (expected = IllegalArgumentException.class)
 	public void setPosition_IllegalCase() throws Exception
 	{
@@ -207,4 +219,10 @@ public class BoulderTest {
 	
 	// It's no use stating false cases, since these are the only cases where the function will return true, thus all other calls will
 	// return false.
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void setFalling_IllegalCase() throws Exception
+	{
+		boulder.setFalling(true);
+	}
 }

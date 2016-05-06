@@ -900,7 +900,7 @@ public class World {
 	@Raw
 	public boolean canRemoveAsLog(Log log)
 	{
-		return isValidLog(log) && hasAsLog(log) && (log.getWorld() == null);
+		return isValidLog(log) && hasAsLog(log) && log.isTerminated();
 	}
 	
 	/**

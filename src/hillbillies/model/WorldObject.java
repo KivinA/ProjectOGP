@@ -279,7 +279,7 @@ public abstract class WorldObject {
 	public void setFalling(boolean flag) throws IllegalArgumentException
 	{
 		if (!canHaveAsFallingState(flag))
-			throw new IllegalArgumentException("Invalid falling state!");
+			throw new IllegalArgumentException("This " + getClass().getSimpleName() + " cannot have the given falling state as its falling state");
 		isFalling = flag;
 	}
 	
