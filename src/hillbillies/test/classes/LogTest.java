@@ -107,6 +107,19 @@ public class LogTest {
 		assertFalse(log.canHaveAsWorld(world));
 	}
 	
+	@Test
+	public void hasProperWorld_TrueCase()
+	{
+		assertTrue(log.hasProperWorld());
+	}
+	
+	@Test
+	public void hasProperWorld_LogNotAddedToWorld()
+	{
+		Log theLog = new Log(POSITION, DEFAULT_WEIGHT, world);
+		assertFalse(theLog.hasProperWorld());
+	}
+	
 	// We don't specify a legal case for setWorld, because the only legal case is either in the constructor or in the terminate method.
 	@Test (expected = IllegalStateException.class)
 	public void setWorld_AlreadyHasWorld() throws Exception

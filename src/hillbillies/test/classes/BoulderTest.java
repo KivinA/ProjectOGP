@@ -107,6 +107,19 @@ public class BoulderTest {
 		assertFalse(boulder.canHaveAsWorld(world));
 	}
 	
+	@Test
+	public void hasProperWorld_TrueCase()
+	{
+		assertTrue(boulder.hasProperWorld());
+	}
+	
+	@Test
+	public void hasProperWorld_BoulderNotAddedToWorld()
+	{
+		Boulder theBoulder = new Boulder(POSITION, DEFAULT_WEIGHT, world);
+		assertFalse(theBoulder.hasProperWorld());
+	}
+	
 	// We don't specify a legal case for setWorld, because the only legal case is either in the constructor or in the terminate method.
 	@Test (expected = IllegalStateException.class)
 	public void setWorld_AlreadyHasAWorld() throws Exception

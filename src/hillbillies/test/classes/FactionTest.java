@@ -277,9 +277,22 @@ public class FactionTest {
 	}
 	
 	@Test
+	public void hasProperWorld_TrueCase()
+	{
+		assertTrue(faction.hasProperWorld());
+	}
+	
+	@Test
+	public void hasProperWorld_FactionNotAddedToWorld()
+	{
+		Faction theFaction = new Faction(world);
+		assertFalse(theFaction.hasProperWorld());
+	}
+	
+	@Test
 	public void canHaveAsScheduler_TrueCase() throws Exception
 	{
-		faction.canHaveAsScheduler(faction.getScheduler());
+		assertTrue(faction.canHaveAsScheduler(faction.getScheduler()));
 	}
 	
 	@Test
@@ -310,4 +323,11 @@ public class FactionTest {
 //		assertFalse(faction.canHaveAsScheduler(theScheduler));
 //		world.removeFaction(faction2);
 //	}
+	
+	// Furthermore, the invariant hasProperScheduler can only be true, since we cannot create a Scheduler on its own.
+	@Test
+	public void hasProperScheduler_TrueCase()
+	{
+		assertTrue(faction.hasProperScheduler());
+	}
 }
