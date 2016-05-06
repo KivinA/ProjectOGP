@@ -1,12 +1,12 @@
 package hillbillies.model;
 
 /**
- * A class describing the Boulders that are active in the world.
+ * A class describing the Boulders that are active in the {@link World}.
  * 
  * @author 	Kevin Algoet & Jeroen Depuydt
  * @version 0.9
  * 
- * @invar	This Boulder can have its World as its World.
+ * @invar	This Boulder must have a proper World.
  */
 public class Boulder extends WorldObject{
 	
@@ -40,5 +40,17 @@ public class Boulder extends WorldObject{
 		if (isTerminated())
 			return world == null;
 		return world != null && World.isValidBoulder(this);
+	}
+	
+	/**
+	 * Check whether this Boulder has a proper {@link World} attached to it.
+	 * 
+	 * @return	True if and only if this Boulder can have its attached World as its World and if the attached World is ineffective
+	 * 			or if the attached World has this Boulder as one of its Boulders.
+	 */
+	@Override
+	public boolean hasProperWorld()
+	{
+		return canHaveAsWorld(getWorld()) && (getWorld() == null || getWorld().hasAsBoulder(this)); 
 	}
 }

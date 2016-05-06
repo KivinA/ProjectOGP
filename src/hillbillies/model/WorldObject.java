@@ -122,11 +122,16 @@ public abstract class WorldObject {
 	public void setWorld(World world) throws IllegalArgumentException, IllegalStateException
 	{
 		if (!canHaveAsWorld(world))
-			throw new IllegalArgumentException("This" + this.getClass().getSimpleName() + "cannot have the given World as its World."); // [FIXME] Try to add the name of the subclass calling this.
+			throw new IllegalArgumentException("This" + this.getClass().getSimpleName() + "cannot have the given World as its World.");
 		if (getWorld() != null && world != null)
 			throw new IllegalStateException("This " + this.getClass().getSimpleName() + " already has a World!");
 		this.world = world;
 	}
+	
+	/**
+	 * Check whether this WorldObject has a proper {@link World} attached to it.
+	 */
+	public abstract boolean hasProperWorld();
 	
 	/**
 	 * Variable referencing the World to which this WorldObject is attached.
