@@ -900,7 +900,7 @@ public class World {
 	@Raw
 	public boolean canRemoveAsLog(Log log)
 	{
-		return isValidLog(log) && hasAsLog(log) && (log.getWorld() == null);
+		return isValidLog(log) && hasAsLog(log) && log.isTerminated();
 	}
 	
 	/**
@@ -1049,7 +1049,7 @@ public class World {
 	@Raw
 	public boolean canRemoveAsBoulder(Boulder boulder)
 	{
-		return isValidBoulder(boulder) && hasAsBoulder(boulder) && (boulder.getWorld() == null);
+		return isValidBoulder(boulder) && hasAsBoulder(boulder) && boulder.isTerminated();
 	}
 	
 	/**
