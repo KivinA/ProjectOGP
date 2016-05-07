@@ -143,33 +143,27 @@ public class World {
 		// Units advance time:
 		if (!getAllUnits().isEmpty())
 		{
-			Iterator<Unit> iterator = getAllUnits().iterator();
-			while (iterator.hasNext())
-			{
-				// FIXME This causes ConcurrentModificationException (sometimes, not all times).
-				iterator.next().advanceTime(duration);
-			}
+			for (Unit unit : getAllUnits())
+				unit.advanceTime(duration);
 		}
 		
 		// Logs advance time:
 		if (!getAllLogs().isEmpty())
 		{
-			Iterator<Log> iterator = getAllLogs().iterator();
-			while (iterator.hasNext())
-				iterator.next().advanceTime();
+			for (Log log : getAllLogs())
+				log.advanceTime();
 		}
 		
 		// Boulders advance time:
 		if (!getAllBoulders().isEmpty())
 		{
-			Iterator<Boulder> iterator = getAllBoulders().iterator();
-			while (iterator.hasNext())
-				iterator.next().advanceTime();
+			for (Boulder boulder : getAllBoulders())
+				boulder.advanceTime();
 		}
 	}
 	
 	/**
-	 * Check whether a Boulder or Log must be spawned.
+	 * Check whether a {@link Boulder} or {@link Log} must be spawned.
 	 * 
 	 * @return	True if and only if the newly made random double is lower or equal than 0.25.
 	 */
@@ -304,9 +298,9 @@ public class World {
 	public static boolean isValidTerrain(int[][][] terrain)
 	{
 		if (terrain != null)
-			if (terrain.length != 0) 
-				if (terrain[0].length != 0) 
-					if (terrain[0][0].length != 0)
+			if (terrain.length > 0) 
+				if (terrain[0].length > 0) 
+					if (terrain[0][0].length > 0)
 						return true;
 		return false;
 	}
@@ -562,7 +556,7 @@ public class World {
 	@Raw
 	public boolean canHaveAsUnit(@Raw Unit unit)
 	{
-		return (unit != null) && (getNbOfUnits() < MAX_AMOUNT_OF_UNITS);
+		return (unit != null) && (getNbOfUnits() < MAX_AMOUNT_OF_UNITS) && unit.isAlive();
 	}
 	
 	/**
@@ -623,15 +617,9 @@ public class World {
 	 */
 	public boolean hasProperUnits()
 	{
-		Iterator<Unit> iterator = getAllUnits().iterator();
-		while (iterator.hasNext())
-		{
-			Unit unit = iterator.next();
-			if (!canHaveAsUnit(unit))
+		for (Unit unit : getAllUnits())
+			if (!canHaveAsUnit(unit) || unit.getWorld() != this)
 				return false;
-			if (unit.getWorld() != this)
-				return false;
-		}
 		return true;
 	}
 	
@@ -674,7 +662,7 @@ public class World {
 			if (getNbOfUnits() >= MAX_AMOUNT_OF_UNITS)
 				throw new IllegalStateException("Cannot spawn Unit, maximum amount of Units has been reached!");
 			
-			String name = "Hillbilly_" + getNbOfUnits();
+			String name = "Hillbilly";
 			int strength = new Random().nextInt(101);
 			int agility = new Random().nextInt(101);
 			int toughness = new Random().nextInt(101);
@@ -1167,6 +1155,7 @@ public class World {
 	 * 
 	 * @return	A random weight between 10 and 50.
 	 */
+	@Model @Raw
 	private int calculateRandomWeight()
 	{
 		int min_weight = 10;
@@ -1177,15 +1166,15 @@ public class World {
 	 * Change the cube type of the given targetCube to air.
 	 * 
 	 * @param 	targetCube
-	 * 			The targetCube to change.
+	 * 			The cube to change.
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
-	 * @effect	Set the cube type of the given targetCube to 0 (air).
+	 * @effect	Set the cube type of the given cube to 0 (air).
 	 * @effect	Add all positions that aren't connected to any border thanks to the change of the cube to this World's collection of 
 	 * 			cubes that aren't connected.
 	 * @effect	Notify the model listener that the targetCube has changed in the terrain.
 	 */
+	@Model @Raw
 	private void changeCubeTypeAir(double[] targetCube) throws IllegalArgumentException
 	{
 		int x = (int) (targetCube[0] - 0.5);
