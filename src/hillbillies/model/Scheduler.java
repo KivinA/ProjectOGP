@@ -139,17 +139,40 @@ public class Scheduler {
 	}
 	
 	/**
+	 * Check whether this Scheduler can have the given {@link Task} as one of its {@link Task}s.
+	 * 
+	 * @param 	task
+	 * 			The {@link Task} to check.
+	 * @return	True if and only if this Scheduler isn't terminated.
+	 * TODO 	Complemete implementation.
+	 */
+	public boolean canHaveAsTask(Task task)
+	{
+		return !isTerminated();
+	}
+	
+	/**
 	 * Add a given Task to this Scheduler.
 	 * 
 	 * @param 	task
 	 * 			The given Task to add.
 	 * @post	This Sheduler has the given Task as one of its Tasks.
 	 * 			| new.hasAsTask(task) == true
+	 * @effect	Sort the collection of Task according to the Comparator given. 
 	 */
 	public void addTask(Task task)
 	{
 		tasks.add(task);
-		Collections.sort(tasks, new TaskComparator());
+		Collections.sort(tasks, new Comparator<Task>(){ // Anonymous class!
+			@Override
+			public int compare(Task t1, Task t2) {
+				if (t1.getPriority() > t2.getPriority())
+					return -1;
+				if (t1.getPriority() < t2.getPriority())
+					return 1;
+				return 0;
+			}
+		});
 	}
 	
 	/**
@@ -159,10 +182,11 @@ public class Scheduler {
 	 * 			The Task to check.
 	 * @return	True if and only if the given Task is effective and part of this Scheduler's Tasks.
 	 * 			| result == (task != null && hasAsTask(task))
+	 * TODO 	Complete implementation.
 	 */
 	public boolean canRemoveAsTask(Task task)
 	{
-		return task != null && hasAsTask(task);
+		return (task != null) && hasAsTask(task);
 	}
 	
 	/**
@@ -369,29 +393,4 @@ public class Scheduler {
 	 * Variable referencing the World in which this Scheduler operates.
 	 */
 	private World world;
-	
-	/**
-	 * A custom TaskComparator used to sort the list of Tasks for each Scheduler.
-	 * [FIXME]USE ANONYMOUS CLASS IN THE PARAMETER OF THE METHOD!
-	 * 
-	 */
-	public static class TaskComparator implements Comparator<Task>{
-		public TaskComparator() 
-		{
-			
-		}
-		
-		/**
-		 * This compare method will make sure we can sort Tasks according to their priority in a descending order.
-		 */
-		@Override
-		public int compare(Task t1, Task t2) 
-		{
-			if (t1.getPriority() > t2.getPriority())
-				return -1;
-			if (t1.getPriority() < t2.getPriority())
-				return 1;
-			return 0;
-		}
-	}
 }
