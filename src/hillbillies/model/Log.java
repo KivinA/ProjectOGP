@@ -26,20 +26,6 @@ public class Log extends WorldObject{
 	{
 		super(weight, position, world);
 	}
-
-	/**
-	 * Check whether this Log can have the given {@link World} as its {@link World}.
-	 * 
-	 * @return	If this Log is terminated, true if and only if the given World is ineffective.
-	 * 			Otherwise, true if and only if the given World is effective and if this Log is a valid Log for any World.
-	 */
-	@Override
-	public boolean canHaveAsWorld(World world) 
-	{
-		if (isTerminated())
-			return world == null;
-		return world != null && World.isValidLog(this);
-	}
 	
 	/**
 	 * Check whether this Log has a proper {@link World} attached to it.

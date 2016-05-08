@@ -30,7 +30,7 @@ public class BoulderTest {
 	public void setUp() throws Exception
 	{
 		boulder = new Boulder(POSITION, DEFAULT_WEIGHT, world);
-		world.addBoulder(boulder);
+		world.addWorldObject(boulder);
 	}
 	
 	@After

@@ -30,7 +30,7 @@ public class LogTest {
 	public void setUp() throws Exception
 	{
 		log = new Log(POSITION, DEFAULT_WEIGHT, world);
-		world.addLog(log);
+		world.addWorldObject(log);
 	}
 	
 	@After

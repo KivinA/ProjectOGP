@@ -8,7 +8,6 @@ import org.junit.*;
 import hillbillies.model.*;
 import hillbillies.part2.listener.DefaultTerrainChangeListener;
 import hillbillies.part2.listener.TerrainChangeListener;
-import ogp.framework.util.ModelException;
 
 public class WorldTest 
 {
@@ -21,6 +20,7 @@ public class WorldTest
 	private static final int TYPE_WORKSHOP = 3;
 	private static final int DEFAULT_PROPERTY = 30;
 	private static final int[] POSITION = {1, 1, 2};
+	private static final double[] POSITION_OBJECT = {0.5, 0.5, 0.5};
 	
 	@BeforeClass
 	public static void setUpBeforeClass()
@@ -231,17 +231,6 @@ public class WorldTest
 	}
 	
 	@Test
-	public void canHaveAsUnit_TooManyUnits() throws Exception // TODO delete exception
-	{
-		for (int i = 0; i < 100; i++)
-			world.addUnit(new Unit("Hillbilly", DEFAULT_PROPERTY + i, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, 
-				POSITION, false, world));
-		Unit unit = new Unit("Hillbilly", DEFAULT_PROPERTY - 1, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, 
-				POSITION, false, world);
-		assertFalse(world.canHaveAsUnit(unit));
-	}
-	
-	@Test
 	public void addUnit_LegalCase() throws Exception // TODO delete exception
 	{
 		Unit unit = new Unit("Hillbilly", DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, 
@@ -251,9 +240,22 @@ public class WorldTest
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
-	public void addUnit_IllegalCase() throws Exception
+	public void addUnit_IllegalUnit() throws Exception
 	{
 		world.addUnit(null);
+	}
+	
+	@Test (expected = IllegalStateException.class)
+	public void addUnit_TooManyUnits() throws Exception
+	{
+		for (int i = 0; i < 100; i++)
+		{
+			world.addUnit(new Unit("Hillbilly", DEFAULT_PROPERTY + i, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, 
+				POSITION, false, world));
+		}
+		Unit unit = new Unit("Hillbilly", DEFAULT_PROPERTY - 1, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, 
+				POSITION, false, world);
+		world.addUnit(unit);
 	}
 	
 	@Test
@@ -297,12 +299,14 @@ public class WorldTest
 		world.addUnit(unit);
 		unit.die();
 		assertTrue(world.hasAsUnit(unit));
+		assertEquals(1, world.getNbOfUnits());
 		world.removeUnit(unit);
 		assertFalse(world.hasAsUnit(unit));
+		assertEquals(0, world.getNbOfUnits());
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
-	public void removeUnit_IllegalCase() throws Exception
+	public void removeUnit_IllegalUnit() throws Exception
 	{
 		world.removeUnit(null);
 	}
@@ -347,149 +351,383 @@ public class WorldTest
 		assertEquals(world.getNbOfUnits(), units.size());
 	}
 	
-//	
-//	@Test
-//	public void testConnectionsToBorder() throws ModelException
-//	{
-//		terrain = new int[3][3][5];
-//		terrain[1][1][2] = TYPE_ROCK;
-//		terrain[0][0][0] = TYPE_ROCK;
-//		terrain[1][1][4] = TYPE_ROCK;
-//		world = new World(terrain, modelListener);
-//		int[] notConnectedPosition = {1, 1, 2};
-//		assertTrue(world.isConnectedToBorder(0, 0, 0));
-//		assertTrue(world.isConnectedToBorder(1, 1, 4)); // This will be true because z level4 is the border z level of the World.
-//		assertFalse(world.isConnectedToBorder(1, 1, 2));
-//		// Test the list notConnected.
-//		assertTrue(world.getAllNotConnected().get(0)[0] == notConnectedPosition[0] && world.getAllNotConnected().get(0)[1] == notConnectedPosition[1]
-//				&& world.getAllNotConnected().get(0)[2] == notConnectedPosition[2]);
-//	}
-//	
-//	@Test
-//	public void testUnitsOfWorld() throws ModelException
-//	{
-//		initializeCorrectWorld();
-//		
-//		Unit unit1 = new Unit("Hillbilly", 30, 30, 30, 30, new int[] {0,1,1} , false, world);
-//		Unit unit2 = new Unit("Hillbilly", 50, 50, 50, 50, new int[] {0,1,2} , false, world);
-//		Unit unit3 = null;
-//		
-//		assertTrue(world.canHaveAsUnit(unit1));
-//		assertTrue(world.canHaveAsUnit(unit2));
-//		assertFalse(world.canHaveAsUnit(unit3));
-//		
-//		world.addUnit(unit1);
-//		assertEquals(world.getNbOfUnits(), 1);
-//		assertTrue(world.hasAsUnit(unit1));
-//		
-//		world.addUnit(unit2);
-//		assertEquals(world.getNbOfUnits(), 2);
-//		assertTrue(world.hasAsUnit(unit2));
-//		assertTrue(world.hasProperUnits());
-//		
-//		unit2.setWorld(null);
-//		assertFalse(world.hasProperUnits());
-//		assertTrue(world.canRemoveAsUnit(unit2));
-//		world.removeUnit(unit2);
-//		assertEquals(world.getNbOfUnits(), 1);
-//		assertTrue(world.hasProperUnits());
-//		
-//		world.removeUnit(unit1);
-//		assertEquals(world.getNbOfUnits(), 0);
-//		assertTrue(world.hasProperUnits()); // This is trivial true , because there are no Units.
-//	}
-//
-//	@Test (expected = ModelException.class)
-//	public void spawnUnits_IllegalCaseTooManyUnits() throws ModelException
-//	{
-//		initializeCorrectWorld();
-//		for (int i = 0; i < 101; i++)
-//			world.spawnUnit(false);
-//	}
-//	
-//	@Test
-//	public void spawnUnit_LegalCase() throws ModelException
-//	{
-//		initializeCorrectWorld();
-//		int amount = 50;
-//		for (int i = 0; i < amount; i++)
-//			world.spawnUnit(false);
-//		
-//		assertEquals(world.getNbOfUnits(), amount);
-//	}
-//	
-//	@Test
-//	public void testFactionsOfWorld() throws ModelException
-//	{
-//		initializeCorrectWorld();
-//		
-//		Faction faction1 = new Faction(world);
-//		Faction faction2 = new Faction(world);
-//		Faction faction3 = null;
-//		Unit unit = new Unit("Hillbilly", 50, 50, 50, 50, new int[]{ 0, 1, 1}, false, world);
-//		
-//		assertTrue(world.canHaveAsFaction(faction1));
-//		assertTrue(world.canHaveAsFaction(faction2));
-//		assertFalse(world.canHaveAsFaction(faction3));
-//		
-//		world.addFaction(faction1);
-//		assertEquals(world.getNbOfFactions(), 1);
-//		world.addFaction(faction2);
-//		assertTrue(world.hasAsFaction(faction2));
-//		assertTrue(world.hasProperFactions());
-//		
-//		assertTrue(world.canRemoveAsFaction(faction1));
-//		assertTrue(world.canRemoveAsFaction(faction2));
-//		world.removeFaction(faction2);
-//		unit.setFaction(faction1);
-//		assertFalse(world.canRemoveAsFaction(faction1));
-//		faction1.removeUnit(unit);
-//		assertTrue(world.canRemoveAsFaction(faction1));
-//		world.removeFaction(faction1);
-//		assertEquals(world.getNbOfFactions(), 0);
-//	}
-//
-//	@Test (expected = ModelException.class)
-//	public void spawnFactions_IllegalCaseTooManyFactions() throws ModelException
-//	{
-//		initializeCorrectWorld();
-//		
-//		for (int i = 0; i < 6; i++)
-//			world.addFaction(new Faction(world));
-//	}
-//
-//	@Test // See also LogTest.java
-//	public void testLogsOfWorld() throws ModelException
-//	{
-//		initializeCorrectWorld();
-//		
-//		Log log1 = new Log(new double[]{0.5, 1.5, 1.5}, 30, world);
-//		
-//		assertTrue(World.isValidLog(log1));
-//		assertTrue(world.hasAsLog(log1));
-//		world.spawnLog(new double[]{0.5, 1.5, 2.5});
-//		assertEquals(world.getAllLogs().size(), 2);
-//		assertTrue(world.hasProperLogs());
-//		
-//		log1.setWorld(null);
-//		assertTrue(world.canRemoveAsLog(log1));
-//		world.removeLog(log1);
-//	}
-//	
-//	@Test // See also BoulderTest.java
-//	public void testBouldersOfWorld() throws ModelException
-//	{
-//		initializeCorrectWorld();
-//		Boulder boulder = new Boulder(new double[]{0.5, 1.5, 1.5}, 30, world);
-//		
-//		assertTrue(World.isValidBoulder(boulder));
-//		assertTrue(world.hasAsBoulder(boulder));
-//		world.spawnBoulder(new double[]{0.5, 1.5, 2.5});
-//		assertEquals(world.getAllBoulders().size(), 2);
-//		assertTrue(world.hasProperBoulders());
-//		
-//		boulder.setWorld(null);
-//		assertTrue(world.canRemoveAsBoulder(boulder));
-//		world.removeBoulder(boulder);
-//	}
+	@Test
+	public void spawnUnit_LegalCase() throws Exception
+	{
+		Unit unit = world.spawnUnit(false);
+		assertTrue(world.hasAsUnit(unit));
+		assertEquals(1, world.getNbOfFactions());
+	}
+	
+	@Test
+	public void canHaveAsFaction_TrueCase()
+	{
+		Faction faction = new Faction(world);
+		assertTrue(world.canHaveAsFaction(faction));
+	}
+	
+	@Test
+	public void canHaveAsFaction_TerminatedFaction()
+	{
+		Faction faction = new Faction(world);
+		faction.terminate();
+		assertFalse(world.canHaveAsFaction(faction));
+	}
+	
+	@Test
+	public void canHaveAsFaction_NonEffectiveFaction()
+	{
+		assertFalse(world.canHaveAsFaction(null));
+	}
+	
+	@Test
+	public void addFaction_LegalCase()
+	{
+		Faction faction = new Faction(world);
+		world.addFaction(faction);
+		assertTrue(world.hasAsFaction(faction));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addFaction_IllegalFaction() throws Exception
+	{
+		world.addFaction(null);
+	}
+	
+	@Test (expected = IllegalStateException.class)
+	public void addFaction_TooManyFactions() throws Exception
+	{
+		for (int i = 0; i < 5; i++)
+			world.addFaction(new Faction(world));
+		world.addFaction(new Faction(world));
+	}
+	
+	@Test
+	public void canRemoveAsFaction_TrueCase()
+	{
+		Faction faction = new Faction(world);
+		world.addFaction(faction);
+		faction.terminate();
+		assertTrue(world.canRemoveAsFaction(faction));
+	}
+	
+	@Test
+	public void canRemoveAsFaction_NonEffectiveFaction()
+	{
+		assertFalse(world.canRemoveAsFaction(null));
+	}
+	
+	@Test
+	public void canRemoveAsFaction_NonTerminatedFaction()
+	{
+		Faction faction = new Faction(world);
+		world.addFaction(faction);
+		assertFalse(world.canRemoveAsFaction(faction));
+	}
+	
+	@Test
+	public void canRemoveAsFaction_FactionNotAtttached()
+	{
+		Faction faction = new Faction(world);
+		faction.terminate();
+		assertFalse(world.canRemoveAsFaction(faction));
+	}
+	
+	@Test
+	public void removeAsFaction_LegalCase()
+	{
+		Faction faction = new Faction(world);
+		world.addFaction(faction);
+		assertTrue(world.hasAsFaction(faction));
+		assertEquals(1, world.getNbOfFactions());
+		faction.terminate();
+		world.removeFaction(faction);
+		assertFalse(world.hasAsFaction(faction));
+		assertEquals(0, world.getNbOfFactions());
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void removeAsFaction_IllegalFaction() throws Exception
+	{
+		Faction faction = new Faction(world);
+		world.addFaction(faction);
+		world.removeFaction(faction);
+	}
+	
+	@Test
+	public void hasProperFactions_TrueCase()
+	{
+		Faction faction = new Faction(world);
+		world.addFaction(faction);
+		assertTrue(world.hasAsFaction(faction));
+	}
+	
+	@Test
+	public void hasProperFactions_IllegalFaction()
+	{
+		Faction faction = new Faction(world);
+		world.addFaction(faction);
+		faction.terminate();
+		assertFalse(world.hasProperFactions());
+	}
+	
+	@Test
+	public void hasProperFactions_FactionAttachedToOtherWorld()
+	{
+		World theWorld = new World(terrain, modelListener);
+		Faction faction = new Faction(theWorld);
+		world.addFaction(faction);
+		assertFalse(world.hasProperFactions());
+	}
+	
+	@Test
+	public void canHaveAWorldObject_TrueCaseLog()
+	{
+		Log log = new Log(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		assertTrue(world.canHaveAsWorldObject(log));
+	}
+	
+	@Test
+	public void canHaveAsWorldObject_TrueCaseBoulder()
+	{
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		assertTrue(world.canHaveAsWorldObject(boulder));
+	}
+	
+	@Test
+	public void canHaveAsWorldObject_NonEffectiveWorldObject()
+	{
+		assertFalse(world.canHaveAsWorldObject(null));
+	}
+	
+	@Test
+	public void canHaveAsWorldObject_TerminatedWorldObject()
+	{
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		boulder.terminate();
+		assertFalse(world.canHaveAsWorldObject(boulder));
+	}
+	
+	@Test
+	public void addWorldObject_LegalCaseBoulder()
+	{
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(boulder);
+		assertTrue(world.hasAsBoulder(boulder));
+		assertEquals(1, world.getNbOfBoulders());
+	}
+	
+	@Test
+	public void addWorldObject_LegalCaseLog()
+	{
+		Log log = new Log(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(log);
+		assertTrue(world.hasAsLog(log));
+		assertEquals(1, world.getNbOfLogs());
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addWorldObject_IllegalWorldObject() throws Exception
+	{
+		world.addWorldObject(null);
+	}
+	
+	@Test
+	public void canRemoveAsLog_TrueCase()
+	{
+		Log log = new Log(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(log);
+		log.terminate();
+		assertTrue(world.canRemoveAsLog(log));
+	}
+	
+	@Test
+	public void canRemoveAsLog_NonEffectiveLog()
+	{
+		assertFalse(world.canRemoveAsLog(null));
+	}
+	
+	@Test
+	public void canRemoveAsLog_NotAttachedLog()
+	{
+		Log log = new Log(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		log.terminate();
+		assertFalse(world.canRemoveAsLog(log));
+	}
+	
+	@Test
+	public void canRemoveAsLog_NonTerminatedLog()
+	{
+		Log log = new Log(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(log);
+		assertFalse(world.canRemoveAsLog(log));
+	}
+	
+	@Test
+	public void removeLog_LegalCase()
+	{
+		Log log = new Log(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(log);
+		assertTrue(world.hasAsLog(log));
+		assertEquals(1, world.getNbOfLogs());
+		log.terminate();
+		world.removeLog(log);
+		assertFalse(world.hasAsLog(log));
+		assertEquals(0, world.getNbOfLogs());
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void removeLog_IllegalCase() throws Exception
+	{
+		world.removeLog(null);
+	}
+	
+	@Test
+	public void hasProperLogs_TrueCase()
+	{
+		Log log = new Log(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(log);
+		assertTrue(world.hasProperLogs());
+	}
+	
+	@Test
+	public void hasProperLogs_IllegalLog()
+	{
+		Log log = new Log(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(log);
+		log.terminate();
+		assertFalse(world.hasProperLogs());
+	}
+	
+	@Test
+	public void hasProperLogs_LogAttachedToOtherWorld()
+	{
+		World theWorld = new World(terrain, modelListener);
+		Log log = new Log(POSITION_OBJECT, DEFAULT_PROPERTY, theWorld);
+		world.addWorldObject(log);
+		assertFalse(world.hasProperLogs());
+	}
+	
+	@Test
+	public void spawnLog_LegalCase()
+	{
+		world.spawnLog(POSITION_OBJECT);
+		assertEquals(1, world.getNbOfLogs());
+		assertTrue(world.hasProperBoulders());
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void spawnLog_NonEffectivePosition() throws Exception
+	{
+		world.spawnLog(null);
+	}
+	
+	@Test
+	public void spawnLog_SolidPosition()
+	{
+		double[] pos = {1.5, 1.5, 1.5};
+		world.spawnLog(pos);
+		assertEquals(TYPE_AIR, world.getCubeType(1, 1, 1));
+		assertEquals(1,  world.getNbOfLogs());
+		assertTrue(world.hasProperLogs());
+	}
+	
+	@Test
+	public void canRemoveAsBoulder_TrueCase()
+	{
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(boulder);
+		boulder.terminate();
+		assertTrue(world.canRemoveAsBoulder(boulder));
+	}
+	
+	@Test
+	public void canRemoveAsBoulder_NonEffectiveBoulder()
+	{
+		assertFalse(world.canRemoveAsBoulder(null));
+	}
+	
+	@Test
+	public void canRemoveAsBoulder_NotAttachedBoulder()
+	{
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		boulder.terminate();
+		assertFalse(world.canRemoveAsBoulder(boulder));
+	}
+	
+	@Test
+	public void canRemoveAsBoulder_NonTerminatedBoulder()
+	{
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(boulder);
+		assertFalse(world.canRemoveAsBoulder(boulder));
+	}
+	
+	@Test
+	public void removeBoulder_LegalCase()
+	{
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(boulder);
+		assertTrue(world.hasAsBoulder(boulder));
+		boulder.terminate();
+		world.removeBoulder(boulder);
+		assertFalse(world.hasAsBoulder(boulder));
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void removeBoulder_IllegalCase() throws Exception
+	{
+		world.removeBoulder(null);
+	}
+	
+	@Test
+	public void hasProperBoulders_TrueCase()
+	{
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(boulder);
+		assertTrue(world.hasProperBoulders());
+	}
+	
+	@Test
+	public void hasProperBoulders_IllegalBoulder()
+	{
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, world);
+		world.addWorldObject(boulder);
+		boulder.terminate();
+		assertFalse(world.hasProperBoulders());
+	}
+	
+	@Test
+	public void hasProperBoulders_BoulderAttachedToOtherWorld()
+	{
+		World theWorld = new World(terrain, modelListener);
+		Boulder boulder = new Boulder(POSITION_OBJECT, DEFAULT_PROPERTY, theWorld);
+		world.addWorldObject(boulder);
+		assertFalse(world.hasProperBoulders());
+	}
+	
+	@Test
+	public void spawnBoulder_LegalCase()
+	{
+		world.spawnBoulder(POSITION_OBJECT);
+		assertEquals(1, world.getNbOfBoulders());
+		assertTrue(world.hasProperBoulders());
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void spawnBoulder_NonEffectivePosition() throws Exception
+	{
+		world.spawnBoulder(null);
+	}
+	
+	@Test
+	public void spawnBoulder_SolidPosition()
+	{
+		double[] pos = {1.5, 1.5, 1.5};
+		world.spawnBoulder(pos);
+		assertEquals(TYPE_AIR, world.getCubeType(1, 1, 1));
+		assertEquals(1, world.getNbOfBoulders());
+		assertTrue(world.hasProperBoulders());
+	}
+	
 }

@@ -105,8 +105,16 @@ public abstract class WorldObject {
 	 * 
 	 * @param 	world
 	 * 			The {@link World} to check.
+	 * @return	If this WorldObject is terminated, true if and only if the given World is ineffective.
+	 * 			Otherwise, true if and only if the given World is effective and if that World can have this WorldObject
+	 * 			as one of its Logs or Boulders.
 	 */
-	public abstract boolean canHaveAsWorld(World world);
+	public boolean canHaveAsWorld(World world) 
+	{
+		if (isTerminated())
+			return world == null;
+		return world != null && world.canHaveAsWorldObject(this);
+	}
 	
 	/**
 	 * Set the {@link World} of this WorldObject to the given {@link World}.

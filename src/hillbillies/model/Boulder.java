@@ -29,20 +29,6 @@ public class Boulder extends WorldObject{
 	}
 	
 	/**
-	 * Check whether this Boulder can have the given {@link World} as its {@link World}.
-	 * 
-	 * @return	If this Boulder is terminated, true if and only if the given World is ineffective.
-	 * 			Otherwise, true if and only if the given World is effective and if this Boulder is a valid Boulder for any World.
-	 */
-	@Override
-	public boolean canHaveAsWorld(World world) 
-	{
-		if (isTerminated())
-			return world == null;
-		return world != null && World.isValidBoulder(this);
-	}
-	
-	/**
 	 * Check whether this Boulder has a proper {@link World} attached to it.
 	 * 
 	 * @return	True if and only if this Boulder can have its attached World as its World and if the attached World is ineffective

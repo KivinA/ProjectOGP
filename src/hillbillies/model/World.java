@@ -556,7 +556,7 @@ public class World {
 	@Raw
 	public boolean canHaveAsUnit(@Raw Unit unit)
 	{
-		return (unit != null) && (getNbOfUnits() < MAX_AMOUNT_OF_UNITS) && unit.isAlive();
+		return (unit != null) && unit.isAlive();
 	}
 	
 	/**
@@ -566,14 +566,18 @@ public class World {
 	 * 			The {@link Unit} to add to this World.
 	 * @throws	IllegalArgumentException
 	 * 			This World cannot have the given Unit as one of its Units.
+	 * @throws	IllegalStateException
+	 * 			The maximum amount of Units has been reached.
 	 * @post	The number of Units of this World is incremented by 1.
 	 * @post	This World has the given Unit as one of its Units.
 	 */
 	@Raw
-	public void addUnit(@Raw Unit unit) throws IllegalArgumentException
+	public void addUnit(@Raw Unit unit) throws IllegalArgumentException, IllegalStateException
 	{
 		if (!canHaveAsUnit(unit))
 			throw new IllegalArgumentException("This World cannot have the given Unit as one of its Units.");
+		if ((getNbOfUnits() >= MAX_AMOUNT_OF_UNITS))
+			throw new IllegalStateException("The maximum amount of Units has been reached.");
 		units.add(unit);
 	}
 	
@@ -768,7 +772,7 @@ public class World {
 	@Raw
 	public boolean canHaveAsFaction(Faction faction)
 	{
-		return (faction != null) && (getNbOfFactions() < MAX_AMOUNT_OF_FACTIONS);
+		return (faction != null) && (!faction.isTerminated());
 	}
 	
 	/**
@@ -778,14 +782,18 @@ public class World {
 	 * 			The {@link Faction} to add.
 	 * @throws 	IllegalArgumentException
 	 * 			This World cannot have the given Faction as one its Factions.
+	 * @throws	IllegalStateException
+	 * 			The maximum amount of Factions has been reached.
 	 * @post	The number of Factions of this World is incremented by 1.
 	 * @post	This World has the given Faction as one of its Factions.
 	 */
 	@Raw
-	public void addFaction(Faction faction) throws IllegalArgumentException
+	public void addFaction(Faction faction) throws IllegalArgumentException, IllegalStateException
 	{
 		if (!canHaveAsFaction(faction))
 			throw new IllegalArgumentException("This World cannot have the given Faction as one of its Factions.");
+		if (getNbOfFactions() >= MAX_AMOUNT_OF_FACTIONS)
+			throw new IllegalStateException("The maximum amount of Factions has been reached.");
 		factions.add(faction);
 	}
 	
@@ -799,7 +807,7 @@ public class World {
 	@Raw
 	public boolean canRemoveAsFaction(Faction faction)
 	{
-		return (faction != null) && (faction.isTerminated());
+		return (faction != null) && (faction.isTerminated()) && hasAsFaction(faction);
 	}
 	
 	/**
@@ -879,6 +887,15 @@ public class World {
 	}
 	
 	/**
+	 * Return the amount of {@link Log}s in this World.
+	 */
+	@Basic @Raw
+	public int getNbOfLogs()
+	{
+		return logs.size();
+	}
+	
+	/**
 	 * Check whether this World has the given {@link Log} as one of its {@link Log}s.
 	 * 
 	 * @param 	log
@@ -891,32 +908,37 @@ public class World {
 	}
 	
 	/**
-	 * Check whether the given {@link Log} is a valid {@link Log} for any World.
+	 * Check whether the given {@link WorldObject} is a valid {@link WorldObject} for any World.
 	 * 
-	 * @param 	log
-	 * 			The {@link Log} to check.
-	 * @return	True if and only if the given Log is effective.
+	 * @param 	object
+	 * 			The {@link WorldObject} to check.
+	 * @return	True if and only if the given WorldObject is effective and if the given WorldObject isn't terminated
 	 */
-	public static boolean isValidLog(Log log)
+	public boolean canHaveAsWorldObject(WorldObject object)
 	{
-		return (log != null);
+		return (object != null) && (!object.isTerminated());
 	}
 	
 	/**
-	 * Add a given {@link Log} to this World's collection of {@link Log}s.
+	 * Add the given {@link WorldObject} (which is either a {@link Log} or {@link Boulder}) to their corresponding sets of this World.
 	 * 
-	 * @param 	log
-	 * 			The Log to add.
+	 * @param 	object
+	 * 			The {@link WorldObject} to add.
 	 * @throws	IllegalArgumentException
-	 * 			The given Log is invalid for any World.
-	 * @post	The number of Logs in this World is incremented by 1.
-	 * @post	This World has the given Log as one of its Logs.
+	 * 			This World cannot have the given WorldObject as one of its logs or boulders.
+	 * @post	If the given object is an instance of the Log class, then the World has the given object as one of its Logs.
+	 * @post	If the given object is an instance of the Log class, then the number of Logs in this World is incremented by 1.
+	 * @post	If the given object is an instance of the Boulder class, then this World has the given object as one of its Boulders.
+	 * @post	If the given object is an instance of the Bouldr class, then the number of Boulders in this World is incremented by 1.
 	 */
-	public void addLog(Log log) throws IllegalArgumentException
+	public void addWorldObject(WorldObject object)
 	{
-		if (!isValidLog(log))
-			throw new IllegalArgumentException("The given Log is invalid for any World.");
-		logs.add(log);
+		if (!canHaveAsWorldObject(object))
+			throw new IllegalArgumentException("This World cannot have the given WorldObject as one of its logs or boulders!");
+		if (object instanceof Log)
+			logs.add((Log) object);
+		else if (object instanceof Boulder)
+			boulders.add((Boulder) object);
 	}
 	
 	/**
@@ -930,7 +952,7 @@ public class World {
 	@Raw
 	public boolean canRemoveAsLog(Log log)
 	{
-		return isValidLog(log) && hasAsLog(log) && log.isTerminated();
+		return (log != null) && hasAsLog(log) && log.isTerminated();
 	}
 	
 	/**
@@ -961,7 +983,7 @@ public class World {
 	{
 		for (Log log : getAllLogs())
 		{
-			if (!isValidLog(log))
+			if (!canHaveAsWorldObject(log))
 				return false;
 			if (log.getWorld() != this)
 				return false;
@@ -990,7 +1012,7 @@ public class World {
 		if (!isPassableCube((int) (targetCube[0] - getCubeLength() / 2.0), (int) (targetCube[1] - getCubeLength() / 2.0), (int) (targetCube[2] - getCubeLength() / 2.0)))
 			changeCubeTypeAir(targetCube);
 		Log log = new Log(targetCube, calculateRandomWeight(), this);
-		addLog(log);
+		addWorldObject(log);
 	}
 	
 	/**
@@ -1020,6 +1042,15 @@ public class World {
 	}
 	
 	/**
+	 * Return the amount of {@link Boulder}s in this World.
+	 */
+	@Basic @Raw
+	public int getNbOfBoulders()
+	{
+		return boulders.size();
+	}
+	
+	/**
 	 * Check whether this World has the given {@link Boulder} as one of its {@link Boulder}s.
 	 * 
 	 * @param 	boulder
@@ -1029,35 +1060,6 @@ public class World {
 	public boolean hasAsBoulder(Boulder boulder)
 	{
 		return boulders.contains(boulder);
-	}
-	
-	/**
-	 * Check whether the given {@link Boulder} is a valid {@link Boulder} for any World.
-	 * 
-	 * @param 	boulder
-	 * 			The {@link Boulder} to check.
-	 * @return	True if and only if the given Boulder is effective.
-	 */
-	public static boolean isValidBoulder(Boulder boulder)
-	{
-		return (boulder != null);
-	}
-	
-	/**
-	 * Add the given {@link Boulder} to this World's collection of {@link Boulder}s.
-	 * 
-	 * @param 	boulder
-	 * 			The {@link Boulder} to add.
-	 * @throws	IllegalArgumentException
-	 * 			The given Boulder is an invalid Boulder for any World.
-	 * @post 	The number of Boulders in this World is incremented by 1.
-	 * @post	This World has the given Boulder as one of its Boulders.
-	 */
-	public void addBoulder(Boulder boulder) throws IllegalArgumentException
-	{
-		if (!isValidBoulder(boulder))
-			throw new IllegalArgumentException("The given Boulder is an invalid Boulder for any World.");
-		boulders.add(boulder);
 	}
 	
 	/**
@@ -1071,7 +1073,7 @@ public class World {
 	@Raw
 	public boolean canRemoveAsBoulder(Boulder boulder)
 	{
-		return isValidBoulder(boulder) && hasAsBoulder(boulder) && boulder.isTerminated();
+		return (boulder != null) && hasAsBoulder(boulder) && boulder.isTerminated();
 	}
 	
 	/**
@@ -1102,7 +1104,7 @@ public class World {
 	{
 		for (Boulder boulder : getAllBoulders())
 		{
-			if (!isValidBoulder(boulder))
+			if (!canHaveAsWorldObject(boulder))
 				return false;
 			if (boulder.getWorld() != this)
 				return false;
@@ -1130,7 +1132,7 @@ public class World {
 		if (!isPassableCube((int) (targetCube[0] - getCubeLength() / 2.0), (int) (targetCube[1] - getCubeLength() / 2.0), (int) (targetCube[2] - getCubeLength() / 2.0)))
 			changeCubeTypeAir(targetCube);
 		Boulder boulder = new Boulder(targetCube, calculateRandomWeight(), this);
-		addBoulder(boulder);
+		addWorldObject(boulder);
 	}
 	
 	/**
