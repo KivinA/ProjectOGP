@@ -730,4 +730,63 @@ public class WorldTest
 		assertTrue(world.hasProperBoulders());
 	}
 	
+	@Test
+	public void testCaveIn() throws Exception
+	{
+		int[][][] theTerrain = new int[3][3][3];
+		terrain[1][1][0] = TYPE_LOG;
+		terrain[1][1][1] = TYPE_ROCK;
+		terrain[1][1][2] = TYPE_WORKSHOP;
+		World theWorld = new World(theTerrain, modelListener);
+		assertFalse(theWorld.isConnectedToBorder(1, 1, 0));
+		assertFalse(theWorld.isConnectedToBorder(1, 1, 1));
+		advanceTimeFor(theWorld, 100, 0.02);
+		assertEquals(TYPE_AIR, theWorld.getCubeType(1, 1, 0));
+		assertEquals(TYPE_AIR, theWorld.getCubeType(1, 1, 1));
+	}
+	
+	@Test
+	public void testAdvanceTimeLogs() throws Exception
+	{
+		double[] pos = {0.5, 0.5, 3.5};
+		double[] expectedPos = {0.5, 0.5, 2.5};
+		Log log = new Log(pos, DEFAULT_PROPERTY, world);
+		world.addWorldObject(log);
+		advanceTimeFor(world, 100, 0.02);
+		assertArrayEquals(expectedPos, log.getPosition(), 0);
+	}
+	
+	@Test
+	public void testAdvanceTimeBoulders() throws Exception
+	{
+		double[] pos = {0.5, 0.5, 3.5};
+		double[] expectedPos = {0.5, 0.5, 2.5};
+		Boulder boulder = new Boulder(pos, DEFAULT_PROPERTY, world);
+		world.addWorldObject(boulder);
+		advanceTimeFor(world, 100, 0.02);
+		assertArrayEquals(expectedPos, boulder.getPosition(), 0);
+	}
+	
+	// TODO Add one final test to test the advanceTime of Units. Currently not implemented because the Unit class
+	// hasn't been revised yet.
+	
+	/**
+	 * Helper method to advance the time of the given world by some given time.
+	 * 
+	 * @param 	world
+	 * 			The World to advance the time.
+	 * @param 	time
+	 * 			The amount of time to advance.
+	 * @param 	step
+	 * 			The step size, in seconds, to advance the time.
+	 * @throws 	Exception
+	 * 			A condition was violated or an error was thrown.
+	 */
+	private void advanceTimeFor(World world, double time, double step) throws Exception
+	{
+		int n = (int)(time/step);
+		for (int i = 0; i < n; i++)
+			world.advanceTime(step);
+		world.advanceTime(time - n * step);
+	}
 }
