@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ClassDiagram>
-    <Class name="hillbillies.model.World" x="513" y="120">
+    <Class name="hillbillies.model.World" x="682" y="227">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -20,7 +20,7 @@
         <Communication destinationClassName="hillbillies.model.Unit"/>
         <Communication destinationClassName="hillbillies.model.Faction"/>
     </Class>
-    <Class name="hillbillies.model.Task" x="765" y="1159">
+    <Class name="hillbillies.model.Task" x="747" y="1520">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -47,7 +47,7 @@
             endpointName="world" kind="Simple"/>
         <Communication destinationClassName="hillbillies.model.World"/>
     </Class>
-    <Class name="hillbillies.model.Unit" x="1097" y="496">
+    <Class name="hillbillies.model.Unit" x="1399" y="530">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -70,7 +70,7 @@
         <Communication destinationClassName="hillbillies.model.Faction"/>
         <Communication destinationClassName="hillbillies.model.Scheduler"/>
     </Class>
-    <Class name="hillbillies.model.Log" x="395" y="604">
+    <Class name="hillbillies.model.Log" x="92" y="895">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -82,7 +82,7 @@
         <Communication destinationClassName="hillbillies.model.World"/>
         <Communication destinationClassName="hillbillies.model.WorldObject"/>
     </Class>
-    <Class name="hillbillies.model.Faction" x="939" y="14">
+    <Class name="hillbillies.model.Faction" x="1393" y="39">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -100,7 +100,7 @@
         <Communication destinationClassName="hillbillies.model.Unit"/>
         <Communication destinationClassName="hillbillies.model.Scheduler"/>
     </Class>
-    <Class name="hillbillies.model.Scheduler" x="400" y="879">
+    <Class name="hillbillies.model.Scheduler" x="82" y="1392">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -118,7 +118,7 @@
         <Communication destinationClassName="hillbillies.model.Unit"/>
         <Communication destinationClassName="hillbillies.model.Faction"/>
     </Class>
-    <Class name="hillbillies.model.Boulder" x="399" y="12">
+    <Class name="hillbillies.model.Boulder" x="254" y="24">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
