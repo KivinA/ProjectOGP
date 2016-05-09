@@ -2,7 +2,6 @@ package hillbillies.model;
 
 import java.util.*;
 import be.kuleuven.cs.som.annotate.*;
-import ogp.framework.util.ModelException;
 
 /* 
  * QUESTIONS PART 3:
@@ -172,7 +171,7 @@ public class Unit {
 	 * @param	enableDefaultBehaviour
 	 * 			The enableDefaultBehaviour for this new Unit.
 	 * 
-	 * @throws 	ModelException 
+	 * @throws 	IllegalArgumentException 
 	 *       	A condition was violated or an error was thrown.
 	 *       
 	 * @effect	The world of this new Unit is set to the given world.
@@ -246,27 +245,20 @@ public class Unit {
 	 * 			| new.getCurrentStaminapoints() == getMaxStaminapoints()
 	 */
 	public Unit(String name, int strength, int agility, int toughness, int weight, int[] initialPosition, boolean enableDefaultBehaviour
-			, World world) throws ModelException
+			, World world) throws IllegalArgumentException
 	{
 			setWorld(world);
 			setName(name);
 			
-			// Strength of this Unit:
 			if (! isValidInitialValue(strength))
-				strength = DEFAULT_STRENGTH;
+				strength = DEFAULT_PROPERTY_VALUE;
 			setStrength(strength);
-			
-			// Agility of this Unit: 
 			if (! isValidInitialValue(agility))
-				agility = DEFAULT_AGILITY;
+				agility = DEFAULT_PROPERTY_VALUE;
 			setAgility(agility);
-			
-			// Toughness of this Unit:
 			if (! isValidInitialValue(toughness))
-				toughness = DEFAULT_TOUGHNESS;
+				toughness = DEFAULT_PROPERTY_VALUE;
 			setToughness(toughness);
-			
-			// Weight of this Unit: 
 			setDefaultWeight();
 			if (! isValidInitialValue(weight))
 				weight = getDefaultWeight();	
@@ -320,7 +312,7 @@ public class Unit {
 	 * 			The initialPosition for this new Unit.
 	 * @param 	enableDefaultBehaviour
 	 * 			The enableDefaultBehaviour for this new Unit.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	This new Unit is initialized with the given name, strength, agility, toughness, weight, initialPosition, enableDefaultBeahviour and
@@ -328,7 +320,7 @@ public class Unit {
 	 * 			| this(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, null);
 	 */
 	public Unit(String name, int strength, int agility, int toughness, int weight, int[] initialPosition, boolean enableDefaultBehaviour) 
-			throws ModelException
+			throws IllegalArgumentException
 	{
 		this(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, null);
 	}
@@ -338,10 +330,10 @@ public class Unit {
 	 * 
 	 * @param 	duration
 	 * 			The amount of time that has been passed.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			An exception or error was thrown or the duration was too large (> 0.2).
 	 */
-	public void advanceTime(double duration) throws ModelException
+	public void advanceTime(double duration) throws IllegalArgumentException
 	{
 		if (duration <= 0.2 && duration >= 0) // [FIXME] NORMALLY THIS SHOULD BE BETWEEN 0.2 (EXCLUSIVE) AND 0 (INCLUSIVE).
 		{
@@ -358,7 +350,7 @@ public class Unit {
 			if (getExperience() >= 10)
 			{
 				setExperience(getExperience() - 10);
-				if (getStrength() < MAX_ATTRIBUTE_VALUE || getAgility() < MAX_ATTRIBUTE_VALUE || getToughness() < MAX_ATTRIBUTE_VALUE)
+				if (getStrength() < MAX_PROPERTY_VALUE || getAgility() < MAX_PROPERTY_VALUE || getToughness() < MAX_PROPERTY_VALUE)
 					increaseSkills();
 			}
 			
@@ -571,9 +563,10 @@ public class Unit {
 						getWorld().removeLog(log);
 						
 						// Increase toughness, if possible:
-						if (getToughness() < MAX_ATTRIBUTE_VALUE)
+						if (getToughness() < MAX_PROPERTY_VALUE)
 						{
 							setToughness(getToughness() + 1);
+							setDefaultWeight();
 							setWeight(getWeight());
 						}
 					}
@@ -661,12 +654,12 @@ public class Unit {
 					break;
 				// Error catching:
 				default:
-					throw new ModelException("Error with default behaviour choice.");					
+					throw new IllegalArgumentException("Error with default behaviour choice.");					
 				}
 			}
 		}
 		else
-			throw new ModelException("The duration of advanceTime was too large: " + duration);
+			throw new IllegalArgumentException("The duration of advanceTime was too large: " + duration);
 	}
 	
 	/**
@@ -679,7 +672,7 @@ public class Unit {
 	 * @param 	dz
 	 * 			The difference between the z-component of the current cube and the z-component of the destination cube.
 	 * 
-	 * @throws	ModelException
+	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown. 
 	 * 			If this Unit is already moving to an adjacent cube and if the function is called upon with all of its parameters equal to 0, 
 	 * 			an exception will be thrown.
@@ -762,7 +755,7 @@ public class Unit {
 	 * 			| 	then this.setCurrentSpeed(getSprintSpeed())
 	 * 			| 	else this.setCurrentSpeed(getWalkingSpeed())
 	 */
-	public void moveToAdjacent(int dx, int dy, int dz) throws ModelException
+	public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException
 	{
 		// This method will only work if the Unit isn't currently already moving and if the destination cube isn't the same cube.
 		if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint())
@@ -835,9 +828,9 @@ public class Unit {
 						setCurrentSpeed(getWalkingSpeed());
 				}
 				else 
-					throw new ModelException("Can't move towards this cube.");
+					throw new IllegalArgumentException("Can't move towards this cube.");
 			}
-			catch (ModelException e)
+			catch (IllegalArgumentException e)
 			{
 				//e.printStackTrace();
 				
@@ -854,7 +847,7 @@ public class Unit {
 	 * @param 	cube
 	 * 			The given cube to move to.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	The isMovingTo indicator of this Unit is enabled, if the Unit has finished the initial resting period.
@@ -877,7 +870,7 @@ public class Unit {
 	 * 			| if (hasRestedOnePoint())
 	 * 			| then this.setDestinationCube(cube)
 	 */
-	public void moveTo(int[] cube) throws ModelException
+	public void moveTo(int[] cube) throws IllegalArgumentException
 	{
 		if (hasRestedOnePoint())
 		{
@@ -894,7 +887,7 @@ public class Unit {
 				setDestinationCube(cube);
 				
 			}
-			catch (ModelException e)
+			catch (IllegalArgumentException e)
 			{
 				//e.printStackTrace();
 			}
@@ -954,9 +947,9 @@ public class Unit {
 
 	/**
 	 * [TODO]
-	 * @throws ModelException
+	 * @throws IllegalArgumentException
 	 */
-	private void findPath() throws ModelException
+	private void findPath() throws IllegalArgumentException
 	{
 		// Calculate the Path: 
 		//System.out.println("Destination cube is: " + "[" + getDestinationCube()[0] + ", " + getDestinationCube()[1] + ", " + getDestinationCube()[2] + "]");
@@ -994,7 +987,7 @@ public class Unit {
 			{
 				System.out.println("Pathing will now end, because there isn't a next cube.");
 				setIsMovingTo(false);
-				throw new ModelException("Pathing will here.");
+				throw new IllegalArgumentException("Pathing will here.");
 			}
 			
 			else
@@ -1165,23 +1158,22 @@ public class Unit {
 			switch (choiceOfSkill)
 			{
 			case 0:
-				if (getStrength() < MAX_ATTRIBUTE_VALUE)
+				if (getStrength() < MAX_PROPERTY_VALUE)
 					setStrength(getStrength() + 1);
 				break;
 			case 1:
-				if (getAgility() < MAX_ATTRIBUTE_VALUE)
+				if (getAgility() < MAX_PROPERTY_VALUE)
 					setAgility(getAgility() + 1);
 				break;
 			case 2:
-				if (getToughness() < MAX_ATTRIBUTE_VALUE)
+				if (getToughness() < MAX_PROPERTY_VALUE)
 					setToughness(getToughness() + 1);
 				break;
 			}
 		}
 		
 		setDefaultWeight();
-		if (!canHaveAsWeight(getWeight()))
-			setWeight(getDefaultWeight());
+		setWeight(getWeight());
 	}
 	
 	/**
@@ -1287,13 +1279,13 @@ public class Unit {
 	/**
 	 * Let this Unit die.
 	 * 
-	 * @throws	ModelException
+	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * [TODO]	Effects, post conditions, etc.
 	 * [FIXME] 	Add checker to see if hitpoints is zero.
 	 */
-	public void die() throws ModelException
+	public void die() throws IllegalArgumentException
 	{
 		if (isCarryingLog())
 			dropLog(getUnitPosition());
@@ -1316,14 +1308,6 @@ public class Unit {
 		setWorld(null);
 	}
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	   NAME			|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Check whether the given initial value (for strength, agility, weight or toughness) is a valid initial value for any Unit.
 	 * 
@@ -1336,6 +1320,34 @@ public class Unit {
 	{
 		return ((value >= 25) && (value <= 100));
 	}
+	
+	/**
+	 * Check whether the given property value is a valid property value for any Unit.
+	 * 
+	 * @param 	value
+	 * 			The property value to check.
+	 * @return	True if and only if the given property value is between the minimal and maximum property value.
+	 * 			| result == ( (value >= MIN_PROPERTY_VALUE) && (value <= MAX_PROPERTY_VALUE) )
+	 */
+	public static boolean isValidPropertyValue(int value)
+	{
+		return ((value >= MIN_PROPERTY_VALUE) && (value <= MAX_PROPERTY_VALUE));
+	}
+	
+	/**
+	 * Variable registering the default property value for this Unit.
+	 */
+	private final static int DEFAULT_PROPERTY_VALUE = 50;
+	
+	/**
+	 * Constant registering the maximum value for strength, weight, agility and toughness.
+	 */
+	private final static int MAX_PROPERTY_VALUE = 200;
+	
+	/**
+	 * Constant registering the minimum value for strength, weight, agility and toughness.
+	 */
+	private final static int MIN_PROPERTY_VALUE = 1;
 	
 	/**
 	 * Return the name of this Unit.
@@ -1351,38 +1363,34 @@ public class Unit {
 	 *  
 	 * @param  	name
 	 *         	The name to check.
-	 *         
 	 * @return 	True if and only if the name is more than 2 characters long, starts with an uppercase letter and uses 
 	 * 			only letters, spaces and quotes (both single and double).
-	 * 			| if (name.length() >= MIN_NAMELENGTH && Character.isUpperCase(name.charAt(0)))
-	 * 			| then for (int i = 0; i < name.length(); i++)
+	 * 			| if ( (name.length() >= MIN_NAMELENGTH) && Character.isUpperCase(name.chartAt(0)) )
+	 * 			|	then for each I in 0..name.length():
+	 * 			|		let
+	 * 			|			current = name.charAt(i)
+	 * 			|		in
+	 * 			|			if  (!(Character.isLetter(current) || (current == '"') || (current == '\'') || Character.isWhitespace(current)))
+	 * 			|				then result == false;
+	 * 			|	result == true;
+	 * 			| else
+	 * 			|	result == false;
 	 * 			| 	if (Character.isLetter(current) || current == '"' || current == '\'' || Character.isWhitespace(current))
-	 * 			|	then result == true
-	 * 			| 	else result == false
-	 * 			|		break		
 	 */
 	public static boolean isValidName(String name)
 	{
-		boolean isValidName = false;
-		
 		if(name.length() >= MIN_NAMELENGTH && Character.isUpperCase(name.charAt(0)))
 		{
-			// Loop over the entire name:
 			for(int i=0; i<name.length(); i++)
 			{
-				char current = name.charAt(i); // Select a character
-				
-				// Check is the current character is a letter, whitespace, double or single quote:
-				if (Character.isLetter(current) || current == '"' || current == '\'' || Character.isWhitespace(current))
-					isValidName = true;
-				else
-				{
-					isValidName = false;
-					break;
-				}
+				char current = name.charAt(i);
+				if (!(Character.isLetter(current) || (current == '"') || (current == '\'') || Character.isWhitespace(current)))
+					return false;
 			}
+			return true;
 		}
-		return isValidName;
+		else
+			return false;
 	}
 	
 	/**
@@ -1390,21 +1398,17 @@ public class Unit {
 	 * 
 	 * @param  	name
 	 *         	The new name for this Unit.
-	 *         
-	 * @post   	The name of this new Unit is equal to
-	 *         	the given name.
+	 * @post   	The name of this new Unit is equal to the given name.
 	 *       	| new.getName() == name
-	 *       
-	 * @throws 	ModelException
-	 *         	The given name is not a valid name for any
-	 *         	Unit.
+	 * @throws 	IllegalArgumentException
+	 *         	The given name is not a valid name for any Unit.
 	 *       	| ! isValidName(getName())
 	 */
 	@Raw
-	public void setName(String name) throws ModelException 
+	public void setName(String name) throws IllegalArgumentException 
 	{
-		if (! isValidName(name))
-			throw new ModelException("The given name isn't valid for this Unit.");
+		if (!isValidName(name))
+			throw new IllegalArgumentException("The given name isn't valid for this Unit.");
 		this.name = name;
 	}
 	
@@ -1414,18 +1418,10 @@ public class Unit {
 	private String name;
 	
 	/**
-	 * Variable registering the minimal length of a name.
+	 * Constant registering the minimal length of a name.
 	 */
 	private final static int MIN_NAMELENGTH = 2;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  STRENGTH		|
-	// |					|
-	// |					|
-	// ----------------------
-	
+		
 	/**
 	 * Return the strength of this Unit.
 	 */
@@ -1436,32 +1432,19 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether the given strength is a valid strength for any Unit.
-	 *  
-	 * @param  	strength
-	 *         	The strength to check.
-	 * @return 	True if and only if the given strength is between the minimun attribute value and the maximum attribute value (inclusive).
-	 *       	| result == ((strength >= MIN_ATTRIBUTE_VALUE) && (strength <= MAX_ATTRIBUTE_VALUE))
-	*/
-	public static boolean isValidStrength(int strength)
-	{
-		return ((strength >= MIN_ATTRIBUTE_VALUE) && (strength <= MAX_ATTRIBUTE_VALUE));
-	}
-	
-	/**
 	 * Set the strength of this Unit to the given strength.
 	 * 
 	 * @param  	strength
 	 *         	The new strength for this Unit.
-	 *         
-	 * @post   	If the given strength is a valid strength for any Unit, the strength of this new Unit is equal to the given strength.
-	 *       	| if (isValidStrength(strength))
+	 * @post   	If the given strength is a valid property value for any Unit, the strength of this new Unit is 
+	 * 			equal to the given strength.
+	 *       	| if (isValidPropertyValue(strength))
 	 *       	|   then new.getStrength() == strength
 	 */
 	@Raw
 	public void setStrength(int strength) 
 	{
-		if (isValidStrength(strength))
+		if (isValidPropertyValue(strength))
 			this.strength = strength;
 	}
 	
@@ -1469,19 +1452,6 @@ public class Unit {
 	 * Variable registering the strength of this Unit.
 	 */
 	private int strength;
-	
-	/**
-	 * Constant registering the default strength.
-	 */
-	private static final int DEFAULT_STRENGTH = 50;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  AGILITY		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the agility of this Unit.
@@ -1493,32 +1463,20 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether the given agility is a valid agility for any Unit.
-	 *  
-	 * @param  	agility
-	 *         	The agility to check.
-	 * @return 	True if and only if the agility is between the minimum attribute value and the maximum attribute value(inclusive).
-	 *       	| result == ((agility >= MIN_ATTRIBUTE_VALUE) && (agility <= MAX_ATTRIBUTE_VALUE))
-	 */
-	public static boolean isValidAgility(int agility) 
-	{
-		return ((agility >= MIN_ATTRIBUTE_VALUE) && (agility <= MAX_ATTRIBUTE_VALUE));
-	}
-	
-	/**
 	 * Set the agility of this Unit to the given agility.
 	 * 
 	 * @param  	agility
 	 *         	The new agility for this Unit.
 	 *         
-	 * @post   	If the given agility is a valid agility for any Unit, the agility of this new Unit is equal to the given agility.
-	 *       	| if (isValidAgility(agility))
+	 * @post   	If the given agility is a valid property value for any Unit, the agility of this 
+	 * 			new Unit is equal to the given agility.
+	 *       	| if (isValidPropertyValue(agility))
 	 *       	|   then new.getAgility() == agility
 	 */
 	@Raw
 	public void setAgility(int agility) 
 	{
-		if (isValidAgility(agility))
+		if (isValidPropertyValue(agility))
 			this.agility = agility;
 	}
 	
@@ -1526,19 +1484,6 @@ public class Unit {
 	 * Variable registering the agility of this Unit.
 	 */
 	private int agility;
-	
-	/**
-	 * Constant registering the default agility.
-	 */
-	private static final int DEFAULT_AGILITY = 50;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  TOUGHNESS		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the toughness of this Unit.
@@ -1550,32 +1495,19 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether the given toughness is a valid toughness for any Unit.
-	 *  
-	 * @param  	toughness
-	 *         	The toughness to check.
-	 * @return 	True if and only if the toughness is between the minimum attribute value and the maximumt attribute value(inclusive).
-	 *       	| result == ((toughness >= MIN_ATTRIBUTE_VALUE) && (toughness <= MAX_ATTRIBUTE_VALUE))
-	*/
-	public static boolean isValidToughness(int toughness) 
-	{
-		return ((toughness >= MIN_ATTRIBUTE_VALUE) && (toughness <= MAX_ATTRIBUTE_VALUE));
-	}
-	
-	/**
 	 * Set the toughness of this Unit to the given toughness.
 	 * 
 	 * @param  	toughness
 	 *         	The new toughness for this Unit.
-	 *         
-	 * @post   	If the given toughness is a valid toughness for any Unit, the toughness of this new Unit is equal to the given toughness.
-	 *       	| if (isValidToughness(toughness))
+	 * @post   	If the given toughness is a valid property value for any Unit, 
+	 * 			the toughness of this new Unit is equal to the given toughness.
+	 *       	| if (isValidPropertyValue(toughness))
 	 *       	|   then new.getToughness() == toughness
 	 */
 	@Raw
 	public void setToughness(int toughness) 
 	{
-		if (isValidToughness(toughness))
+		if (isValidPropertyValue(toughness))
 			this.toughness = toughness;
 	}
 	
@@ -1583,11 +1515,6 @@ public class Unit {
 	 * Variable registering the toughness of this Unit.
 	 */
 	private int toughness;
-	
-	/**
-	 * Constant registering the default toughness.
-	 */
-	private static final int DEFAULT_TOUGHNESS = 50;
 	
 	// ----------------------
 	// |					|
@@ -1611,14 +1538,13 @@ public class Unit {
 	 *  
 	 * @param  	weight
 	 *         	The weight to check.
-	 * @return 	True if and only if the weight is between the minimum attribut value and the maximum attribute value
-	 * 			and if it is higher or equal to the division of the sum of  this unit's strength and agility by 2.
-	 *       	| result == ((weight >= MIN_ATTRIBUTE_VALUE) && (weight <= MAX_ATTRIBUTE_VALUE) 
-	 *       	| 	&& (weight >= (getStrength() + getAgility()) / 2))
+	 * @return 	True if and only if the given weight is a valid property value for any Unit and if the given weight 
+	 * 			is higher or equal than the default weight.
+	 *       	| result == ( isValidProperyValue(weight) && (weight >= getDefaultWeight()) )
 	*/
 	public boolean canHaveAsWeight(int weight) 
 	{
-		return ((weight >= MIN_ATTRIBUTE_VALUE) && (weight <= MAX_ATTRIBUTE_VALUE) && (weight >= (getStrength() + getAgility()) / 2));
+		return isValidPropertyValue(weight) && (weight >= getDefaultWeight());
 	}
 	
 	/**
@@ -1626,13 +1552,11 @@ public class Unit {
 	 * 
 	 * @param  	weight
 	 *         	The new weight for this Unit.
-	 *         
 	 * @post   	If this Unit can have the given weight as its weight, the weight of this new Unit is equal to the given weight. 
-	 * 			Else the weight of this new Unit is equal to the default weight.
+	 * 			Otherwise, the weight of this new Unit is equal to the default weight.
 	 *       	| if (canHaveAsWeight(weight))
 	 *       	|   then new.getWeight() == weight
-	 *       	| else 
-	 *       	|	setDefaultWeight()
+	 *       	| else
 	 *       	| 	new.getWeight() == getDefaultWeight()
 	 */
 	@Raw
@@ -1641,10 +1565,7 @@ public class Unit {
 		if (canHaveAsWeight(weight))
 			this.weight = weight;
 		else
-		{
-			setDefaultWeight();
 			this.weight = getDefaultWeight();
-		}
 	}
 	
 	/**
@@ -1653,10 +1574,10 @@ public class Unit {
 	private int weight;
 
 	/**
-	 * Return the defaultWeight of this Unit.
+	 * Return the default weight of this Unit.
 	 */
-	@Basic @Raw
-	public int getDefaultWeight() 
+	@Basic @Raw @Model
+	private int getDefaultWeight() 
 	{
 		return this.defaultWeight;
 	}
@@ -1667,8 +1588,8 @@ public class Unit {
 	 * @post	The default weight of this new Unit is equal to the sum of its strength and agility divided by 2.
 	 * 			| new.getDefaultWeight == (getStrength() + getAgility()) / 2
 	 */
-	@Raw
-	public void setDefaultWeight()
+	@Model @Raw
+	private void setDefaultWeight()
 	{
 		this.defaultWeight = (getStrength() + getAgility()) / 2;
 	}
@@ -1677,24 +1598,6 @@ public class Unit {
 	 * Variable registering the default weight of this Unit.
 	 */
 	private int defaultWeight;
-	
-	/**
-	 * Constant registering the maximum value for strength, weight, agility and toughness.
-	 */
-	private final static int MAX_ATTRIBUTE_VALUE = 200;
-	
-	/**
-	 * Constant registering the minimum value for strength, weight, agility and toughness.
-	 */
-	private final static int MIN_ATTRIBUTE_VALUE = 1;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  HITPOINTS		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the maxHitpoints of this Unit.
@@ -1760,7 +1663,7 @@ public class Unit {
 	 * @param  	currentHitpoits
 	 *        	The new currentHitpoints for this Unit.
 	 *        
-	 * @throws 	ModelException 
+	 * @throws 	IllegalArgumentException 
 	 *          A condition was violated or an error was thrown.
 	 *          
 	 * @pre    	This Unit can have the given currentHitpoints as its CurrentHitpoints.
@@ -1777,7 +1680,7 @@ public class Unit {
 	 * 			|			     this.die()
 	 */
 	@Raw
-	public void setCurrentHitpoints(int currentHitpoints) throws ModelException 
+	public void setCurrentHitpoints(int currentHitpoints) throws IllegalArgumentException 
 	{
 		try
 		{
@@ -1832,15 +1735,15 @@ public class Unit {
 	 * @post   	The temporary hitpoint of this new Unit is equal to the given temporary hitpoint.
 	 *       	| new.getTempHitpoint() == tempHitpoint
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given tempHitpoint as its tempHitpoint.
 	 *       	| ! canHaveAsTempHitpoint(getTempHitpoint())
 	 */
 	@Raw
-	private void setTempHitpoint(double tempHitpoint) throws ModelException 
+	private void setTempHitpoint(double tempHitpoint) throws IllegalArgumentException 
 	{
 		if (! canHaveAsTempHitpoint(tempHitpoint))
-			throw new ModelException("The temporary hitpoint counter is too large.");
+			throw new IllegalArgumentException("The temporary hitpoint counter is too large.");
 		this.tempHitpoint = tempHitpoint;
 	}
 	
@@ -1972,15 +1875,15 @@ public class Unit {
 	 * @post   	The temporary staminapoint of this new Unit is equal to the given temporary staminapoint.
 	 *       	| new.getTempStaminapoint() == tempStaminapoint
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	The given temporary staminapoint is not a valid temporary staminapoint for any Unit.
 	 *       	| ! canHaveAsTempStaminapoint(getTempStaminapoint())
 	 */
 	@Raw
-	private void setTempStaminapoint(double tempStaminapoint) throws ModelException 
+	private void setTempStaminapoint(double tempStaminapoint) throws IllegalArgumentException 
 	{
 		if (! canHaveAsTempStaminapoint(tempStaminapoint))
-			throw new ModelException("The temporary staminapoint is too large. " + tempStaminapoint);
+			throw new IllegalArgumentException("The temporary staminapoint is too large. " + tempStaminapoint);
 		this.tempStaminapoint = tempStaminapoint;
 	}
 	
@@ -2088,7 +1991,7 @@ public class Unit {
 	 * @post   	The cubeCoordinates of this new Unit is equal to the given cubeCoordinates.
 	 *       	| new.getCubeCoordinates() == cubeCoordinates
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given cubeCoordinates as its cubeCoordinates.
 	 *       	| ! canHaveAsCubeCoordinates(getCubeCoordinates())
 	 *       
@@ -2097,10 +2000,10 @@ public class Unit {
 	 * 			| 	then this.setIsFalling(true)
 	 */
 	@Raw
-	public void setCubeCoordinates(int[] cubeCoordinates) throws ModelException 
+	public void setCubeCoordinates(int[] cubeCoordinates) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCubeCoordinates(cubeCoordinates))
-			throw new ModelException("The given cube coordinates aren't valid for this Unit.");
+			throw new IllegalArgumentException("The given cube coordinates aren't valid for this Unit.");
 		this.cubeCoordinates = Arrays.copyOf(cubeCoordinates, 3);
 		
 		// Check if this Unit must fall:
@@ -2160,15 +2063,15 @@ public class Unit {
 	 * @post   	The isFalling indicator of this new Unit is equal to the given isFalling indicator.
 	 *       	| new.getisFalling() == isFalling
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given isFalling indicator as its isFalling indicator.
 	 *       	| ! canHaveAsIsFalling(getisFalling())
 	 */
 	@Raw
-	public void setIsFalling(boolean isFalling) throws ModelException 
+	public void setIsFalling(boolean isFalling) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsFalling(isFalling))
-			throw new ModelException("This Unit cannot have the given isFalling indicator as its isFalling indicator.");
+			throw new IllegalArgumentException("This Unit cannot have the given isFalling indicator as its isFalling indicator.");
 		this.isFalling = isFalling;
 	}
 	
@@ -2229,7 +2132,7 @@ public class Unit {
 	 * @post   	The nextCubeCoordinates of this new Unit is equal to the given nextCubeCoordinates.
 	 *       	| new.getNextCubeCoordinates() == nextCubeCoordinates
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given nextCubeCoordinates as its nextCubeCoordinates.
 	 *       	| ! canHaveAsNextCubeCoordinates(getNextCubeCoordinates())
 	 *       	There isn't a solid cube neighbouring the destination cube and the Unit isn't currently falling.
@@ -2237,9 +2140,9 @@ public class Unit {
 	 *      
 	 */
 	@Raw
-	public void setNextCubeCoordinates(int[] nextCubeCoordinates) throws ModelException {
+	public void setNextCubeCoordinates(int[] nextCubeCoordinates) throws IllegalArgumentException {
 		if (! canHaveAsNextCubeCoordinates(nextCubeCoordinates))
-			throw new ModelException("The nextCubeCoordinates are invalid for this Unit.");
+			throw new IllegalArgumentException("The nextCubeCoordinates are invalid for this Unit.");
 		
 		// Check whether the Unit is falling, if so it can have the given nextCubeCoordinates as its nextCubeCoordinates:
 		if (isFalling())
@@ -2251,7 +2154,7 @@ public class Unit {
 			if (getWorld().hasSolidNeighbouringCube(nextCubeCoordinates[0], nextCubeCoordinates[1], nextCubeCoordinates[2]))
 				this.nextCubeCoordinates = nextCubeCoordinates;
 			else
-				throw new ModelException("There isn't a solid cube neighbouring the destination cube.");
+				throw new IllegalArgumentException("There isn't a solid cube neighbouring the destination cube.");
 		}
 	}
 		
@@ -2286,7 +2189,7 @@ public class Unit {
 	 * @post   	The unitPosition of this new Unit is equal to the given coordinates added with half a cube length.
 	 *       	| new.getUnitPosition() == coordinates + (getWorld().getCubeLength() / 2.0)
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given coordinates as its cubeCoordinates.
 	 *       	| ! canHaveAsCubeCoordinates(coordinates)
 	 * 
@@ -2294,10 +2197,10 @@ public class Unit {
 	 * 			and half a cube length, but current notation is also clear. 
 	 */
 	@Raw
-	public void setUnitPosition(int[] coordinates) throws ModelException 
+	public void setUnitPosition(int[] coordinates) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCubeCoordinates(coordinates))
-			throw new ModelException("The given cube coordinates to calculate the Unit's position is not valid.");
+			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position is not valid.");
 		
 		for(int i=0; i<coordinates.length; i++)
 			this.unitPosition[i] = coordinates[i] + (getWorld().getCubeLength() / 2.0);
@@ -2347,17 +2250,17 @@ public class Unit {
 	 * @param 	value
 	 * 			The new value for this element.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			This Unit cannot have the given value as its value for one of its position components.
 	 * 			| ! canHaveAsUnitPositionValue(value)
 	 * 
 	 * @post	The value of the element of the unitPosition with the given index is equal to the given value.
 	 * 			| new.getUnitPosition()[index] == value
 	 */
-	public void setUnitPosition(int index, double value) throws ModelException 
+	public void setUnitPosition(int index, double value) throws IllegalArgumentException 
 	{
 		if (!canHaveAsUnitPositionValue(index, value))
-			throw new ModelException("Value is invalid for this Unit position. " + value);
+			throw new IllegalArgumentException("Value is invalid for this Unit position. " + value);
 		this.unitPosition[index] = value;
 	}
 	
@@ -2413,14 +2316,14 @@ public class Unit {
 	 * @post   	The deltaNewPositions of this new Unit is equal to the given deltaNewPositions.
 	 *       	| new.getDeltaNewPositions() == deltaNewPositions
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	The given deltaNewPositions is not a valid deltaNewPositions for any Unit.
 	 *       	| ! isValidDeltaNewPositions(getDeltaNewPositions())
 	 */
 	@Raw
-	private void setDeltaNewPositions(int[] deltaNewPositions) throws ModelException {
+	private void setDeltaNewPositions(int[] deltaNewPositions) throws IllegalArgumentException {
 		if (! isValidDeltaNewPositions(deltaNewPositions))
-			throw new ModelException("The given delta new positions array is invalid for this Unit.");
+			throw new IllegalArgumentException("The given delta new positions array is invalid for this Unit.");
 		this.deltaNewPositions = Arrays.copyOf(deltaNewPositions, 3);
 	}
 	
@@ -2509,15 +2412,15 @@ public class Unit {
 	 * @post   	The walking speed of this new Unit is equal to the given walking speed.
 	 *       	| new.getWalkingSpeed() == walkingSpeed
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given walkingSpeed as its walkingSpeed.
 	 *       	| ! canHaveAsWalkingSpeed(getWalkingSpeed())
 	 */
 	@Raw
-	public void setWalkingSpeed(double walkingSpeed) throws ModelException 
+	public void setWalkingSpeed(double walkingSpeed) throws IllegalArgumentException 
 	{
 		if (! canHaveAsWalkingSpeed(walkingSpeed))
-			throw new ModelException("The given walking speed is invalid for this Unit.");
+			throw new IllegalArgumentException("The given walking speed is invalid for this Unit.");
 		this.walkingSpeed = walkingSpeed;
 	}
 	
@@ -2565,15 +2468,15 @@ public class Unit {
 	 * @post   	The sprinting speed of this new Unit is equal to the given sprinting speed.
 	 *       	| new.getSprintSpeed() == sprintSpeed
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given sprintSpeed as its sprintSpeed.
 	 *       	| ! canHaveAsSprintSpeed(getSprintSpeed())
 	 */
 	@Raw
-	public void setSprintSpeed(double sprintSpeed) throws ModelException 
+	public void setSprintSpeed(double sprintSpeed) throws IllegalArgumentException 
 	{
 		if (! canHaveAsSprintSpeed(sprintSpeed))
-			throw new ModelException("The given sprint speed is invalid for this Unit.");
+			throw new IllegalArgumentException("The given sprint speed is invalid for this Unit.");
 		this.sprintSpeed = sprintSpeed;
 	}
 	
@@ -2619,17 +2522,17 @@ public class Unit {
 	 *			| else
 	 *			|  	this.velocity[i] = getWalkingSpeed()*(components[i]/d);
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given coordinates as its cubeCoordinates.
 	 *      	| ! canHaveAsCubeCoordinates(coordinates)
 	 *      
 	 * @note	[FIXME] Not entirly sure of the formal specification of the post condition.
 	 */
 	@Raw
-	public void setVelocity(int[] coordinates) throws ModelException 
+	public void setVelocity(int[] coordinates) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCubeCoordinates(coordinates))
-			throw new ModelException("The given cube coordinates aren't valid for this Unit.");
+			throw new IllegalArgumentException("The given cube coordinates aren't valid for this Unit.");
 		
 		double[] components = {coordinates[0]-getCubeCoordinates()[0], coordinates[1]-getCubeCoordinates()[1],
 				coordinates[2]-getCubeCoordinates()[2]};
@@ -2716,15 +2619,15 @@ public class Unit {
 	 * @post   	The current speed of this new Unit is equal to the given current speed.
 	 *       	| new.getCurrentSpeed() == currentSpeed
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given currentSpeed as its currentSpeed.
 	 *       	| ! canHaveAsCurrentSpeed(getCurrentSpeed())
 	 */
 	@Raw
-	public void setCurrentSpeed(double currentSpeed) throws ModelException 
+	public void setCurrentSpeed(double currentSpeed) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCurrentSpeed(currentSpeed))
-			throw new ModelException("The given currentSpeed is invalid for this Unit.");
+			throw new IllegalArgumentException("The given currentSpeed is invalid for this Unit.");
 		this.currentSpeed = currentSpeed;
 	}
 	
@@ -2773,22 +2676,22 @@ public class Unit {
 	 * @post   	The isSprinting indicator of this new Unit is equal to the given isSprinting indicator.
 	 *       	| new.getIsSprinting() == isSprinting
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given isSprinting indicator as its isSprinting indicator.
 	 *       	| ! canHaveAsIsSprinting(getIsSprinting())
 	 */
 	@Raw
-	public void setIsSprinting(boolean isSprinting) throws ModelException 
+	public void setIsSprinting(boolean isSprinting) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsSprinting(isSprinting))
-			throw new ModelException("The given value isSprinting is invalid for this Unit.");
+			throw new IllegalArgumentException("The given value isSprinting is invalid for this Unit.");
 		this.isSprinting = isSprinting;
 	}
 	
 	/**
 	 * Start sprinting with this Unit.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	The isSprinting of this Unit is enabled, if its currentStaminapoints is higher than 0 and the Unit is currently moving
@@ -2807,7 +2710,7 @@ public class Unit {
 	 * 			| if (getCurrentStaminapoints() > 0 && isMoving() && !isFalling() && !isDefaultBehaviourEnabled())
 	 * 			| 	then this.setVelocity(getNextCubeCoordinates())
 	 */
-	public void startSprinting() throws ModelException
+	public void startSprinting() throws IllegalArgumentException
 	{
 		if (getCurrentStaminapoints() > 0 && isMoving() && !isFalling())
 		{
@@ -2824,7 +2727,7 @@ public class Unit {
 	/**
 	 * Stop sprinting with this Unit.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	The isSprinting indicator of this Unit is disabled.
@@ -2833,7 +2736,7 @@ public class Unit {
 	 * @effect	The current speed of this Unit is set to its walking speed.
 	 * 			| this.setCurrentSpeed(getWalkingSpeed())
 	 */
-	public void stopSprinting() throws ModelException
+	public void stopSprinting() throws IllegalArgumentException
 	{
 		setIsSprinting(false);
 		setCurrentSpeed(getWalkingSpeed());
@@ -2887,15 +2790,15 @@ public class Unit {
 	 * @post   	The sprinting duration of this new Unit is equal to the given sprinting duration.
 	 *       	| new.getSprintingDuration() == sprintingDuration
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	The given sprinting duration is not a valid sprinting duration for any Unit.
 	 *       	| ! isValidSprintingDuration(getSprintingDuration())
 	 */
 	@Raw
-	private void setSprintingDuration(double sprintingDuration) throws ModelException 
+	private void setSprintingDuration(double sprintingDuration) throws IllegalArgumentException 
 	{
 		if (! isValidSprintingDuration(sprintingDuration))
-			throw new ModelException("The sprinting duration is invalid for any Unit.");
+			throw new IllegalArgumentException("The sprinting duration is invalid for any Unit.");
 		this.sprintingDuration = sprintingDuration;
 	}
 	
@@ -2944,15 +2847,15 @@ public class Unit {
 	 * @post   	The moving indicator of this new Unit is equal to the given moving indicator.
 	 *       	| new.getIsMoving() == isMoving
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given isMoving indicator as its isMoving indicator.
 	 *       	| ! canHaveAsIsMoving(getIsMoving())
 	 */
 	@Raw
-	public void setIsMoving(boolean isMoving) throws ModelException 
+	public void setIsMoving(boolean isMoving) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsMoving(isMoving))
-			throw new ModelException("The given value isMoving is invalid for this Unit.");
+			throw new IllegalArgumentException("The given value isMoving is invalid for this Unit.");
 		this.isMoving = isMoving;
 	}
 	
@@ -3001,15 +2904,15 @@ public class Unit {
 	 * @post   	The wasMoving indicator of this new Unit is equal to the given wasMoving indicator.
 	 *       	| new.getWasMoving() == wasMoving
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given wasMoving indicator as its wasMoving indicator.
 	 *       	| ! canHaveAsWasMoving(getWasMoving())
 	 */
 	@Raw
-	private void setWasMoving(boolean wasMoving) throws ModelException 
+	private void setWasMoving(boolean wasMoving) throws IllegalArgumentException 
 	{
 		if (! canHaveAsWasMoving(wasMoving))
-			throw new ModelException("The given value wasMoving is invalid for this Unit.");
+			throw new IllegalArgumentException("The given value wasMoving is invalid for this Unit.");
 		this.wasMoving = wasMoving;
 	}
 	
@@ -3060,15 +2963,15 @@ public class Unit {
 	 * @post   	The moving to indicator of this new Unit is equal to the given moving to indicator.
 	 *       	| new.getIsMovingTo() == isMovingTo
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given isMovingTo indicator as its isMovingTo indicator.
 	 *       	| ! canHaveAsIsMovingTo(getIsMovingTo())
 	 */
 	@Raw
-	private void setIsMovingTo(boolean isMovingTo) throws ModelException 
+	private void setIsMovingTo(boolean isMovingTo) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsMovingTo(isMovingTo))
-			throw new ModelException("The given value isMovingTo is invalid for this Unit.");
+			throw new IllegalArgumentException("The given value isMovingTo is invalid for this Unit.");
 		this.isMovingTo = isMovingTo;
 	}
 	
@@ -3119,15 +3022,15 @@ public class Unit {
 	 * @post   	The moving to adjacent cube indicator of this new Unit is equal to the given moving to adjacent cube indicator.
 	 *       	| new.getIsMovingToAdjacent() == isMovingToAdjacent
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given isMovingToAdjacent indicator as its isMovingToAdjacent indicator.
 	 *       	| ! canHaveAsIsMovingToAdjacent(getIsMovingToAdjacent())
 	 */
 	@Raw
-	private void setIsMovingToAdjacent(boolean isMovingToAdjacent) throws ModelException 
+	private void setIsMovingToAdjacent(boolean isMovingToAdjacent) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsMovingToAdjacent(isMovingToAdjacent))
-			throw new ModelException("The given value isMovingToAdjacent is invalid for this Unit.");
+			throw new IllegalArgumentException("The given value isMovingToAdjacent is invalid for this Unit.");
 		this.isMovingToAdjacent = isMovingToAdjacent;
 	}
 	
@@ -3161,15 +3064,15 @@ public class Unit {
 	 * @post   	The destination cube of this new Unit is equal to the given destination cube.
 	 *       	| new.getDestinationCube() == destinationCube
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given destinationCube as its cubeCoordinates.
 	 *       	| ! canHaveAsCubeCoordinates(destinationCube)
 	 */
 	@Raw
-	private void setDestinationCube(int[] destinationCube) throws ModelException 
+	private void setDestinationCube(int[] destinationCube) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCubeCoordinates(destinationCube))
-			throw new ModelException("The given destinationCube is invalid for this Unit.");
+			throw new IllegalArgumentException("The given destinationCube is invalid for this Unit.");
 		this.destinationCube = Arrays.copyOf(destinationCube, 3);
 	}
 	
@@ -3216,21 +3119,21 @@ public class Unit {
 	 * @post   	The working indicator of this new Unit is equal to the given working indicator.
 	 *       	| new.getIsWorking() == isWorking
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given isWorking indicator as its isWorking indicator.
 	 *       	| ! canHaveAsIsWorking(getIsWorking())
 	 */
 	@Raw
-	public void setIsWorking(boolean isWorking) throws ModelException {
+	public void setIsWorking(boolean isWorking) throws IllegalArgumentException {
 		if (! canHaveAsIsWorking(isWorking))
-			throw new ModelException("The given value isWorking is invalid for this Unit.");
+			throw new IllegalArgumentException("The given value isWorking is invalid for this Unit.");
 		this.isWorking = isWorking;
 	}
 	
 	/**
 	 * Make this Unit work.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	The resting indicator of this Unit is disabled, only if the Unit isn't moving, attacking or already working and if the Unit
@@ -3248,7 +3151,7 @@ public class Unit {
 	 * 			| if (!(isMoving() || isAttacking() && !isWorking() && hasRestedOnePoint())
 	 * 			| then this.setWorkingDuration(500/getStrength())
 	 */
-	public void work() throws ModelException
+	public void work() throws IllegalArgumentException
 	{
 		if (!(isMoving() || isAttacking()) && !isWorking() && hasRestedOnePoint())
 		{
@@ -3259,7 +3162,7 @@ public class Unit {
 			setWorkingDuration(500/getStrength());
 		}
 		else
-			throw new ModelException("Unable to work right now.");
+			throw new IllegalArgumentException("Unable to work right now.");
 	}
 	
 	/**
@@ -3272,7 +3175,7 @@ public class Unit {
 	 * @param 	z
 	 * 			The given z coordinate of the target cube.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	Set the target cube to the given cube coordinates, if the Unit isn't already working.
@@ -3290,7 +3193,7 @@ public class Unit {
 	 * 			| if (!isWorking())
 	 * 			|	then this.work()
 	 */
-	public void workAt(int x, int y, int z) throws ModelException
+	public void workAt(int x, int y, int z) throws IllegalArgumentException
 	{
 		if (!isWorking())
 		{
@@ -3308,7 +3211,7 @@ public class Unit {
 				// Start working:
 				work();
 			}
-			catch (ModelException e)
+			catch (IllegalArgumentException e)
 			{
 				//e.printStackTrace();
 				
@@ -3381,15 +3284,15 @@ public class Unit {
 	 * @post   	The targetCube of this new Unit is equal to the given targetCube.
 	 *       	| new.getTargetCube() == targetCube
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given targetCube as its targetCube.
 	 *       	| ! canHaveAsTargetCube(getTargetCube())
 	 */
 	@Raw
-	public void setTargetCube(int[] targetCube) throws ModelException 
+	public void setTargetCube(int[] targetCube) throws IllegalArgumentException 
 	{
 		if (! canHaveAsTargetCube(targetCube))
-			throw new ModelException("The given targetCube to work at is invalid.");
+			throw new IllegalArgumentException("The given targetCube to work at is invalid.");
 		this.targetCube = targetCube;
 	}
 	
@@ -3440,15 +3343,15 @@ public class Unit {
 	 * @post   	The working duration of this new Unit is equal to the given working duration.
 	 *       	| new.getWorkingDuration() == workingDuration
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given workingDuration as its workingDuration.
 	 *       	| ! canHaveAsWorkingDuration(getWorkingDuration())
 	 */
 	@Raw
-	private void setWorkingDuration(double workingDuration) throws ModelException 
+	private void setWorkingDuration(double workingDuration) throws IllegalArgumentException 
 	{
 		if (! canHaveAsWorkingDuration(workingDuration))
-			throw new ModelException("The given workingDuration is invalid for this Unit.");
+			throw new IllegalArgumentException("The given workingDuration is invalid for this Unit.");
 		this.workingDuration = workingDuration;
 	}
 	
@@ -3497,15 +3400,15 @@ public class Unit {
 	 * @post   	The isCarryingLog of this new Unit is equal to the given isCarryingLog.
 	 *       	| new.getIsCarryingLog() == isCarryingLog
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given isCarryingLog indicator as its isCarryingLog indicator.
 	 *       	| ! canHaveAsIsCarryingLog(getIsCarryingLog())
 	 */
 	@Raw
-	public void setIsCarryingLog(boolean isCarryingLog) throws ModelException 
+	public void setIsCarryingLog(boolean isCarryingLog) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsCarryingLog(isCarryingLog))
-			throw new ModelException("The given isCarryingLog indicator is invalid for this Unit.");
+			throw new IllegalArgumentException("The given isCarryingLog indicator is invalid for this Unit.");
 		this.isCarryingLog = isCarryingLog;
 	}
 	
@@ -3578,7 +3481,7 @@ public class Unit {
 	 * 			| if (log != null)
 	 * 			| 	then new.getWeight() == old.getWeight() + log.getWeight()
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit can't have the given Log as its Log.
 	 *       	| ! canHaveAsLog(getLog())
 	 *       
@@ -3586,10 +3489,10 @@ public class Unit {
 	 * 			the setter, because this temporary weight may exceed the checker.
 	 */
 	@Raw
-	public void setLog(Log log) throws ModelException 
+	public void setLog(Log log) throws IllegalArgumentException 
 	{
 		if (! canHaveAsLog(log))
-			throw new ModelException("The given log is invalid for this Unit.");
+			throw new IllegalArgumentException("The given log is invalid for this Unit.");
 		
 		// Set weight:
 		if (log != null)
@@ -3607,7 +3510,7 @@ public class Unit {
 	 * @param 	target
 	 * 			The given target cube to drop the Log on.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	Set the position of this Unit's Log to the given target position.
@@ -3619,7 +3522,7 @@ public class Unit {
 	 * @effect	Disable the isCarryingLog indicator of this Unit.
 	 * 			| this.setIsCarryingLog(false)
 	 */
-	public void dropLog(double[] target) throws ModelException
+	public void dropLog(double[] target) throws IllegalArgumentException
 	{
 		getLog().setPosition(target);
 		setLog(null);
@@ -3671,15 +3574,15 @@ public class Unit {
 	 * @post   	The isCarryingBoulder of this new Unit is equal to the given isCarryingBoulder.
 	 *       	| new.getIsCarryingBoulder() == isCarryingBoulder
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit can't have the given isCarryingBoulder indicator as its isCarryingBoulder indicator.
 	 *       	| ! canHaveAsIsCarryingBoulder(getIsCarryingBoulder())
 	 */
 	@Raw
-	public void setIsCarryingBoulder(boolean isCarryingBoulder) throws ModelException
+	public void setIsCarryingBoulder(boolean isCarryingBoulder) throws IllegalArgumentException
 	{
 		if (! canHaveAsIsCarryingBoulder(isCarryingBoulder))
-			throw new ModelException("The given isCarryingBoulder indicator is invalid for this Unit.");
+			throw new IllegalArgumentException("The given isCarryingBoulder indicator is invalid for this Unit.");
 		this.isCarryingBoulder = isCarryingBoulder;
 	}
 	
@@ -3752,15 +3655,15 @@ public class Unit {
 	 * 			| if (boulder != null)
 	 * 			| 	then new.getWeight() == old.getWeight() + boulder.getWeight()
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit can't have the given Boulder as its Boulder.
 	 *       	| ! canHaveAsBoulder(getBoulder())
 	 */
 	@Raw
-	public void setBoulder(Boulder boulder) throws ModelException 
+	public void setBoulder(Boulder boulder) throws IllegalArgumentException 
 	{
 		if (! canHaveAsBoulder(boulder))
-			throw new ModelException("The given boulder is invalid for this Unit.");
+			throw new IllegalArgumentException("The given boulder is invalid for this Unit.");
 		
 		// Set the weight:
 		if (boulder != null)
@@ -3779,7 +3682,7 @@ public class Unit {
 	 * @param 	target
 	 * 			The given target position
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	The position of this Unit's Boulder is set to the given target position.
@@ -3791,7 +3694,7 @@ public class Unit {
 	 * @effect	This Unit's isCarryingBoulder indicator is disabled.
 	 * 			| this.setIsCarryingBoulder(false)
 	 */
-	public void dropBoulder(double[] target) throws ModelException
+	public void dropBoulder(double[] target) throws IllegalArgumentException
 	{
 		getBoulder().setPosition(target);
 		setBoulder(null);
@@ -3919,15 +3822,15 @@ public class Unit {
 	 * @post   	The fightingDuration of this new Unit is equal to the given fightingDuration.
 	 *       	| new.getFightingDuration() == fightingDuration
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	The given fightingDuration is not a valid fightingDuration for any Unit.
 	 *       	| ! isValidFightingDuration(getFightingDuration())
 	 */
 	@Raw
-	private void setFightingDuration(double fightingDuration) throws ModelException 
+	private void setFightingDuration(double fightingDuration) throws IllegalArgumentException 
 	{
 		if (! isValidFightingDuration(fightingDuration))
-			throw new ModelException("The given fightingDuration is too large.");
+			throw new IllegalArgumentException("The given fightingDuration is too large.");
 		this.fightingDuration = fightingDuration;
 	}
 	
@@ -3974,7 +3877,7 @@ public class Unit {
 	 * @param 	defender
 	 * 			The Unit that's being attacked.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 			Both Units aren't next to each other or they are in the same faction, thus they can't attack each other.
 	 * 			| if (!checkPositions(defender) && defender.getFaction() == getFaction())
@@ -4012,7 +3915,7 @@ public class Unit {
 	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction() && isMoving())
 	 * 			| 	then this.setWasMoving(true)
 	 */
-	public void attack(Unit defender) throws ModelException
+	public void attack(Unit defender) throws IllegalArgumentException
 	{
 		if (checkPositions(defender) && defender.getFaction() != getFaction())
 		{
@@ -4033,7 +3936,7 @@ public class Unit {
 				setIsAttacking(true);
 		}
 		else
-			throw new ModelException("The units must be next to each other.");
+			throw new IllegalArgumentException("The units must be next to each other.");
 	}
 	
 	/**
@@ -4042,7 +3945,7 @@ public class Unit {
 	 * @param 	attacker
 	 * 			The Unit that is attacking this Unit.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an eeror was thrown.
 	 * 			Both Units aren't next to each other or are from the same Faction, thus they can't attack each other.
 	 * 			| if (!checkPositions(attacker) && attacker.getFaction() != getFaction())
@@ -4091,7 +3994,7 @@ public class Unit {
 	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && (hasDogded() || hasBlocked()))
 	 * 			|	then this.setExperience(getExperience() + 20)
 	 */
-	public void defend(Unit attacker) throws ModelException
+	public void defend(Unit attacker) throws IllegalArgumentException
 	{
 		if (checkPositions(attacker) && attacker.getFaction() != getFaction())
 		{
@@ -4138,7 +4041,7 @@ public class Unit {
 					setExperience(getExperience() + 20);
 		}
 		else
-			throw new ModelException("The units must be next to each other.");
+			throw new IllegalArgumentException("The units must be next to each other.");
 	}
 	
 	/**
@@ -4215,22 +4118,22 @@ public class Unit {
 	 * @post   	The resting indicator of this new Unit is equal to the given resting indicator.
 	 *       	| new.getIsResting() == isResting
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given isResting indicator as its isResting indicator.
 	 *       	| ! canHaveAsIsResting(getIsResting())
 	 */
 	@Raw
-	public void setIsResting(boolean isResting) throws ModelException 
+	public void setIsResting(boolean isResting) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsResting(isResting))
-			throw new ModelException("The given value isResting is invalid for this Unit.");
+			throw new IllegalArgumentException("The given value isResting is invalid for this Unit.");
 		this.isResting = isResting;
 	}
 	
 	/**
 	 * Make this Unit rest.
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
 	 * @effect	The isWorking indicator of this Unit is disabled, only if this Unit isn't attacking and if this Unit's current hitpoints
@@ -4282,7 +4185,7 @@ public class Unit {
 	 * 			| 	&& !isResting() && isMoving())
 	 * 			| 	then this.setWasMoving(true)
 	 */
-	public void rest() throws ModelException
+	public void rest() throws IllegalArgumentException
 	{
 		if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints()) && !isResting())
 		{
@@ -4351,15 +4254,15 @@ public class Unit {
 	 * @post  	The resting period of this new Unit is equal to the given resting period.
 	 *       	| new.getRestingPeriod() == restingPeriod
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	The given resting period is not a valid resting period for any Unit.
 	 *       	| ! isValidRestingPeriod(getRestingPeriod())
 	 */
 	@Raw
-	private void setCurrentRestingPeriod(double currentRestingPeriod) throws ModelException 
+	private void setCurrentRestingPeriod(double currentRestingPeriod) throws IllegalArgumentException 
 	{
 		if (! isValidRestingPeriod(currentRestingPeriod))
-			throw new ModelException("The current resting period is too large.");
+			throw new IllegalArgumentException("The current resting period is too large.");
 		this.currentRestingPeriod = currentRestingPeriod;
 	}
 	
@@ -4415,15 +4318,15 @@ public class Unit {
 	 * @post   	The resting duration of this new Unit is equal to the given resting duration.
 	 *       	| new.getRestingDuration() == restingDuration
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	The given resting duration is not a valid resting duration for any Unit.
 	 *       	| ! isValidRestingDuration(getRestingDuration())
 	 */
 	@Raw
-	private void setRestingDuration(double restingDuration) throws ModelException 
+	private void setRestingDuration(double restingDuration) throws IllegalArgumentException 
 	{
 		if (! isValidRestingDuration(restingDuration))
-			throw new ModelException("The given restingDuration is invalid for this Unit.");
+			throw new IllegalArgumentException("The given restingDuration is invalid for this Unit.");
 		this.restingDuration = restingDuration;
 	}
 	
@@ -4508,15 +4411,15 @@ public class Unit {
 	 * @post   	The default behaviour indicator of this new Unit is equal to the given default behaviour indicator.
 	 *       	| new.getIsDefaulBehaviour() == isDefaultBehaviourEnabled
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given isDefaultBehaviour indicator as its isDefaultBehaviour indicator.
 	 *       	| ! canHaveAsIsDefaulBehaviour(getIsDefaulBehaviour())
 	 */
 	@Raw
-	public void setIsDefaultBehaviour(boolean isDefaultBehaviourEnabled) throws ModelException 
+	public void setIsDefaultBehaviour(boolean isDefaultBehaviourEnabled) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsDefaultBehaviour(isDefaultBehaviourEnabled))
-			throw new ModelException("The given value isDefaultBehaviourEnabled is invalid for this Unit.");
+			throw new IllegalArgumentException("The given value isDefaultBehaviourEnabled is invalid for this Unit.");
 		this.isDefaultBehaviourEnabled = isDefaultBehaviourEnabled;
 	}
 	
@@ -4577,7 +4480,7 @@ public class Unit {
 	 * 			| if (faction != null)
 	 * 			| 	then this.getFaction().addUnit(this)
 	 * 
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given Faction as one of its Factions.
 	 *       	| ! canHaveAsFaction(getFaction())
 	 */
@@ -4637,15 +4540,15 @@ public class Unit {
 	 * @post   	The experience of this new Unit is equal to the given experience.
 	 *       	| new.getExperience() == experience
 	 *       
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 *         	The given experience is not a valid experience for any Unit.
 	 *       	| ! isValidExperience(getExperience())
 	 */
 	@Raw
-	public void setExperience(int experience) throws ModelException 
+	public void setExperience(int experience) throws IllegalArgumentException 
 	{
 		if (! isValidExperience(experience))
-			throw new ModelException("The given experience is invalid for any Unit.");
+			throw new IllegalArgumentException("The given experience is invalid for any Unit.");
 		this.experience = experience;
 	}
 	
@@ -4795,14 +4698,14 @@ public class Unit {
 	 * 			The given Task to assign.
 	 * @post	The Task of this Unit is equal to the given Task.
 	 * 			| new.getTask() == task
-	 * @throws	ModelException
+	 * @throws	IllegalArgumentException
 	 * 			This Unit cannot have the given Task as its assigned Task
 	 * 			| !canHaveAsTask(task)
 	 */
-	public void setTask(Task task) throws ModelException
+	public void setTask(Task task) throws IllegalArgumentException
 	{
 		if (!canHaveAsTask(task))
-			throw new ModelException("This Unit cannot assign the given Task as its Task.");
+			throw new IllegalArgumentException("This Unit cannot assign the given Task as its Task.");
 		this.task = task;
 	}
 	
