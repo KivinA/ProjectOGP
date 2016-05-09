@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClassDiagram>
+    <Class name="hillbillies.model.World" x="513" y="120">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association destinationClassName="hillbillies.model.Boulder"
+            endpointName="boulders" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Unit"
+            endpointName="units" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Log"
+            endpointName="logs" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Faction"
+            endpointName="factions" kind="Simple"/>
+        <Communication destinationClassName="hillbillies.model.WorldObject"/>
+        <Communication destinationClassName="hillbillies.model.Unit"/>
+        <Communication destinationClassName="hillbillies.model.Faction"/>
+    </Class>
+    <Class name="hillbillies.model.Task" x="765" y="1159">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association destinationClassName="hillbillies.model.Unit"
+            endpointName="unit" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Scheduler"
+            endpointName="schedulers" kind="Simple"/>
+        <Communication destinationClassName="hillbillies.model.Unit"/>
+        <Communication destinationClassName="hillbillies.model.Scheduler"/>
+    </Class>
+    <Class name="hillbillies.model.WorldObject" x="56" y="211">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association destinationClassName="hillbillies.model.World"
+            endpointName="world" kind="Simple"/>
+        <Communication destinationClassName="hillbillies.model.World"/>
+    </Class>
+    <Class name="hillbillies.model.Unit" x="1097" y="496">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association destinationClassName="hillbillies.model.Boulder"
+            endpointName="boulder" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.World"
+            endpointName="world" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Task"
+            endpointName="task" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Log"
+            endpointName="log" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Faction"
+            endpointName="faction" kind="Simple"/>
+        <Communication destinationClassName="hillbillies.model.World"/>
+        <Communication destinationClassName="hillbillies.model.WorldObject"/>
+        <Communication destinationClassName="hillbillies.model.Faction"/>
+        <Communication destinationClassName="hillbillies.model.Scheduler"/>
+    </Class>
+    <Class name="hillbillies.model.Log" x="395" y="604">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Extension destinationClassName="hillbillies.model.WorldObject"/>
+        <Communication destinationClassName="hillbillies.model.World"/>
+        <Communication destinationClassName="hillbillies.model.WorldObject"/>
+    </Class>
+    <Class name="hillbillies.model.Faction" x="939" y="14">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association destinationClassName="hillbillies.model.Scheduler"
+            endpointName="scheduler" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.World"
+            endpointName="world" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Unit"
+            endpointName="units" kind="Simple"/>
+        <Communication destinationClassName="hillbillies.model.World"/>
+        <Communication destinationClassName="hillbillies.model.Unit"/>
+        <Communication destinationClassName="hillbillies.model.Scheduler"/>
+    </Class>
+    <Class name="hillbillies.model.Scheduler" x="400" y="879">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Association destinationClassName="hillbillies.model.World"
+            endpointName="world" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Faction"
+            endpointName="faction" kind="Simple"/>
+        <Association destinationClassName="hillbillies.model.Task"
+            endpointName="tasks" kind="Simple"/>
+        <Communication destinationClassName="hillbillies.model.Task"/>
+        <Communication destinationClassName="hillbillies.model.Unit"/>
+        <Communication destinationClassName="hillbillies.model.Faction"/>
+    </Class>
+    <Class name="hillbillies.model.Boulder" x="399" y="12">
+        <AttributesDisplayFilter public-accepted="true"
+            private-accepted="true" protected-accepted="true"
+            default-accepted="true" static-accepted="false"/>
+        <MethodDisplayFilter public-accepted="true"
+            private-accepted="false" protected-accepted="false"
+            default-accepted="false" static-accepted="false"
+            accessors-accepted="false" constructors-accepted="false"/>
+        <Extension destinationClassName="hillbillies.model.WorldObject"/>
+        <Communication destinationClassName="hillbillies.model.World"/>
+        <Communication destinationClassName="hillbillies.model.WorldObject"/>
+    </Class>
+</ClassDiagram>
