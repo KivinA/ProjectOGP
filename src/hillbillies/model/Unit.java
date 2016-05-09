@@ -149,6 +149,8 @@ import ogp.framework.util.ModelException;
  *       
  * @invar  	Each Unit can have its isAlive indicator as its isAlive indicator.
  *       	| canHaveAsIsAlive(getIsAlive())
+ * @invar	Each Unit must have a proper World to which it is attached.
+ * 			| hasProperWorld(getWorld())
  */
 
 public class Unit {
@@ -246,13 +248,7 @@ public class Unit {
 	public Unit(String name, int strength, int agility, int toughness, int weight, int[] initialPosition, boolean enableDefaultBehaviour
 			, World world) throws ModelException
 	{
-			// The world of this Unit:
 			setWorld(world);
-			
-			// Make the Unit alive: 
-			setIsAlive(true);
-			
-			// Name of this Unit:
 			setName(name);
 			
 			// Strength of this Unit:
@@ -1313,7 +1309,7 @@ public class Unit {
 		setIsDefaultBehaviour(false);
 		
 		// Kill the Unit:
-		setIsAlive(false);
+		this.isAlive = false;
 		
 		// Delete the Unit:
 		setFaction(null);
@@ -4676,43 +4672,9 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isAlive indicator as its isAlive indicator.
-	 * 
-	 * @param  	isAlive
-	 *         	The alive indicator to check.
-	 * @return 	True if and only if all behaviours (moving, working, resting, defaultBehaviour, defending and attacking) are disabled.
-	 *       	| result == (!isMoving() && !isWorking() && !isResting() && !isDefaultBehaviourEnabled() && !isDefending() && !isAttacking())
-	*/
-	public boolean canHaveAsIsAlive(boolean isAlive) 
-	{
-		return (!isMoving() && !isWorking() && !isResting() && !isDefaultBehaviourEnabled() && !isDefending() && !isAttacking());
-	}
-	
-	/**
-	 * Set the alive indicator of this Unit to the given alive indicator.
-	 * 
-	 * @param  	isAlive
-	 *         	The new isAlive indicator for this Unit.
-	 *         
-	 * @post   	The isAlive indicator of this new Unit is equal to the given isAlive indicator.
-	 *       	| new.getIsAlive() == isAlive
-	 *       
-	 * @throws 	ModelException
-	 *         	This Unit cannot have the given isAlive indicator as its isAlive indicator.
-	 *       	| ! canHaveAsIsAlive(getIsAlive())
+	 * Variable registering whether this Unit is alive.
 	 */
-	@Raw
-	public void setIsAlive(boolean isAlive) throws ModelException 
-	{
-		if (! canHaveAsIsAlive(isAlive))
-			throw new ModelException("This Unit cannot have the given isAlive indicator as its isAlive indicator.");
-		this.isAlive = isAlive;
-	}
-	
-	/**
-	 * Variable registering the alive indicator of this Unit.
-	 */
-	private boolean isAlive;
+	private boolean isAlive = true;
 	
 	// ----------------------
 	// |					|
@@ -4723,7 +4685,7 @@ public class Unit {
 	// ----------------------
 	
 	/**
-	 * Return the world of this Unit.
+	 * Return the {@link World} to which this Unit is attached.
 	 */
 	public World getWorld()
 	{
@@ -4731,22 +4693,62 @@ public class Unit {
 	}
 	
 	/**
-	 * Set the world of this Unit to the given world.
+	 * Check if this Unit can have the given {@link World} as the {@link World} to which it is attached.
 	 * 
 	 * @param 	world
-	 * 			The new world for this Unit.
-	 * @throws ModelException 
-	 * 
-	 * @post	The world of this new Unit is equal to the given world.
-	 * 			| new.getWorld() == world
+	 * 			The {@link World} to check.
+	 * @return	If this Unit is dead, true if and only if the given World is ineffective.
+	 * 			Otherwise, true if and only if the given World is effective and if that World can have this Unit as one of its Units.
+	 * 			| if (!isAlive())
+	 * 			|	then result == (world == null)
+	 * 			| else
+	 * 			|	result == ( (world != null) && world.canHaveAsUnit(this) )
 	 */
-	public void setWorld(World world) throws ModelException
+	public boolean canHaveAsWorld(World world)
 	{
+		if (!isAlive)
+			return (world == null);
+		else return world != null && world.canHaveAsUnit(this);
+	}
+	
+	/**
+	 * Set the {@link World} to which this Unit is attached to the given {@link World}.
+	 * 
+	 * @param 	world
+	 * 			The {@link World} to which this Unit will be attached. 
+	 * @post	The World of this new Unit is equal to the given World.
+	 * 			| new.getWorld() == world
+	 * @throws	IllegalArgumentException
+	 * 			This Unit cannot have the given World as the World to which it is attached.
+	 * 			| (!canHaveAsWorld(world))
+	 */
+	@Raw
+	public void setWorld(World world) throws IllegalArgumentException
+	{
+		if (!canHaveAsWorld(world))
+			throw new IllegalArgumentException("Invalid World for this Unit!");
 		this.world = world;
 	}
 	
 	/**
-	 * Variable registering the world of this Unit.
+	 * Check whether this Unit has a proper {@link World} to which it is attached.
+	 * 
+	 * @return	True if and only if this Unit can have its World as the World to which it is attached and if that World has 
+	 * 			this Unit as one of its Units.
+	 *			| if ( (!canHaveAsWorld(getWorld())) && (!getWorld().hasAsUnit(this)) )
+	 *			| 	then result == false
+	 *			| else 
+	 *			| 	result == true
+	 */
+	public boolean hasProperWorld()
+	{
+		if ((!canHaveAsWorld(getWorld())) && (!getWorld().hasAsUnit(this)))
+			return false;
+		return true;
+	}
+	
+	/**
+	 * Variable referencing the {@link World} to which this Unit is attached.
 	 */
 	private World world;
 	
