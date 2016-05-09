@@ -3,7 +3,7 @@ package hillbillies.model;
 /**
  * A class describing the Boulders that are active in the {@link World}.
  * 
- * @author 	Kevin Algoet & Jeroen Depuydt
+ * @author 	Kevin Algoet & Jeroen DepuyDT
  * @version 0.9
  * 
  * @invar	This Boulder must have a proper World.
