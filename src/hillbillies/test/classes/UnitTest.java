@@ -9,7 +9,6 @@ public class UnitTest {
 
 	private static World world;
 	private Unit unit;
-	private final static int TYPE_AIR = 0;
 	private final static int TYPE_ROCK = 1;
 	private final static int TYPE_LOG = 2;
 	private final static int TYPE_WORKSHOP = 3;
@@ -88,5 +87,176 @@ public class UnitTest {
 		assertTrue(Unit.isValidName("Jeroen Depuydt"));
 		assertTrue(Unit.isValidName("James O' Haraha"));
 		assertTrue(Unit.isValidName("HILLBILLY\""));
+	}
+	
+	@Test
+	public void isValidName_TooShortName()
+	{
+		assertFalse(Unit.isValidName("I"));
+		assertFalse(Unit.isValidName(" "));
+		assertFalse(Unit.isValidName(""));
+	}
+	
+	@Test
+	public void isValidName_NoUpperCase()
+	{
+		assertFalse(Unit.isValidName("hillbilly"));
+		assertFalse(Unit.isValidName("\"hillbilly\""));
+		assertFalse(Unit.isValidName("'Hillbilly'"));
+	}
+	
+	@Test
+	public void isValidName_IllegalCharacters()
+	{
+		assertFalse(Unit.isValidName("Hillbilly_"));
+		assertFalse(Unit.isValidName("Hillbilly10"));
+		assertFalse(Unit.isValidName("Hillbilly-Numb"));
+		assertFalse(Unit.isValidName("Hillybilly*"));
+	}
+	
+	@Test
+	public void setName_LegalCase()
+	{
+		unit.setName("Kevin Algoet");
+		assertEquals("Kevin Algoet", unit.getName());
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void setName_IllegalCase() throws Exception
+	{
+		unit.setName("Hillbilly_1");
+	}
+	
+	@Test
+	public void setStrength_LegalCase()
+	{
+		unit.setStrength(100);
+		assertEquals(100, unit.getStrength());
+	}
+	
+	@Test
+	public void setStrength_IllegalCase()
+	{
+		unit.setStrength(-10);
+		assertEquals(30, unit.getStrength());
+	}
+	
+	@Test
+	public void setAgility_LegalCase()
+	{
+		unit.setAgility(150);
+		assertEquals(150, unit.getAgility());
+	}
+	
+	@Test
+	public void setAgility_IllegalCase()
+	{
+		unit.setAgility(220);
+		assertEquals(30, unit.getAgility());
+	}
+	
+	@Test
+	public void setToughness_LegalCase()
+	{
+		unit.setToughness(75);
+		assertEquals(75,  unit.getToughness());
+	}
+	
+	@Test
+	public void setToughness_IllegalCase()
+	{
+		unit.setToughness(300);
+		assertEquals(30, unit.getToughness());
+	}
+	
+	@Test
+	public void canHaveAsWeight_TrueCase()
+	{
+		assertTrue(unit.canHaveAsWeight(150));
+		assertTrue(unit.canHaveAsWeight((unit.getStrength() + unit.getAgility()) / 2));
+	}
+	
+	@Test
+	public void canHaveAsWeight_NonValidPropertyValue()
+	{
+		assertFalse(unit.canHaveAsWeight(300));
+		assertFalse(unit.canHaveAsWeight(-10));
+	}
+	
+	@Test
+	public void canHaveAsWeight_PropertyValueBelowDefaultWeight()
+	{
+		assertFalse(unit.canHaveAsWeight(1));
+		assertFalse(unit.canHaveAsWeight(25));
+	}
+	
+	@Test
+	public void setWeight_LegalCase()
+	{
+		unit.setWeight(175);
+		assertEquals(175, unit.getWeight());
+	}
+	
+	@Test
+	public void setWeight_IllegalCase()
+	{
+		unit.setWeight(25);
+		assertEquals(((unit.getStrength() + unit.getAgility()) / 2), unit.getWeight());
+	}
+	
+	@Test
+	public void isValidHitpoints_TrueCase()
+	{
+		assertTrue(Unit.isValidHitpoints(300));
+		assertTrue(Unit.isValidHitpoints(10000000));
+	}
+	
+	@Test
+	public void isValidHitpoints_NegativeHitpoints()
+	{
+		assertFalse(Unit.isValidHitpoints(-50));
+		assertFalse(Unit.isValidHitpoints(0));
+	}
+	
+	@Test
+	public void canHaveAsCurrentHitpoints_TrueCase()
+	{
+		int maxHitpoints = unit.getMaxHitpoints();
+		assertTrue(unit.canHaveAsCurrentHitpoints(10));
+		assertTrue(unit.canHaveAsCurrentHitpoints(maxHitpoints));
+	}
+	
+	@Test
+	public void canHaveAsCurrentHitpoints_NonValidHitpoints()
+	{
+		assertFalse(unit.canHaveAsCurrentHitpoints(-20));
+		assertFalse(unit.canHaveAsCurrentHitpoints(0));
+	}
+	
+	@Test
+	public void canHaveAsCurrentHitpoints_AboveMaxHitpoints()
+	{
+		assertFalse(unit.canHaveAsCurrentHitpoints(unit.getMaxHitpoints() + 1));
+	}
+	
+	@Test
+	public void setCurrentHitpoints_LegalCase()
+	{
+		unit.setCurrentHitpoints(unit.getMaxHitpoints() - 1);
+		assertEquals(unit.getMaxHitpoints() - 1, unit.getCurrentHitpoints());
+	}
+	
+	@Test
+	public void setCurrentHitpoints_NegativeHitpoints()
+	{
+		unit.setCurrentHitpoints(-10);
+		assertEquals(0, unit.getCurrentHitpoints());
+		assertFalse(unit.isAlive());
+	}
+	
+	@Test (expected = AssertionError.class)
+	public void setCurrentHitpoints_HitpointsAboveMax() throws Exception
+	{
+		unit.setCurrentHitpoints(unit.getMaxHitpoints() + 1);
 	}
 }

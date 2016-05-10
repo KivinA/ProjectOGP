@@ -1379,7 +1379,6 @@ public class Unit {
 			for(int i=0; i<name.length(); i++)
 			{
 				char current = name.charAt(i);
-				System.out.println(current);
 				if (!(Character.isLetter(current) || (current == '"') || (current == '\'') || Character.isWhitespace(current)))
 					return false;
 			}
@@ -1604,18 +1603,16 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether the given maximum hitpoints is a valid maximum hitpoints for any Unit.
+	 * Check whether the given hitpoints is a valid hitpoints for any Unit.
 	 *  
-	 * @param  	maxHitpoints
-	 *         	The maximum hitpoints to check.
-	 * @return 	True if and only if the given maximum hitpoints are positive and lower than the maximum value of integers.
-	 *       	| result == ( (maxHitpoints > 0) && (maxHitpoints < Integer.MAX_VALUE) )
+	 * @param  	hitpoints
+	 *         	The hitpoints to check.
+	 * @return 	True if and only if the given hitpoints is positive.
+	 *       	| result == ( (hitpoints > 0) )
 	*/
-	public boolean isValidMaxHitpoints(int maxHitpoints) 
+	public static boolean isValidHitpoints(int hitpoints) 
 	{
-//		This checker isn't used in the program, it is just specified for the documentation of the maxHitpoints of any Unit.
-//		We could simply write the return line as the formal specification of the class invariant.
-		return ((maxHitpoints > 0) && (maxHitpoints < Integer.MAX_VALUE));
+		return (hitpoints > 0);
 	}
 	
 	/**
@@ -1637,14 +1634,14 @@ public class Unit {
 	 *  
 	 * @param  	currentHitpoints
 	 *         	The current hitpoints to check.
-	 * @return 	True if and only if the current hitpoints are positive and if they are lower or equal to this Unit's
+	 * @return 	True if and only if the current hitpoints are a valid hitpoints for any Unit and if they are lower or equal to this Unit's
 	 * 			maximum hitpoints.
-	 *       	| result == ((currentHitpoints > 0) && (currentHitpoints <= getMaxHitpoints()))
+	 *       	| result == ( isValidHitpoints(currentHitpoints) && (currentHitpoints <= getMaxHitpoints()))
 	 */
 	@Raw
 	public boolean canHaveAsCurrentHitpoints(int currentHitpoints) 
 	{
-		return ((currentHitpoints > 0) && (currentHitpoints <= getMaxHitpoints()));
+		return ( isValidHitpoints(currentHitpoints) && (currentHitpoints <= getMaxHitpoints()));
 	}
 	
 	/**
