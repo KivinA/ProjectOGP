@@ -264,19 +264,15 @@ public class Unit {
 				weight = getDefaultWeight();	
 			setWeight(weight);
 			
-			// Hitpoints of this Unit:
-			//this.maxHitpoints = (int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100));
-			 this.maxHitpoints = 10;
+			this.maxHitpoints = ((int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100)));
+			// this.maxHitpoints = 10; // This value is simply for testing.
 			setCurrentHitpoints(getMaxHitpoints());
 			
-			// Staminapoints of this Unit:
-			this.maxStaminaPoints = (int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100));
+			this.maxStaminaPoints = ((int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100)));
 			setCurrentStaminapoints(getMaxStaminapoints());
 			
-			// Orientation of this Unit:
 			setOrientation(DEFAULT_ORIENTATION);
 			
-			// Position of this Unit:
 			setCubeCoordinates(initialPosition);
 			setUnitPosition(getCubeCoordinates());
 			
@@ -1375,7 +1371,6 @@ public class Unit {
 	 * 			|	result == true;
 	 * 			| else
 	 * 			|	result == false;
-	 * 			| 	if (Character.isLetter(current) || current == '"' || current == '\'' || Character.isWhitespace(current))
 	 */
 	public static boolean isValidName(String name)
 	{
@@ -1402,7 +1397,7 @@ public class Unit {
 	 *       	| new.getName() == name
 	 * @throws 	IllegalArgumentException
 	 *         	The given name is not a valid name for any Unit.
-	 *       	| ! isValidName(getName())
+	 *       	| !isValidName(getName())
 	 */
 	@Raw
 	public void setName(String name) throws IllegalArgumentException 
@@ -1467,7 +1462,6 @@ public class Unit {
 	 * 
 	 * @param  	agility
 	 *         	The new agility for this Unit.
-	 *         
 	 * @post   	If the given agility is a valid property value for any Unit, the agility of this 
 	 * 			new Unit is equal to the given agility.
 	 *       	| if (isValidPropertyValue(agility))
@@ -1600,7 +1594,7 @@ public class Unit {
 	private int defaultWeight;
 	
 	/**
-	 * Return the maxHitpoints of this Unit.
+	 * Return the maximum hitpoints of this Unit.
 	 */
 	@Basic @Raw @Immutable
 	public int getMaxHitpoints() 
@@ -1609,30 +1603,27 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether the given maxHitpoints is a valid maxHitpoints for any Unit.
+	 * Check whether the given maximum hitpoints is a valid maximum hitpoints for any Unit.
 	 *  
 	 * @param  	maxHitpoints
-	 *         	The maxHitpoints to check.
-	 * @return 	True if and only if the maxHitpoints are positive and lower than the max value of integers.
-	 *       	| result == ((maxHitpoints > 0) && (maxHitpoints < Integer.MAX_VALUE))
+	 *         	The maximum hitpoints to check.
+	 * @return 	True if and only if the given maximum hitpoints are positive and lower than the maximum value of integers.
+	 *       	| result == ( (maxHitpoints > 0) && (maxHitpoints < Integer.MAX_VALUE) )
 	*/
-	@Raw
 	public boolean isValidMaxHitpoints(int maxHitpoints) 
 	{
-		/*
-		 * This checker isn't used in the program, it is just specified for the documentation of the maxHitpoints of any Unit.
-		 * We could simply write the return line as the formal specification of the class invariant.
-		 */
+//		This checker isn't used in the program, it is just specified for the documentation of the maxHitpoints of any Unit.
+//		We could simply write the return line as the formal specification of the class invariant.
 		return ((maxHitpoints > 0) && (maxHitpoints < Integer.MAX_VALUE));
 	}
 	
 	/**
-	 * Variable registering the maxHitpoints of this Unit.
+	 * Variable registering the maximum hitpoints of this Unit.
 	 */
 	private final int maxHitpoints;
 	
 	/**
-	 * Return the currentHitpoints of this Unit.
+	 * Return the current hitpoints of this Unit.
 	 */
 	@Basic @Raw
 	public int getCurrentHitpoints() 
@@ -1641,17 +1632,15 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given currentHitpoints as its currentHitpoints.
+	 * Check whether this Unit can have the given current hitpoints as its current hitpoints.
 	 *  
 	 * @param  	currentHitpoints
-	 *         	The currentHitpoints to check.
-	 * @return 	True if and only if the current hitpoints are positive and if they are lower or equal to this unit's
-	 * 			max hitpoints.
+	 *         	The current hitpoints to check.
+	 * @return 	True if and only if the current hitpoints are positive and if they are lower or equal to this Unit's
+	 * 			maximum hitpoints.
 	 *       	| result == ((currentHitpoints > 0) && (currentHitpoints <= getMaxHitpoints()))
-	 *       
-	 * @note	We don't include zero in this checker because if the currentHitpoints reach zero, the Unit must die. Thus there must be an
-	 * 			assertionError in setCurrentHitpoints.
-	*/
+	 */
+	@Raw
 	public boolean canHaveAsCurrentHitpoints(int currentHitpoints) 
 	{
 		return ((currentHitpoints > 0) && (currentHitpoints <= getMaxHitpoints()));
@@ -1661,39 +1650,34 @@ public class Unit {
 	 * Set the currentHitpoints of this Unit to the given currentHitpoints.
 	 * 
 	 * @param  	currentHitpoits
-	 *        	The new currentHitpoints for this Unit.
-	 *        
-	 * @throws 	IllegalArgumentException 
-	 *          A condition was violated or an error was thrown.
-	 *          
-	 * @pre    	This Unit can have the given currentHitpoints as its CurrentHitpoints.
+	 *        	The new current Hitpoints for this Unit.
+	 * @pre    	This Unit can have the given current hitpoints as its current hitpoints.
 	 *       	| canHaveAsCurrentHitpoints(currentHitpoits)
-	 *       
 	 * @post   	The currentHitpoints of this Unit is equal to the given currentHitpoints.
 	 *       	| new.getCurrentHitpoints() == currentHitpoits
-	 * 
-	 * @effect	This Unit will die if this Unit can't have the given currentHitpoints as its currentHitpoints, and if the given currentHitpoints
-	 * 			is lower than or equal to 0.
-	 * 			| catch (AssertionError e)
-	 * 			| 		if (currentHitpoints <= 0)
-	 * 			|			then this.currentHitpoints = 0
-	 * 			|			     this.die()
+	 * @effect	This Unit will die if this Unit can't have the given currentHitpoints as its currentHitpoints, 
+	 * 			and if the given currentHitpoints is lower than or equal to 0.
+	 * 			| if (!canHaveAsCurrentHitpoints(currentHitpoints)
+	 * 			| 		then if (currentHitpoints <= 0)
+	 * 			|			then this.die()
 	 */
 	@Raw
-	public void setCurrentHitpoints(int currentHitpoints) throws IllegalArgumentException 
+	public void setCurrentHitpoints(int currentHitpoints) 
 	{
 		try
 		{
-			assert canHaveAsCurrentHitpoints(currentHitpoints);
+			assert canHaveAsCurrentHitpoints(currentHitpoints) : "Precondition: Cannot have the given current hitpoints as its current hitpoints.";
 			this.currentHitpoints = currentHitpoints;
 		}
-		catch (AssertionError e)
+		catch (AssertionError exc)
 		{
 			if (currentHitpoints <= 0)
 			{
 				this.currentHitpoints = 0;
 				die();
 			}
+			else
+				throw exc;
 		}
 	}
 	
@@ -1705,22 +1689,21 @@ public class Unit {
 	/**
 	 * Return the temporary hitpoint of this Unit.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private double getTempHitpoint() 
 	{
 		return this.tempHitpoint;
 	}
 	
 	/**
-	 * Check whether this Unit can have the given tempHitpoint as its tempHitpoint.
+	 * Check whether this Unit can have the given temporary hitpoint as its temporary hitpoint.
 	 *  
 	 * @param  	tempHitpoint
 	 *         	The temporary hitpoint to check.
-	 * @return 	True if and only if the tempHitpoint is between zero and the sum of one and this unit's toughness divided by 200.
-	 *       	| result == ((tempHitpoint >= 0) && (tempHitpoint < 1 + (getToughness() / 200.0)))
-	 *       
-	 * @note	Could have potential errors. Please check this implementation if needed.
-	*/
+	 * @return 	True if and only if the temporary hitpoint is between zero and the sum of one and this unit's toughness divided by 200.
+	 *       	| result == ( (tempHitpoint >= 0) && (tempHitpoint < 1 + (getToughness() / 200.0)) )
+	 */
+	@Raw @Model
 	private boolean canHaveAsTempHitpoint(double tempHitpoint) 
 	{
 		return ((tempHitpoint >= 0) && (tempHitpoint < (1 + (getToughness() / 200.0))));
@@ -1731,26 +1714,24 @@ public class Unit {
 	 * 
 	 * @param  	tempHitpoint
 	 *         	The new temporary hitpoint for this Unit.
-	 *         
 	 * @post   	The temporary hitpoint of this new Unit is equal to the given temporary hitpoint.
 	 *       	| new.getTempHitpoint() == tempHitpoint
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given tempHitpoint as its tempHitpoint.
-	 *       	| ! canHaveAsTempHitpoint(getTempHitpoint())
+	 *       	| !canHaveAsTempHitpoint(getTempHitpoint())
 	 */
-	@Raw
+	@Raw @Model
 	private void setTempHitpoint(double tempHitpoint) throws IllegalArgumentException 
 	{
-		if (! canHaveAsTempHitpoint(tempHitpoint))
-			throw new IllegalArgumentException("The temporary hitpoint counter is too large.");
+		if (!canHaveAsTempHitpoint(tempHitpoint))
+			throw new IllegalArgumentException("The temporary hitpoint is too large.");
 		this.tempHitpoint = tempHitpoint;
 	}
 	
 	/**
 	 * Variable registering the temporary hitpoint of this Unit.
 	 */
-	private double tempHitpoint;
+	private double tempHitpoint = 0L;
 	
 	// ----------------------
 	// |					|
