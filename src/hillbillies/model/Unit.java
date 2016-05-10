@@ -1379,6 +1379,7 @@ public class Unit {
 			for(int i=0; i<name.length(); i++)
 			{
 				char current = name.charAt(i);
+				System.out.println(current);
 				if (!(Character.isLetter(current) || (current == '"') || (current == '\'') || Character.isWhitespace(current)))
 					return false;
 			}
