@@ -205,14 +205,14 @@ public class UnitTest {
 	}
 	
 	@Test
-	public void isValidHitpoints_TrueCase()
+	public void isValidPoints_TrueCase()
 	{
 		assertTrue(Unit.isValidPoints(300));
 		assertTrue(Unit.isValidPoints(10000000));
 	}
 	
 	@Test
-	public void isValidHitpoints_NegativeHitpoints()
+	public void isValidPoints_NegativeHitpoints()
 	{
 		assertFalse(Unit.isValidPoints(-50));
 		assertFalse(Unit.isValidPoints(0));
@@ -259,4 +259,39 @@ public class UnitTest {
 	{
 		unit.setCurrentHitpoints(unit.getMaxHitpoints() + 1);
 	}
+	
+	@Test
+	public void canHaveAsCurrentStaminapoints_TrueCase()
+	{
+		assertTrue(unit.canHaveAsCurrentStaminapoints(0));
+		assertTrue(unit.canHaveAsCurrentStaminapoints(15));
+		assertTrue(unit.canHaveAsCurrentStaminapoints(unit.getMaxStaminapoints()));
+	}
+	
+	@Test
+	public void canHaveAsCurrentStaminapoints_NegativePoints()
+	{
+		assertFalse(unit.canHaveAsCurrentStaminapoints(-10));
+	}
+	
+	@Test
+	public void canHaveAsCurrentStaminapoints_PointsAboveMaximum()
+	{
+		assertFalse(unit.canHaveAsCurrentStaminapoints(unit.getMaxStaminapoints() + 1));
+	}
+	
+	@Test
+	public void setCurrentStaminapoints_LegalCase()
+	{
+		unit.setCurrentStaminapoints(0);
+		assertEquals(0, unit.getCurrentStaminapoints());
+	}
+	
+	@Test (expected = AssertionError.class)
+	public void setCurrentStaminapoints_IllegalCase() throws Exception
+	{
+		unit.setCurrentStaminapoints(-10);
+	}
+	
+	
 }
