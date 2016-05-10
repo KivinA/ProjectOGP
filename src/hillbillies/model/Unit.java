@@ -271,8 +271,6 @@ public class Unit {
 			this.maxStaminaPoints = ((int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100)));
 			setCurrentStaminapoints(getMaxStaminapoints());
 			
-			setOrientation(DEFAULT_ORIENTATION);
-			
 			setCubeCoordinates(initialPosition);
 			setUnitPosition(getCubeCoordinates());
 			
@@ -1856,8 +1854,8 @@ public class Unit {
 	 * @param  	orientation
 	 *         	The orientation to check.
 	 * @return 	True if and only if the orientation is between negative PI and PI.
-	 *       	| result == ((orientation >= -(Math.PI)) && (orientation <= Math.PI))
-	*/
+	 *       	| result == ( (orientation >= -(Math.PI)) && (orientation <= Math.PI) )
+	 */
 	public static boolean isValidOrientation(double orientation) 
 	{
 		return ((orientation >= -(Math.PI)) && (orientation <= Math.PI));
@@ -1868,8 +1866,8 @@ public class Unit {
 	 * 
 	 * @param  	orientation
 	 *         	The new orientation for this Unit.
-	 *         
-	 * @post   	If the given orientation is a valid orientation for any Unit, the orientation of this new Unit is equal to the given orientation.
+	 * @post   	If the given orientation is a valid orientation for any Unit, 
+	 * 			the orientation of this new Unit is equal to the given orientation.
 	 *       	| if (isValidOrientation(orientation))
 	 *       	|   then new.getOrientation() == orientation
 	 */
@@ -1881,22 +1879,9 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the orientation of this Unit.
+	 * Variable registering the orientation of this Unit, with a default value of PI/2
 	 */
-	private double orientation;
-	
-	/**
-	 * Constant registering the default orientation.
-	 */
-	private static final double DEFAULT_ORIENTATION = (Math.PI/2);
-
-	// ----------------------
-	// |					|
-	// |					|
-	// |   CUBE COORDINATES	|
-	// |					|
-	// |					|
-	// ----------------------
+	private double orientation = (Math.PI/2);
 	
 	/**
 	 * Return the cubeCoordinates of this Unit.
