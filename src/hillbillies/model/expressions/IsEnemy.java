@@ -5,7 +5,7 @@ package hillbillies.model.expressions;
  * @version 0.1
  *
  */
-public class Position extends BooleanExpression {
+public class IsEnemy extends BooleanExpression {
 
 	@Override
 	public Boolean evaluate() {
