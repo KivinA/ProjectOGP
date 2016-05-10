@@ -1,5 +1,6 @@
 package hillbillies.model.statements;
 
+import hillbillies.model.expressions.BooleanExpression;
 import hillbillies.model.expressions.Expression;
 import hillbillies.part3.programs.SourceLocation;
 
@@ -9,13 +10,21 @@ import hillbillies.part3.programs.SourceLocation;
  *
  */
 public class If implements Statement {
+	private BooleanExpression condition;
+	private Statement ifBody;
+	private Statement elseBody;
+	
 	public If(Expression condition, Statement ifBody, Statement elseBody, SourceLocation sourceLocation) {
 		
 	}
 
 	@Override
 	public void execute() {
-		// TODO Auto-generated method stub
+		if (condition.evaluate())
+			ifBody.execute();
+		else
+			elseBody.execute();
+			
 		
 	}
 

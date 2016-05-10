@@ -6,5 +6,5 @@ package hillbillies.model.expressions;
  *
  */
 public interface Expression {
-
+	public Boolean evaluate();
 }
