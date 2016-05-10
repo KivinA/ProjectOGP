@@ -271,8 +271,8 @@ public class Unit {
 			this.maxStaminaPoints = ((int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100)));
 			setCurrentStaminapoints(getMaxStaminapoints());
 			
-			setCubeCoordinates(initialPosition);
-			setUnitPosition(getCubeCoordinates());
+			//setCubeCoordinates(initialPosition);
+			setUnitPosition(initialPosition);
 			
 			// Default behaviour of this Unit: We will only change the behaviour to true if true is given. Otherwise the checker is invalid!
 			if (enableDefaultBehaviour)
@@ -491,7 +491,7 @@ public class Unit {
 							setIsSprinting(false);
 					}	
 					
-					setCubeCoordinates(getNextCubeCoordinates()); // Correct the current cube coordinates.
+					//setCubeCoordinates(getNextCubeCoordinates()); // Correct the current cube coordinates.
 					setUnitPosition(getNextCubeCoordinates()); // Correct the unit's position.
 				}
 			}
@@ -506,9 +506,9 @@ public class Unit {
 				{
 					//System.out.println("Calculating result of work task...");
 					// Several cases:
-					double x = getTargetCube()[0] + (getWorld().getCubeLength() / 2.0);
-					double y = getTargetCube()[1] + (getWorld().getCubeLength() / 2.0);
-					double z = getTargetCube()[2] + (getWorld().getCubeLength() / 2.0);
+					double x = getTargetCube()[0] + (World.getCubeLength() / 2.0);
+					double y = getTargetCube()[1] + (World.getCubeLength() / 2.0);
+					double z = getTargetCube()[2] + (World.getCubeLength() / 2.0);
 					double[] target = {x, y, z};
 					Log log = logPresentAtCube(target);
 					Boulder boulder = boulderPresentAtCube(target);
@@ -1111,7 +1111,7 @@ public class Unit {
 			// The new unit position component is higher than the current one, thus we check with operator <=
 			if (getDeltaNewPositions()[i] == 1)
 			{
-				if (getUnitPosition()[i] <= (getNextCubeCoordinates()[i] + (getWorld().getCubeLength() / 2.0)))
+				if (getUnitPosition()[i] <= (getNextCubeCoordinates()[i] + (World.getCubeLength() / 2.0)))
 				{
 					hasReached = false;
 					break;
@@ -1122,7 +1122,7 @@ public class Unit {
 			// The new unit position component is lower than the current one, thus we check with operator >=
 			else if (getDeltaNewPositions()[i] == -1)
 			{
-				if (getUnitPosition()[i] >= (getNextCubeCoordinates()[i] + (getWorld().getCubeLength() / 2.0)))
+				if (getUnitPosition()[i] >= (getNextCubeCoordinates()[i] + (World.getCubeLength() / 2.0)))
 				{
 					hasReached = false;
 					break;
@@ -1925,19 +1925,19 @@ public class Unit {
 	 * 			| if (!getWorld().hasSolidNeighbouringCube(cubeCoordinates[0], cubeCoordinates[1], cubeCoordinates[2]))
 	 * 			| 	then this.setIsFalling(true)
 	 */
-	@Raw
-	public void setCubeCoordinates(int[] cubeCoordinates) throws IllegalArgumentException 
-	{
-		if (! canHaveAsCubeCoordinates(cubeCoordinates))
-			throw new IllegalArgumentException("The given cube coordinates aren't valid for this Unit.");
-		this.cubeCoordinates = Arrays.copyOf(cubeCoordinates, 3);
-		
-		// Check if this Unit must fall:
-		if (mustUnitFall(getCubeCoordinates()))
-			setIsFalling(true);
-		else if (isFalling())
-			setIsFalling(false);	
-	}
+//	@Raw
+//	public void setCubeCoordinates(int[] cubeCoordinates) throws IllegalArgumentException 
+//	{
+//		if (! canHaveAsCubeCoordinates(cubeCoordinates))
+//			throw new IllegalArgumentException("The given cube coordinates aren't valid for this Unit.");
+//		this.cubeCoordinates = Arrays.copyOf(cubeCoordinates, 3);
+//		
+//		// Check if this Unit must fall:
+//		if (mustUnitFall(getCubeCoordinates()))
+//			setIsFalling(true);
+//		else if (isFalling())
+//			setIsFalling(false);	
+//	}
 	
 	/**
 	 * Variable registering the cubeCoordinates of this Unit.
@@ -2018,14 +2018,6 @@ public class Unit {
 	 */
 	private boolean isFalling;
 	
-	// ----------------------
-	// |					|
-	// |		NEXT		|
-	// |  CUBE COORDINATES	|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the nextCubeCoordinates of this Unit.
 	 */
@@ -2089,32 +2081,23 @@ public class Unit {
 	 */
 	private int[] nextCubeCoordinates = new int[3];
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    UNIT POSITION	|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the unitPosition of this Unit.
 	 */
 	@Basic @Raw
 	public double[] getUnitPosition() 
 	{
-		return this.unitPosition;
+		return Arrays.copyOf(position, position.length);
 	}
 	
 	/**
-	 * Set the unitPosition of this Unit to the given unitPosition.
+	 * Set the position of this Unit to the given position.
 	 * 
-	 * @param  	unitPosition
-	 *         	The new unitPosition for this Unit.
-	 *         
-	 * @post   	The unitPosition of this new Unit is equal to the given coordinates added with half a cube length.
-	 *       	| new.getUnitPosition() == coordinates + (getWorld().getCubeLength() / 2.0)
-	 *       
+	 * @param  	coordinates
+	 *         	The cube coordinates used to calculate the new position of this Unit.
+	 * @post   	Each element of the position of this Unit is equal to the corresponding element of the given coordinates. 
+	 * 			| for each i in 0..coordinates.length:
+	 * 			|	new.position[i] == (coordinates[i] + (World.getCubeLength() / 2.0))       
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given coordinates as its cubeCoordinates.
 	 *       	| ! canHaveAsCubeCoordinates(coordinates)
@@ -2126,10 +2109,8 @@ public class Unit {
 	public void setUnitPosition(int[] coordinates) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCubeCoordinates(coordinates))
-			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position is not valid.");
-		
-		for(int i=0; i<coordinates.length; i++)
-			this.unitPosition[i] = coordinates[i] + (getWorld().getCubeLength() / 2.0);
+			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position are not valid.");
+		position = World.getPreciseCoordinates(coordinates);
 	}
 	
 	/**
@@ -2187,13 +2168,13 @@ public class Unit {
 	{
 		if (!canHaveAsUnitPositionValue(index, value))
 			throw new IllegalArgumentException("Value is invalid for this Unit position. " + value);
-		this.unitPosition[index] = value;
+		this.position[index] = value;
 	}
 	
 	/**
 	 * Variable registering the unitPosition of this Unit.
 	 */
-	private double[] unitPosition = new double[3];
+	private double[] position = new double[3];
 	
 	// ----------------------
 	// |					|

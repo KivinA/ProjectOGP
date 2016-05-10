@@ -60,7 +60,7 @@ public class WorldTest
 		assertEquals(theTerrain[0].length, theWorld.getNbCubesY());
 		assertEquals(theTerrain[0][0].length, theWorld.getNbCubesZ());
 		assertEquals(0, theWorld.getLowerBoundary());
-		assertEquals(1, theWorld.getCubeLength());
+		assertEquals(1, World.getCubeLength());
 		assertEquals(TYPE_LOG, theWorld.getCubeType(1, 1, 1));
 		assertEquals(TYPE_ROCK, theWorld.getCubeType(0, 0, 0));
 		assertEquals(TYPE_WORKSHOP, theWorld.getCubeType(1, 1, 0));
