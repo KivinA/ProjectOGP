@@ -492,7 +492,7 @@ public class Unit {
 					}	
 					
 					//setCubeCoordinates(getNextCubeCoordinates()); // Correct the current cube coordinates.
-					setUnitPosition(getNextCubeCoordinates()); // Correct the unit's position.
+					setUnitPosition(getNextCoordinates()); // Correct the unit's position.
 				}
 			}
 			
@@ -780,7 +780,7 @@ public class Unit {
 					setDeltaNewPositions(dCoordinates);
 					
 					// Set the next cube coordinates to the new coordinates:
-					setNextCubeCoordinates(newCoordinates);
+					setNextCoordinates(newCoordinates);
 					
 					// Set base speed:
 					double baseSpeed = 1.5*((getStrength() + getAgility()) / (200.0*(getWeight() / 100.0)));
@@ -1111,7 +1111,7 @@ public class Unit {
 			// The new unit position component is higher than the current one, thus we check with operator <=
 			if (getDeltaNewPositions()[i] == 1)
 			{
-				if (getUnitPosition()[i] <= (getNextCubeCoordinates()[i] + (World.getCubeLength() / 2.0)))
+				if (getUnitPosition()[i] <= (getNextCoordinates()[i] + (World.getCubeLength() / 2.0)))
 				{
 					hasReached = false;
 					break;
@@ -1122,7 +1122,7 @@ public class Unit {
 			// The new unit position component is lower than the current one, thus we check with operator >=
 			else if (getDeltaNewPositions()[i] == -1)
 			{
-				if (getUnitPosition()[i] >= (getNextCubeCoordinates()[i] + (World.getCubeLength() / 2.0)))
+				if (getUnitPosition()[i] >= (getNextCoordinates()[i] + (World.getCubeLength() / 2.0)))
 				{
 					hasReached = false;
 					break;
@@ -1984,7 +1984,7 @@ public class Unit {
 	 * @return	True if and only if the given cube doesn't have a solid neighbouring cube and if the Unit isn't already falling.
 	 * 			| result == ( !(getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2])) && !isFalling() )
 	 */
-	@Raw
+	@Raw @Model
 	private boolean mustUnitFall(int[] coordinates)
 	{
 		return !getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2]) && !isFalling();
@@ -1996,67 +1996,67 @@ public class Unit {
 	private boolean isFalling;
 	
 	/**
-	 * Return the nextCubeCoordinates of this Unit.
+	 * Return the coordinates of the cube to which this Unit will move to next.
 	 */
 	@Basic @Raw
-	public int[] getNextCubeCoordinates() 
+	public int[] getNextCoordinates() 
 	{
-		return this.nextCubeCoordinates;
+		return this.nextCoordinates;
 	}
 	
 	/**
-	 * Check whether this Unit can have the given nextCubeCoordinates as its nextCubeCoordinates.
+	 * Check whether this Unit can have the given next cube coordinates as its next cube coordinates.
 	 *  
-	 * @param  	nextCubeCoordinates
-	 *         	The nextCubeCoordinates to check.
-	 * @return 	True if and only if this Unit can have the nextCubeCoordinates as cubeCoordinates 
-	 * 			and if the given nextCubeCoordinates are different from the current cube coordinates.
-	 *       	| result == (canHaveAsCubeCoordinates(nextCubeCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCubeCoordinates))
-	*/
-	public boolean canHaveAsNextCubeCoordinates(int[] nextCubeCoordinates) 
+	 * @param  	nextCoordinates
+	 *         	The next cube coordinates to check.
+	 * @return	True if and only if this Unit can use the next cube coordinates as cube coordinates and if
+	 * 			the given next cube coordinates are different from the current cube coordinates.
+	 *       	| result == ( canUseAsCubeCoordinates(nextCubeCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCoordinates) )
+	 */
+	@Raw
+	public boolean canHaveAsNextCoordinates(int[] nextCoordinates) 
 	{
-		return (canUseAsCubeCoordinates(nextCubeCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCubeCoordinates));
+		return (canUseAsCubeCoordinates(nextCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCoordinates));
 	}
 	
 	/**
-	 * Set the nextCubeCoordinates of this Unit to the given nextCubeCoordinates.
+	 * Set the next cube coordinates of this Unit to the given next cube coordinates.
 	 * 
-	 * @param  	nextCubeCoordinates
-	 *         	The new nextCubeCoordinates for this Unit.
-	 *         
-	 * @post   	The nextCubeCoordinates of this new Unit is equal to the given nextCubeCoordinates.
+	 * @param  	nextCoordinates
+	 *         	The new next cube coordinates for this Unit.
+	 * @post   	The next cube coordinates of this new Unit is equal to the given next cube coordinates.
 	 *       	| new.getNextCubeCoordinates() == nextCubeCoordinates
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given nextCubeCoordinates as its nextCubeCoordinates.
 	 *       	| ! canHaveAsNextCubeCoordinates(getNextCubeCoordinates())
-	 *       	There isn't a solid cube neighbouring the destination cube and the Unit isn't currently falling.
-	 *       	| !getWorld().hasSolidNeighbouringCube(nextCubeCoordinates[0], nextCubeCoordinates[1], nextCubeCoordinates[2])
-	 *      
+	 * @throws	IllegalArgumentException
+	 * 			If the Unit isn't falling and there isn't a solid cube neighbouring the destination cube 
+	 * 			and the Unit isn't currently falling.
+	 *       	| !isFalling() && !getWorld().hasSolidNeighbouringCube(nextCubeCoordinates[0], nextCubeCoordinates[1], nextCubeCoordinates[2])
 	 */
 	@Raw
-	public void setNextCubeCoordinates(int[] nextCubeCoordinates) throws IllegalArgumentException {
-		if (! canHaveAsNextCubeCoordinates(nextCubeCoordinates))
+	public void setNextCoordinates(int[] nextCoordinates) throws IllegalArgumentException 
+	{
+		if (! canHaveAsNextCoordinates(nextCoordinates))
 			throw new IllegalArgumentException("The nextCubeCoordinates are invalid for this Unit.");
 		
 		// Check whether the Unit is falling, if so it can have the given nextCubeCoordinates as its nextCubeCoordinates:
 		if (isFalling())
-			this.nextCubeCoordinates = nextCubeCoordinates;
+			this.nextCoordinates = Arrays.copyOf(nextCoordinates, nextCoordinates.length);
 		
 		// Else: check whether the nextCubeCoordinates has a solid neigbouring cube.
 		else
 		{
-			if (getWorld().hasSolidNeighbouringCube(nextCubeCoordinates[0], nextCubeCoordinates[1], nextCubeCoordinates[2]))
-				this.nextCubeCoordinates = nextCubeCoordinates;
-			else
+			if (!getWorld().hasSolidNeighbouringCube(nextCoordinates[0], nextCoordinates[1], nextCoordinates[2]))
 				throw new IllegalArgumentException("There isn't a solid cube neighbouring the destination cube.");
+			this.nextCoordinates = Arrays.copyOf(nextCoordinates, nextCoordinates.length);				
 		}
 	}
 		
 	/**
-	 * Variable registering the nextCubeCoordinates of this Unit.
+	 * Variable registering the coordinates of the next cube to which this Unit will move to next.
 	 */
-	private int[] nextCubeCoordinates = new int[3];
+	private int[] nextCoordinates;
 	
 	/**
 	 * Return the unitPosition of this Unit.
@@ -2604,7 +2604,7 @@ public class Unit {
 			// Only set the velocity if this method isn't called by the default behaviour. If the default behaviour decides to sprint, the correct 
 			// velocity will be calculated in the MoveToAdjacent method.
 			if (!isDefaultBehaviourEnabled())
-				setVelocity(getNextCubeCoordinates());
+				setVelocity(getNextCoordinates());
 		}
 	}
 	
