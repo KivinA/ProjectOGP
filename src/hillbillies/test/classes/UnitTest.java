@@ -293,5 +293,31 @@ public class UnitTest {
 		unit.setCurrentStaminapoints(-10);
 	}
 	
+	@Test
+	public void isValidOrientation_TrueCase()
+	{
+		assertTrue(Unit.isValidOrientation(Math.PI/6));
+		assertTrue(Unit.isValidOrientation(-Math.PI/6));
+	}
 	
+	@Test
+	public void isValidOrientation_FalseCase()
+	{
+		assertFalse(Unit.isValidOrientation(2*Math.PI));
+		assertFalse(Unit.isValidOrientation(2*-Math.PI));
+	}
+	
+	@Test
+	public void setOrientation_LegalCase()
+	{
+		unit.setOrientation(Math.PI);
+		assertEquals(Math.PI, unit.getOrientation(), 0.001);
+	}
+	
+	@Test
+	public void setOrientation_IllegalCase()
+	{
+		unit.setOrientation(4*Math.PI/3);
+		assertEquals(Math.PI/2, unit.getOrientation(), 0.001);
+	}
 }

@@ -1884,7 +1884,7 @@ public class Unit {
 	private double orientation = (Math.PI/2);
 	
 	/**
-	 * Return the cubeCoordinates of this Unit.
+	 * Return the cube coordinates of this Unit.
 	 */
 	@Basic @Raw
 	public int[] getCubeCoordinates() 
