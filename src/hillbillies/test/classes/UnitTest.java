@@ -207,15 +207,15 @@ public class UnitTest {
 	@Test
 	public void isValidHitpoints_TrueCase()
 	{
-		assertTrue(Unit.isValidHitpoints(300));
-		assertTrue(Unit.isValidHitpoints(10000000));
+		assertTrue(Unit.isValidPoints(300));
+		assertTrue(Unit.isValidPoints(10000000));
 	}
 	
 	@Test
 	public void isValidHitpoints_NegativeHitpoints()
 	{
-		assertFalse(Unit.isValidHitpoints(-50));
-		assertFalse(Unit.isValidHitpoints(0));
+		assertFalse(Unit.isValidPoints(-50));
+		assertFalse(Unit.isValidPoints(0));
 	}
 	
 	@Test

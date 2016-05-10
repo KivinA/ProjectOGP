@@ -1603,16 +1603,16 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether the given hitpoints is a valid hitpoints for any Unit.
+	 * Check whether the given points are valid points for any Unit.
 	 *  
-	 * @param  	hitpoints
-	 *         	The hitpoints to check.
-	 * @return 	True if and only if the given hitpoints is positive.
+	 * @param  	points
+	 *         	The points to check.
+	 * @return 	True if and only if the given points is positive.
 	 *       	| result == ( (hitpoints > 0) )
 	*/
-	public static boolean isValidHitpoints(int hitpoints) 
+	public static boolean isValidPoints(int points) 
 	{
-		return (hitpoints > 0);
+		return (points > 0);
 	}
 	
 	/**
@@ -1641,7 +1641,7 @@ public class Unit {
 	@Raw
 	public boolean canHaveAsCurrentHitpoints(int currentHitpoints) 
 	{
-		return ( isValidHitpoints(currentHitpoints) && (currentHitpoints <= getMaxHitpoints()));
+		return ( isValidPoints(currentHitpoints) && (currentHitpoints <= getMaxHitpoints()));
 	}
 	
 	/**
@@ -1715,7 +1715,7 @@ public class Unit {
 	 * @post   	The temporary hitpoint of this new Unit is equal to the given temporary hitpoint.
 	 *       	| new.getTempHitpoint() == tempHitpoint
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given tempHitpoint as its tempHitpoint.
+	 *         	This Unit cannot have the given temporary hitpoint as its temporary hitpoint.
 	 *       	| !canHaveAsTempHitpoint(getTempHitpoint())
 	 */
 	@Raw @Model
@@ -1731,16 +1731,8 @@ public class Unit {
 	 */
 	private double tempHitpoint = 0L;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    STAMINAPOINTS	|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the maxStaminaPoints of this Unit.
+	 * Return the maximum staminapoints of this Unit.
 	 */
 	@Basic @Raw @Immutable
 	public int getMaxStaminapoints() 
@@ -1749,25 +1741,7 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether the given maxStaminapoints is a valid maxStaminapoints for any Unit.
-	 * 
-	 * @param 	maxStaminapoints
-	 *         	The maxStaminaPoints to check.
-	 * @return 	True if and only if the maxHitpoints are positive and lower than the max value of integers.
-	 *       	| result == ((maxStaminapoints > 0) && (maxStaminapoints < Integer.MAX_VALUE))
-	*/
-	@Raw
-	public static boolean isValidMaxStaminaPoints(int maxStaminapoints) 
-	{
-		/*
-		 * This checker isn't used in the program, it is just specified for the documentation of the maxHitpoints of any Unit.
-		 * We could simply write the return line as the formal specification of the class invariant.
-		 */
-		return ((maxStaminapoints > 0) && (maxStaminapoints < Integer.MAX_VALUE));
-	}
-	
-	/**
-	 * Variable registering the maxStaminaPoints of this Unit.
+	 * Variable registering the maximum staminaPoints of this Unit.
 	 */
 	private final int maxStaminaPoints;
 	
@@ -1781,15 +1755,14 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this unit can have the given currentStaminapoints as its currentStaminapoints.
+	 * Check whether this Unit can have the given current staminapoints as its current staminapoints.
 	 * 
 	 * @param  	currentStaminapoints
-	 *         	The currentStaminapoints to check.
-	 * @return 	True if and only if the current stamina points is zero or positive and if it is lower or equal 
-	 * 			to this unit's max staminapoints. 
-	 *       	| result == ((currentStaminapoints >= 0) && (currentStaminapoints <= getMaxHitpoints()))
-	 *       
-	 * @note	As opposed to currentHitpoints, we do implement equal to zero in this checker, because the currentStaminapoints should
+	 *         	The current staminapoints to check.
+	 * @return 	True if and only if the current staminapoints aren't negative and if they are lower or equal 
+	 * 			to this Unit's maximum staminapoints. 
+	 *       	| result == ( (currentStaminapoints >= 0) && (currentStaminapoints <= getMaxHitpoints()) )
+	 * @note	As opposed to current hitpoints, we do implement equal to zero in this checker, because the current staminapoints should
 	 * 			be able to reach zero, at which point a Unit can't sprint anymore.
 	*/
 	public boolean canHaveAsCurrentStaminapoints(int currentStaminapoints) 
@@ -1802,7 +1775,6 @@ public class Unit {
 	 * 
 	 * @param  	currentStaminapoints
 	 *         	The new currentStaminapoints for this Unit.
-	 *         
 	 * @pre    	The given currentStaminapoints must be a valid currentStaminapoints for any Unit.
 	 *       	| canHaveAsCurrentStaminapoints(currentStaminapoints)
 	 *       
@@ -1812,34 +1784,34 @@ public class Unit {
 	@Raw
 	public void setCurrentStaminapoints(int currentStaminapoints) 
 	{
-		assert canHaveAsCurrentStaminapoints(currentStaminapoints);
+		assert canHaveAsCurrentStaminapoints(currentStaminapoints) : "Precondition: Cannot have the given current staminapoints as current staminapoints.";
 		this.currentStaminapoints = currentStaminapoints;
 	}
 	
 	/**
-	 * Variable registering the currentStaminapoints of this Unit.
+	 * Variable registering the current staminapoints of this Unit.
 	 */
 	private int currentStaminapoints;
 
 	/**
 	 * Return the temporary staminapoint of this Unit.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private double getTempStaminapoint() 
 	{
 		return this.tempStaminapoint;
 	}
 	
 	/**
-	 * Check whether the given temporary staminapoint is a valid temporary staminapoint for any Unit.
+	 * Check whether this Unit can have the given temporary staminapoint as its temporary staminapoint.
 	 *  
 	 * @param  	temporary staminapoint
 	 *         	The temporary staminapoint to check.
-	 * @return 	True if and only if the given tempStaminapoint is between zero and the sum of one and this Unit's toughness divided by 100.
-	 *       	| result == ((tempStaminapoint >= 0) && (tempStaminapoint <= 1 + (getToughness() / 100)))
-	 *       
-	 * @note	Could have potential errors. Please check this implementation if needed.
+	 * @return 	True if and only if the given temporary staminapoint is between zero and 
+	 * 			the sum of one and this Unit's toughness divided by 100.
+	 *       	| result == ( (tempStaminapoint >= 0) && (tempStaminapoint <= 1 + (getToughness() / 100)) )
 	 */
+	@Raw @Model
 	private boolean canHaveAsTempStaminapoint(double tempStaminapoint) 
 	{
 		return ((tempStaminapoint >= 0) && (tempStaminapoint <= (1 + (getToughness() / 100.0))));
@@ -1850,34 +1822,24 @@ public class Unit {
 	 * 
 	 * @param  	tempStaminapoint
 	 *         	The new temporary staminapoint for this Unit.
-	 *         
 	 * @post   	The temporary staminapoint of this new Unit is equal to the given temporary staminapoint.
 	 *       	| new.getTempStaminapoint() == tempStaminapoint
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	The given temporary staminapoint is not a valid temporary staminapoint for any Unit.
+	 *         	This Unit cannot have the given temporary staminapoint as its temporary staminapoint.
 	 *       	| ! canHaveAsTempStaminapoint(getTempStaminapoint())
 	 */
-	@Raw
+	@Raw @Model
 	private void setTempStaminapoint(double tempStaminapoint) throws IllegalArgumentException 
 	{
-		if (! canHaveAsTempStaminapoint(tempStaminapoint))
-			throw new IllegalArgumentException("The temporary staminapoint is too large. " + tempStaminapoint);
+		if (!canHaveAsTempStaminapoint(tempStaminapoint))
+			throw new IllegalArgumentException("The temporary staminapoint is too large.");
 		this.tempStaminapoint = tempStaminapoint;
 	}
 	
 	/**
 	 * Variable registering the temporary staminapoint of this Unit.
 	 */
-	private double tempStaminapoint;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    ORIENTATION		|
-	// |					|
-	// |					|
-	// ----------------------
+	private double tempStaminapoint = 0L;
 	
 	/**
 	 * Return the orientation of this Unit.
