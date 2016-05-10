@@ -774,7 +774,7 @@ public class Unit {
 				int[] newCoordinates = {newXPos, newYPos, newZPos};
 				
 				// Check whether the new cube coordinates are valid. If so, calculate the speeds and orientation:
-				if (canHaveAsCubeCoordinates(newCoordinates))
+				if (canUseAsCubeCoordinates(newCoordinates))
 				{
 					// Set the delta coordinates:
 					setDeltaNewPositions(dCoordinates);
@@ -918,7 +918,7 @@ public class Unit {
 					 *	-	(c,n| n <= n0) is not an element of Queue: Check whether the queue doesn't already have a tuple containing the given
 					 *		coordinate.
 					 */ 
-					if (getWorld().hasSolidNeighbouringCube(x, y, z) && canHaveAsCubeCoordinates(neighBouringCube) 
+					if (getWorld().hasSolidNeighbouringCube(x, y, z) && canUseAsCubeCoordinates(neighBouringCube) 
 							&& (neighBouringCube != startTuple.getFirstValue()) && !hasTupleWithGivenCoordinates(neighBouringCube, pathQueue)
 							&& !hasTupleWithGivenCoordinates(neighBouringCube, tempPaths))
 					{
@@ -1885,75 +1885,40 @@ public class Unit {
 	
 	/**
 	 * Return the cube coordinates of this Unit.
+	 * 
+	 * TODO	Return clauses.
 	 */
 	@Basic @Raw
 	public int[] getCubeCoordinates() 
 	{
-		return this.cubeCoordinates;
+		return World.getCubeCoordinates(getUnitPosition());
 	}
 	
 	/**
-	 * Check whether this Unit can have the given cubeCoordinates as its cubeCoordinates.
+	 * Check whether this Unit can use the given cube coordinates in its calculations.
 	 * 
-	 * @param  	cubeCoordinates
-	 *         	The cubeCoordinates to check.
-	 * @return	True if and only if the given coordinates are within the boundaries of this world and if the given coordinates 
-	 * 			is a passable cube.
-	 *       	| result == getWorld().isBetweenBoundaries(cubeCoordinates[0], cubeCoordinates[1], cubeCoordinates[2])
-	 *			| 	&& getWorld().isPassableCube(cubeCoordinates[0], cubeCoordinates[1], cubeCoordinates[2])
+	 * @param  	coordinates
+	 *         	The coordinates to check.
+	 * @return	If this Unit is dead, true if and only if the given coordinates are ineffective.
+	 * 			Otherwise, true if and only if the given coordinates are within the boundaries of this Unit's World
+	 * 			and if the given coordinates correspond to a passable cube.
+	 * 			| if (!isAlive())
+	 * 			|	result == (coordinates == null)
+	 * 			| else
+	 * 			|	result == ( getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2])
+	 * 			|					&& getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2]) )
 	 */
-	public boolean canHaveAsCubeCoordinates(int[] cubeCoordinates) 
+	@Raw
+	public boolean canUseAsCubeCoordinates(int[] coordinates) 
 	{
-		return  getWorld().isBetweenBoundaries(cubeCoordinates[0], cubeCoordinates[1], cubeCoordinates[2])
-				&& getWorld().isPassableCube(cubeCoordinates[0], cubeCoordinates[1], cubeCoordinates[2]);
+		if (!isAlive())
+			return coordinates == null;
+		return  getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2])
+				&& getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2]);
 	}
-	
-	/**
-	 * Set the cubeCoordinates of this Unit to the given cubeCoordinates.
-	 * 
-	 * @param  	cubeCoordinates
-	 *         	The new cubeCoordinates for this Unit.
-	 *         
-	 * @post   	The cubeCoordinates of this new Unit is equal to the given cubeCoordinates.
-	 *       	| new.getCubeCoordinates() == cubeCoordinates
-	 *       
-	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given cubeCoordinates as its cubeCoordinates.
-	 *       	| ! canHaveAsCubeCoordinates(getCubeCoordinates())
-	 *       
-	 * @effect	The isFalling indicator of this Unit is activated if the current cubeCoordinates doesn't have a solid neighbouring cube.
-	 * 			| if (!getWorld().hasSolidNeighbouringCube(cubeCoordinates[0], cubeCoordinates[1], cubeCoordinates[2]))
-	 * 			| 	then this.setIsFalling(true)
-	 */
-//	@Raw
-//	public void setCubeCoordinates(int[] cubeCoordinates) throws IllegalArgumentException 
-//	{
-//		if (! canHaveAsCubeCoordinates(cubeCoordinates))
-//			throw new IllegalArgumentException("The given cube coordinates aren't valid for this Unit.");
-//		this.cubeCoordinates = Arrays.copyOf(cubeCoordinates, 3);
-//		
-//		// Check if this Unit must fall:
-//		if (mustUnitFall(getCubeCoordinates()))
-//			setIsFalling(true);
-//		else if (isFalling())
-//			setIsFalling(false);	
-//	}
-	
-	/**
-	 * Variable registering the cubeCoordinates of this Unit.
-	 */
-	private int[] cubeCoordinates = new int[3];
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |     IS FALLING		|
-	// |					|
-	// |					|
-	// ----------------------
 
 	/**
-	 * Return the isFalling indicator of this Unit.
+	 * Return the falling state of this Unit.
 	 */
 	@Basic @Raw
 	public boolean isFalling() 
@@ -1962,41 +1927,51 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isFalling indicator as its isFalling indicator.
+	 * Check whether this Unit can have the given falling state as its falling state.
 	 *  
 	 * @param  	isFalling
-	 *         	The isFalling indicator to check.
-	 * @return 	True if and only if the given isFalling indicator is true and the current cubeCoordinates doesn't have a solid neighbouring
-	 * 			cube or if the given isFalling indicator is false and the current cubecoordinates does have a solid neighbouring cube.
-	 *       	| result == return (isFalling && 
-	 *       	|			!getWorld().hasSolidNeighbouringCube(getCubeCoordinates()[0], getCubeCoordinates()[1], getCubeCoordinates()[2]))
-	 *			|	|| (!isFalling && 
-	 *			|		getWorld().hasSolidNeighbouringCube(getCubeCoordinates()[0], getCubeCoordinates()[1], getCubeCoordinates()[2]));
+	 *         	The falling state to check.
+	 * @return	If this Unit is dead, true if and only if the given falling state is false.
+	 * 			Otherwise, true if and only if the given falling state is true and the cube coordinates of this Unit don't have a
+	 * 			solid neighbouring cube, or if the given falling state is false and the cube coordinates of this Unit do have
+	 * 			a solid neighbouring cube.
+	 * 			| if (!isAlive)
+	 * 			|	result == (!isFalling)
+	 * 			| else
+	 * 			|	let 
+	 * 			|		coordinates = getCubeCoordinates()
+	 * 			|	in
+	 * 			|		result == ( (isFalling && !(getWorld().hasSolidNeighbouringCube((coordinates[0], coordinates[1], coordinates[2]))))
+	 * 			|					|| (!isFalling && getWorld().hasSolidNeighbouringCube((coordinates[0], coordinates[1], coordinates[2]))) )
 	 */
+	@Raw
 	public boolean canHaveAsIsFalling(boolean isFalling) 
 	{
-		return (isFalling && !getWorld().hasSolidNeighbouringCube(getCubeCoordinates()[0], getCubeCoordinates()[1], getCubeCoordinates()[2]))
-				|| (!isFalling &&
-						getWorld().hasSolidNeighbouringCube(getCubeCoordinates()[0], getCubeCoordinates()[1], getCubeCoordinates()[2]));
+		if (!isAlive())
+			return !isFalling;
+		else
+		{
+			int[] coordinates = getCubeCoordinates();
+			return (isFalling && !getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2]))
+					|| (!isFalling && getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2]));
+		}
 	}
 	
 	/**
-	 * Set the isFalling indicator of this Unit to the given isFalling indicator.
+	 * Set the falling state of this Unit to the given falling state.
 	 * 
 	 * @param  	isFalling
-	 *         	The new isFalling indicator for this Unit.
-	 *         
-	 * @post   	The isFalling indicator of this new Unit is equal to the given isFalling indicator.
-	 *       	| new.getisFalling() == isFalling
-	 *       
+	 *         	The new falling state for this Unit.
+	 * @post   	The falling state of this new Unit is equal to the given falling state.
+	 *       	| new.isFalling() == isFalling
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isFalling indicator as its isFalling indicator.
-	 *       	| ! canHaveAsIsFalling(getisFalling())
+	 *         	This Unit cannot have the given falling state as its falling state.
+	 *       	| !canHaveAsIsFalling(getisFalling())
 	 */
 	@Raw
 	public void setIsFalling(boolean isFalling) throws IllegalArgumentException 
 	{
-		if (! canHaveAsIsFalling(isFalling))
+		if (!canHaveAsIsFalling(isFalling))
 			throw new IllegalArgumentException("This Unit cannot have the given isFalling indicator as its isFalling indicator.");
 		this.isFalling = isFalling;
 	}
@@ -2004,17 +1979,19 @@ public class Unit {
 	/**
 	 * Check whether this Unit must fall.
 	 * 
-	 * @param 	cubeCoordinates
-	 * 			The given coordinates to check.
+	 * @param 	coordinates
+	 * 			The coordinates to use in this calculation.
 	 * @return	True if and only if the given cube doesn't have a solid neighbouring cube and if the Unit isn't already falling.
+	 * 			| result == ( !(getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2])) && !isFalling() )
 	 */
-	private boolean mustUnitFall(int[] cubeCoordinates)
+	@Raw
+	private boolean mustUnitFall(int[] coordinates)
 	{
-		return !getWorld().hasSolidNeighbouringCube(cubeCoordinates[0], cubeCoordinates[1], cubeCoordinates[2]) && !isFalling();
+		return !getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2]) && !isFalling();
 	}
 	
 	/**
-	 * Variable registering the isFalling indicator of this Unit.
+	 * Variable registering the falling state of this Unit.
 	 */
 	private boolean isFalling;
 	
@@ -2038,7 +2015,7 @@ public class Unit {
 	*/
 	public boolean canHaveAsNextCubeCoordinates(int[] nextCubeCoordinates) 
 	{
-		return (canHaveAsCubeCoordinates(nextCubeCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCubeCoordinates));
+		return (canUseAsCubeCoordinates(nextCubeCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCubeCoordinates));
 	}
 	
 	/**
@@ -2108,7 +2085,7 @@ public class Unit {
 	@Raw
 	public void setUnitPosition(int[] coordinates) throws IllegalArgumentException 
 	{
-		if (! canHaveAsCubeCoordinates(coordinates))
+		if (! canUseAsCubeCoordinates(coordinates))
 			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position are not valid.");
 		position = World.getPreciseCoordinates(coordinates);
 	}
@@ -2438,7 +2415,7 @@ public class Unit {
 	@Raw
 	public void setVelocity(int[] coordinates) throws IllegalArgumentException 
 	{
-		if (! canHaveAsCubeCoordinates(coordinates))
+		if (! canUseAsCubeCoordinates(coordinates))
 			throw new IllegalArgumentException("The given cube coordinates aren't valid for this Unit.");
 		
 		double[] components = {coordinates[0]-getCubeCoordinates()[0], coordinates[1]-getCubeCoordinates()[1],
@@ -2978,7 +2955,7 @@ public class Unit {
 	@Raw
 	private void setDestinationCube(int[] destinationCube) throws IllegalArgumentException 
 	{
-		if (! canHaveAsCubeCoordinates(destinationCube))
+		if (! canUseAsCubeCoordinates(destinationCube))
 			throw new IllegalArgumentException("The given destinationCube is invalid for this Unit.");
 		this.destinationCube = Arrays.copyOf(destinationCube, 3);
 	}
