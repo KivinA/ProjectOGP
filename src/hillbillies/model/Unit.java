@@ -2143,7 +2143,7 @@ public class Unit {
 	public void setPositionAt(int index, double value) throws IllegalArgumentException 
 	{
 		if (!canHaveAsPositionAt(index, value))
-			throw new IllegalArgumentException("Value or index is invalid for this Unit position.");
+			throw new IllegalArgumentException("Value or index is invalid for this Unit position. Value: " + value);
 		this.position[index] = value;
 	}
 	

@@ -294,6 +294,7 @@ public class World {
 	 * @note	We have created this method because Math.round() rounds the given double up starting from 0.5 and up.
 	 * 			We need a rounding method that can provide us with rounding a given number down, even when the decimal point is 0.5.
 	 */
+	@Model
 	private static int round(double number)
 	{
 		double numberAbs = Math.abs(number);
