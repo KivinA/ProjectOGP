@@ -7,6 +7,7 @@ import be.kuleuven.cs.som.annotate.*;
  * QUESTIONS PART 3:
  *		1.	Is an abstract checker method an invariant? Or can we simply state the invariant at the level of the subclass, where
  *			we implement the method? (see canHaveAsWorld for Boulder and Log)
+ *		2.	Can invariant methods be private? (e.g. basespeed, walking speed, sprinting speed).
  *
  * STUFF TODO:
  * 		1. Check all TODO's.
@@ -782,33 +783,21 @@ public class Unit {
 					// Set the next cube coordinates to the new coordinates:
 					setNextCoordinates(newCoordinates);
 					
-					// Set base speed:
-					double baseSpeed = 1.5*((getStrength() + getAgility()) / (200.0*(getWeight() / 100.0)));
-					setBaseSpeed(baseSpeed);
-					
 					// Set walking speed:
-					switch(getCubeCoordinates()[2]- newCoordinates[2])
-					{
-					case -1:
-						setWalkingSpeed(getBaseSpeed() / 2);
-						break;
-					case 1:
-						setWalkingSpeed(getBaseSpeed()*1.2);
-						break;
-					default:
-						setWalkingSpeed(getBaseSpeed());
-						break;
-					}
-					
-					// Set sprinting speed:
-					setSprintSpeed(getWalkingSpeed() * 2);
+					setWalkingSpeed(dz);
 					
 					// Set the velocity:
 					if (!isFalling())
 						setVelocity(newCoordinates);
 					else
 					{
-						setVelocity(0, 0, -3);
+						for (int i = 0; i < velocity.length; i++)
+						{
+							if (i == 2)
+								this.velocity[i] = -3;
+							else
+								this.velocity[i] = 0;
+						}
 						setCurrentHitpoints(getCurrentHitpoints() - 10); // If the Unit is falling, subtract 10 hitpoints
 					}
 						
@@ -2225,252 +2214,133 @@ public class Unit {
 	private int[] deltaNewPositions;
 	
 	/**
-	 * Return the baseSpeed of this Unit.
+	 * Return the base speed of this Unit.
 	 */
 	@Basic @Raw
-	public double getBaseSpeed() 
+	private double getBaseSpeed() 
 	{
-		return this.baseSpeed;
+		return 1.5 * ( (getStrength() + getAgility()) / (200.0 * (getWeight() / 100.0)) );
 	}
-	
-	/**
-	 * Set the baseSpeed of this Unit to the given baseSpeed.
-	 * 
-	 * @param  	baseSpeed
-	 *         	The new baseSpeed for this Unit.
-	 * @post   	The baseSpeed of this new Unit is equal to the given baseSpeed.
-	 *       	| new.getBaseSpeed() == baseSpeed
-	 */
-	@Raw
-	public void setBaseSpeed(double baseSpeed) 
-	{
-		/*
-		 * A checker isn't needed here, we assume that this value is always somewhere between max and min integer value.
-		 * There is no further restriction on this value.
-		 */
-		this.baseSpeed = baseSpeed;
-	}
-	
-	/**
-	 * Variable registering the baseSpeed of this Unit.
-	 */
-	private double baseSpeed;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    WALKING SPEED	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the walking speed of this Unit.
 	 */
-	@Basic @Raw
-	public double getWalkingSpeed() 
+	@Basic @Raw @Model
+	private double getWalkingSpeed() 
 	{
 		return this.walkingSpeed;
 	}
 	
 	/**
-	 * Check whether this Unit can have the given walkingSpeed as its walkingSpeed.
-	 *  
-	 * @param  	walking speed
-	 *         	The walking speed to check.
-	 * @return 	True if and only if the given walking speed is equal to either the base speed of this Unit itself,
-	 * 			1.2 times the base speed of this Unit or half the base speed of this Unit.
-	 *       	| result == ((walkingSpeed == 1.2*getBaseSpeed()) || (walkingSpeed == getBaseSpeed()) || walkingSpeed == getBaseSpeed() / 2.0)
-	*/
-	public boolean canHaveAsWalkingSpeed(double walkingSpeed) 
-	{
-		return ((walkingSpeed == 1.2*getBaseSpeed()) || (walkingSpeed == getBaseSpeed()) || walkingSpeed == getBaseSpeed() / 2.0);
-	}
-	
-	/**
 	 * Set the walking speed of this Unit to the given walking speed.
 	 * 
-	 * @param  	walkingSpeed
-	 *         	The new walking speed for this Unit.
-	 *         
-	 * @post   	The walking speed of this new Unit is equal to the given walking speed.
-	 *       	| new.getWalkingSpeed() == walkingSpeed
-	 *       
+	 * @param  	dz
+	 * 			The difference between z-coordinates to calculate the walking speed.
+	 * @post	The walking speed of this Unit is equal to the base speed divided by 2, if the given difference is equal to -1.
+	 * 			| if (dz == -1)
+	 * 			|	then new.getWalkingSpeed() == (getBaseSpeed() / 2.0)
+	 * @post	The walking speed of this Unit is equal to the base speed multiplied by 1.2, if the given difference is equal to 1.
+	 * 			| if (dz == 1)
+	 * 			|	then new.getWalkingSpeed() == (getBaseSpeed() * 1.2)
+	 * @post   	The walking speed of this Unit is equal to the base speed, if the given difference is equal to 0.
+	 *       	| if (dz == 0)
+	 *       	|	then new.getWalkingSpeed() == getBaseSpeed()
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given walkingSpeed as its walkingSpeed.
-	 *       	| ! canHaveAsWalkingSpeed(getWalkingSpeed())
+	 *         	The given difference isn't equal to -1, 0 or 1.
+	 *         	| ! (dz == -1 || dz == 0 || dz == 1)
 	 */
-	@Raw
-	public void setWalkingSpeed(double walkingSpeed) throws IllegalArgumentException 
+	@Raw @Model
+	private void setWalkingSpeed(int dz) throws IllegalArgumentException 
 	{
-		if (! canHaveAsWalkingSpeed(walkingSpeed))
-			throw new IllegalArgumentException("The given walking speed is invalid for this Unit.");
-		this.walkingSpeed = walkingSpeed;
+		double baseSpeed = getBaseSpeed();
+		switch(dz)
+		{
+		case -1:
+			walkingSpeed = (baseSpeed / 2.0);
+			break;
+		case 1:
+			walkingSpeed = (baseSpeed * 1.2);
+			break;
+		case 0:
+			walkingSpeed = baseSpeed;
+			break;
+		default:
+			throw new IllegalArgumentException("Cannot use the given difference between z-coordinates to calculate walking speed.");
+		}
 	}
 	
 	/**
 	 * Variable registering the walking speed of this Unit.
 	 */
 	private double walkingSpeed;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    SPRINT SPEED	|
-	// |					|
-	// |					|
-	// ----------------------
-	
+
 	/**
 	 * Return the sprinting speed of this Unit.
 	 */
 	@Basic @Raw
-	public double getSprintSpeed() 
+	private double getSprintSpeed() 
 	{
-		return this.sprintSpeed;
+		return (2 * getWalkingSpeed());
 	}
-	
-	/**
-	 * Check whether this Unit can have the given sprintSpeed as its sprintSpeed.
-	 *  
-	 * @param  	sprinting speed
-	 *         	The sprinting speed to check.
-	 * @return	True if and only if the given sprinting speed is 2 times this Unit's walking speed.
-	 *       	| result == (sprintSpeed == (2 * getWalkingSpeed()))
-	*/
-	public boolean canHaveAsSprintSpeed(double sprintSpeed) 
-	{
-		return sprintSpeed == (2 * getWalkingSpeed());
-	}
-	
-	/**
-	 * Set the sprinting speed of this Unit to the given sprinting speed.
-	 * 
-	 * @param  	sprintSpeed
-	 *         	The new sprinting speed for this Unit.
-	 *         
-	 * @post   	The sprinting speed of this new Unit is equal to the given sprinting speed.
-	 *       	| new.getSprintSpeed() == sprintSpeed
-	 *       
-	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given sprintSpeed as its sprintSpeed.
-	 *       	| ! canHaveAsSprintSpeed(getSprintSpeed())
-	 */
-	@Raw
-	public void setSprintSpeed(double sprintSpeed) throws IllegalArgumentException 
-	{
-		if (! canHaveAsSprintSpeed(sprintSpeed))
-			throw new IllegalArgumentException("The given sprint speed is invalid for this Unit.");
-		this.sprintSpeed = sprintSpeed;
-	}
-	
-	/**
-	 * Variable registering the sprinting speed of this Unit.
-	 */
-	private double sprintSpeed;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |      VELOCITY		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the velocity of this Unit.
 	 */
-	@Basic @Raw
-	public double[] getVelocity() 
+	@Basic @Raw @Model
+	private double[] getVelocity() 
 	{
 		return this.velocity;
 	}
 	
 	/**
-	 * Set the velocity of this Unit to the given velocity.
+	 * Calculate the velocity with the given next cube coordinates, the walking or sprinting speed of this Unit, the current cube.
 	 * 
 	 * @param  	coordinates
 	 *         	The coordinates to calculate the velocity.
-	 *         
-	 * @post   	The velocity of this new Unit is equal to the multiplication of the sprint speed of this Unit and the difference between
-	 * 			the given coordinate components and the current coordinate components divided by the square root of the sum of 
-	 * 			the power of these differences or it is equal to the multiplication of the walking speed of this Unit 
-	 * 			and the difference between the given coordinate components and the current coordinate components divided by the square root
+	 * @post   	The velocity of this new Unit is equal to the multiplication of the sprint speed of this Unit, if this Unit is currently sprinting,
+	 * 			or it is equal to the multiplication of the walking speed of this Unit, if this Unit is currently walking, 
+	 * 			with the difference between the given coordinate components and the current coordinate components divided by the square root
 	 * 			of the sum of the power of these differences.
-	 * 			| double[] components = {coordinates[0]-getCubeCoordinates()[0], coordinates[1]-getCubeCoordinates()[1],
-	 *			|			coordinates[2]-getCubeCoordinates()[2]};
-	 *			| double d = Math.sqrt(Math.pow(components[0], 2) + Math.pow(components[1], 2) + Math.pow(components[2], 2));
-	 *			| for(int i=0; i<getVelocity().length; i++)
-	 *			| if (isSprinting())
-	 *			|	then this.velocity[i] = getSprintSpeed()*(components[i]/d);
-	 *			| else
-	 *			|  	this.velocity[i] = getWalkingSpeed()*(components[i]/d);
-	 *       
+	 * 			| let 
+	 * 			|	cubeCoordinates = getCubeCoordinates(),
+	 * 			|	components = {coordinates[0] - cubeCoordinates[0], coordinates[1] - cubeCoordinates[1], coordinates[2] - cubeCoordinates[2]},
+	 * 			|	d = Math.sqrt( Math.pow(components[0], 2) +  Math.pow(components[1], 2) + Math.pow(components[2], 2) ),
+	 * 			|	walkingSpeed = getWalkingSpeed(),
+	 * 			|	sprintSpeed = getSprintSpeed()
+	 * 			| in
+	 * 			|	for each i in 0..velocity.length:
+	 * 			|		if (isSprinting())
+	 * 			|			then new.getVelocity()[i] == (sprintSpeed * (components[i] / d))
+	 * 			|		else
+	 * 			|			new.getVelocity()[i] == (walkingSpeed * (components[i] / d))    
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given coordinates as its cubeCoordinates.
-	 *      	| ! canHaveAsCubeCoordinates(coordinates)
-	 *      
-	 * @note	FIXME Not entirly sure of the formal specification of the post condition.
+	 *         	This Unit cannot use the given coordinates in the calculation of the velocity.
+	 *      	| ! canUseAsCubeCoordinates(coordinates)
 	 */
-	@Raw
-	public void setVelocity(int[] coordinates) throws IllegalArgumentException 
+	@Raw @Model
+	private void setVelocity(int[] coordinates) throws IllegalArgumentException 
 	{
-		if (! canUseAsCubeCoordinates(coordinates))
-			throw new IllegalArgumentException("The given cube coordinates aren't valid for this Unit.");
+		if (!canUseAsCubeCoordinates(coordinates))
+			throw new IllegalArgumentException("Cannot use the given cube coordinates in the calculation of the velocity!");
 		
-		double[] components = {coordinates[0]-getCubeCoordinates()[0], coordinates[1]-getCubeCoordinates()[1],
-				coordinates[2]-getCubeCoordinates()[2]};
+		int[] cubeCoordinates = getCubeCoordinates();
+		double[] components = {coordinates[0] - cubeCoordinates[0], coordinates[1] - cubeCoordinates[1], coordinates[2] - cubeCoordinates[2]};
 		double d = Math.sqrt(Math.pow(components[0], 2) + Math.pow(components[1], 2) + Math.pow(components[2], 2));
-		
-		for(int i=0; i<getVelocity().length; i++)
+		double walkingSpeed = getWalkingSpeed();
+		double sprintSpeed = getSprintSpeed();
+		for(int i=0; i< velocity.length; i++)
 		{
 			if (isSprinting())
-			{
-				this.velocity[i] = getSprintSpeed()*(components[i]/d);
-			}
+				this.velocity[i] = sprintSpeed*(components[i]/d);
 			else
-			{
-				this.velocity[i] = getWalkingSpeed()*(components[i]/d);
-			}
-			
+				this.velocity[i] = walkingSpeed*(components[i]/d);
 		}
-	}
-	
-	/**
-	 * Set the velocity of this Unit to the given x, y and z velocity component.
-	 * 
-	 * @param 	x
-	 * 			The given x component of the new velocity.
-	 * @param 	y
-	 * 			The given y component of the new velocity.
-	 * @param 	z
-	 * 			The given z component of the new velocity.
-	 * 
-	 * @post	Each velocity component of this new Unit's velocity is set to the given velocity component.
-	 * 			| new.getVelocity() == {x, y, z}	
-	 * 
-	 * @note	There is no checker to check these values. This method is only called upon if the Unit is falling. This will happen with
-	 * 			a constant velocity of (0, 0, 3).
-	 */
-	public void setVelocity(double x, double y, double z)
-	{
-		this.velocity[0] = x;
-		this.velocity[1] = y;
-		this.velocity[2] = z;
 	}
 	
 	/**
 	 * Variable registering the velocity of this Unit.
 	 */
 	private double[] velocity = new double[3];
-
-	// ----------------------
-	// |					|
-	// |					|
-	// |    CURRENT SPEED	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the current speed of this Unit.
@@ -2484,11 +2354,12 @@ public class Unit {
 	/**
 	 * Check whether this Unit can have the given current speed as its current speed.
 	 *  
-	 * @param  	current speed
+	 * @param  	currentSpeed
 	 *         	The current speed to check.
 	 * @return 	True if and only if the current speed is either the Unit's walking speed or the Unit's sprinting speed.
 	 *       	| result == ((currentSpeed == getWalkingSpeed()) || (currentSpeed == getSprintSpeed()))
-	*/
+	 */
+	@Raw
 	public boolean canHaveAsCurrentSpeed(double currentSpeed)
 	{
 		return ((currentSpeed == getWalkingSpeed()) || (currentSpeed == getSprintSpeed()));
@@ -2499,19 +2370,17 @@ public class Unit {
 	 * 
 	 * @param  	currentSpeed
 	 *         	The new current speed for this Unit.
-	 *         
 	 * @post   	The current speed of this new Unit is equal to the given current speed.
 	 *       	| new.getCurrentSpeed() == currentSpeed
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given currentSpeed as its currentSpeed.
-	 *       	| ! canHaveAsCurrentSpeed(getCurrentSpeed())
+	 *       	| !canHaveAsCurrentSpeed(currentSpeed)
 	 */
 	@Raw
 	public void setCurrentSpeed(double currentSpeed) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCurrentSpeed(currentSpeed))
-			throw new IllegalArgumentException("The given currentSpeed is invalid for this Unit.");
+			throw new IllegalArgumentException("Cannot have the given current speed!");
 		this.currentSpeed = currentSpeed;
 	}
 	
