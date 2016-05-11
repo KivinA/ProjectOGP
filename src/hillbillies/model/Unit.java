@@ -450,7 +450,7 @@ public class Unit {
 				// Moving to adjacent cube: 
 				for(int i = 0; i < getPosition().length; i++)
 				{
-					setUnitPosition(i, getPosition()[i] + (getVelocity()[i]*duration));
+					setPositionAt(i, getPosition()[i] + (getVelocity()[i]*duration));
 				}
 				
 				// Sprinting: 
@@ -1943,6 +1943,8 @@ public class Unit {
 	 * 			|	in
 	 * 			|		result == ( (isFalling && !(getWorld().hasSolidNeighbouringCube((coordinates[0], coordinates[1], coordinates[2]))))
 	 * 			|					|| (!isFalling && getWorld().hasSolidNeighbouringCube((coordinates[0], coordinates[1], coordinates[2]))) )
+	 * 
+	 * TODO	REVISE DOC
 	 */
 	@Raw
 	public boolean canHaveAsFallingState(boolean isFalling) 
@@ -1952,8 +1954,7 @@ public class Unit {
 		else
 		{
 			int[] coordinates = getCubeCoordinates();
-			return (isFalling && !getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2]))
-					|| (!isFalling && getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2]));
+			return (isFalling && mustUnitFall(coordinates)) || (!isFalling && !mustUnitFall(coordinates));
 		}
 	}
 	
@@ -1983,11 +1984,14 @@ public class Unit {
 	 * 			The coordinates to use in this calculation.
 	 * @return	True if and only if the given cube doesn't have a solid neighbouring cube and if the Unit isn't already falling.
 	 * 			| result == ( !(getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2])) && !isFalling() )
+	 * TODO	REVISE DOC
 	 */
 	@Raw @Model
 	private boolean mustUnitFall(int[] coordinates)
 	{
-		return !getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2]) && !isFalling();
+		if (coordinates[2] == 0)
+			return false;
+		return (!getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2]));
 	}
 	
 	/**
@@ -2088,7 +2092,10 @@ public class Unit {
 			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position are not valid.");
 		position = World.getPreciseCoordinates(coordinates);
 		
-		
+		if (mustUnitFall(getCubeCoordinates()))
+			setFallingState(true);
+		else if (isFalling())
+			setFallingState(false);	
 	}
 	
 	/**
@@ -2144,10 +2151,10 @@ public class Unit {
 	 * @post	The value of the element of the unitPosition with the given index is equal to the given value.
 	 * 			| new.getUnitPosition()[index] == value
 	 */
-	public void setUnitPosition(int index, double value) throws IllegalArgumentException 
+	public void setPositionAt(int index, double value) throws IllegalArgumentException 
 	{
 		if (!canHaveAsPositionAt(index, value))
-			throw new IllegalArgumentException("Value is invalid for this Unit position.");
+			throw new IllegalArgumentException("Value or index is invalid for this Unit position.");
 		this.position[index] = value;
 	}
 	
@@ -2403,7 +2410,7 @@ public class Unit {
 	 *         	This Unit cannot have the given coordinates as its cubeCoordinates.
 	 *      	| ! canHaveAsCubeCoordinates(coordinates)
 	 *      
-	 * @note	[FIXME] Not entirly sure of the formal specification of the post condition.
+	 * @note	FIXME Not entirly sure of the formal specification of the post condition.
 	 */
 	@Raw
 	public void setVelocity(int[] coordinates) throws IllegalArgumentException 
