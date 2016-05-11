@@ -39,7 +39,8 @@ public class UnitTest {
 	@After
 	public void tearDown() throws Exception 
 	{
-		unit.die();
+		if (unit.isAlive())
+			unit.die();
 		world.removeUnit(unit);
 	}
 
@@ -319,5 +320,78 @@ public class UnitTest {
 	{
 		unit.setOrientation(4*Math.PI/3);
 		assertEquals(Math.PI/2, unit.getOrientation(), 0.001);
+	}
+	
+	@Test
+	public void  getCubeCoordinates_SingleCase()
+	{
+		assertArrayEquals(POSITION, unit.getCubeCoordinates());
+	}
+	
+	@Test
+	public void canUseAsCubeCoordinates_TrueCase()
+	{
+		int[] position = {0, 0, 1};
+		assertTrue(unit.canUseAsCubeCoordinates(position));
+	}
+	
+	@Test
+	public void canUseAsCubeCoordinates_OutOfBoundaries()
+	{
+		int[] position = {3, 1, 1};
+		assertFalse(unit.canUseAsCubeCoordinates(position));
+	}
+	
+	@Test
+	public void canUseAsCubeCoordinates_SolidCube()
+	{
+		int[] position = {1, 1, 0};
+		assertFalse(unit.canUseAsCubeCoordinates(position));
+	}
+	
+	@Test
+	public void canHaveAsFallingState_TrueCase()
+	{
+		int[][][] terrain = new int[3][3][3];
+		World theWorld = new World(terrain, new DefaultTerrainChangeListener());
+		Unit theUnit = new Unit("Hillbiilly", DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, POSITION, false, theWorld);
+		assertTrue(theUnit.canHaveAsFallingState(true));
+		assertTrue(unit.canHaveAsFallingState(false));
+	}
+	
+	@Test
+	public void canHaveAsFallingState_DeadUnit()
+	{
+		unit.die();
+		assertTrue(unit.canHaveAsFallingState(false));
+		assertFalse(unit.canHaveAsFallingState(true));
+	}
+	
+	@Test
+	public void canHaveAsFallingState_TrueButSolidCubeAvailable()
+	{
+		assertFalse(unit.canHaveAsFallingState(true));
+	}
+	
+	@Test
+	public void canHaveAsFallingState_FalseButNoSolidCubeAvailable()
+	{
+		int[][][] terrain = new int[3][3][3];
+		World theWorld = new World(terrain, new DefaultTerrainChangeListener());
+		Unit theUnit = new Unit("Hillbiilly", DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, POSITION, false, theWorld);
+		assertFalse(theUnit.canHaveAsFallingState(false));
+	}
+	
+	@Test
+	public void setFallingState_LegalCase()
+	{
+		unit.setFallingState(false);
+		assertFalse(unit.isFalling());
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void setFallingState_llegalCase() throws Exception
+	{
+		unit.setFallingState(true);
 	}
 }

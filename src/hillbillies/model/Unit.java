@@ -350,7 +350,7 @@ public class Unit {
 			
 			// Falling:
 			if (mustUnitFall(getCubeCoordinates()))
-				setIsFalling(true);
+				setFallingState(true);
 			
 			if (isFalling())
 			{
@@ -1945,7 +1945,7 @@ public class Unit {
 	 * 			|					|| (!isFalling && getWorld().hasSolidNeighbouringCube((coordinates[0], coordinates[1], coordinates[2]))) )
 	 */
 	@Raw
-	public boolean canHaveAsIsFalling(boolean isFalling) 
+	public boolean canHaveAsFallingState(boolean isFalling) 
 	{
 		if (!isAlive())
 			return !isFalling;
@@ -1969,9 +1969,9 @@ public class Unit {
 	 *       	| !canHaveAsIsFalling(getisFalling())
 	 */
 	@Raw
-	public void setIsFalling(boolean isFalling) throws IllegalArgumentException 
+	public void setFallingState(boolean isFalling) throws IllegalArgumentException 
 	{
-		if (!canHaveAsIsFalling(isFalling))
+		if (!canHaveAsFallingState(isFalling))
 			throw new IllegalArgumentException("This Unit cannot have the given isFalling indicator as its isFalling indicator.");
 		this.isFalling = isFalling;
 	}
@@ -2087,6 +2087,8 @@ public class Unit {
 		if (! canUseAsCubeCoordinates(coordinates))
 			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position are not valid.");
 		position = World.getPreciseCoordinates(coordinates);
+		
+		
 	}
 	
 	/**
