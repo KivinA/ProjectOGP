@@ -286,7 +286,6 @@ public class Unit {
 			
 			// Set the experience to 0:
 			setExperience(0);
-			
 	}
 	
 	/**
@@ -2272,7 +2271,7 @@ public class Unit {
 	/**
 	 * Variable registering the walking speed of this Unit.
 	 */
-	private double walkingSpeed;
+	private double walkingSpeed = 0L;
 
 	/**
 	 * Return the sprinting speed of this Unit.
@@ -2356,13 +2355,19 @@ public class Unit {
 	 *  
 	 * @param  	currentSpeed
 	 *         	The current speed to check.
-	 * @return 	True if and only if the current speed is either the Unit's walking speed or the Unit's sprinting speed.
-	 *       	| result == ((currentSpeed == getWalkingSpeed()) || (currentSpeed == getSprintSpeed()))
+	 * @return 	If this Unit is dead, true if and only if the given current speed is zero.
+	 * 			Otherwise, true if and only if the current speed is either the Unit's walking speed, the Unit's sprinting speed or zero.+
+	 * 			| if (!isAlive())
+	 * 			|	then result == (currentSpeed == 0)
+	 * 			| else
+	 *       	| 	result == ((currentSpeed == getWalkingSpeed()) || (currentSpeed == getSprintSpeed()))
 	 */
 	@Raw
 	public boolean canHaveAsCurrentSpeed(double currentSpeed)
 	{
-		return ((currentSpeed == getWalkingSpeed()) || (currentSpeed == getSprintSpeed()));
+		if (!isAlive())
+			return currentSpeed == 0;
+		return ((currentSpeed == getWalkingSpeed()) || (currentSpeed == getSprintSpeed()) || (currentSpeed == 0));
 	}
 	
 	/**
@@ -2387,18 +2392,10 @@ public class Unit {
 	/**
 	 * Variable registering the current speed of this Unit.
 	 */
-	private double currentSpeed;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    IS SPRINTING	|
-	// |					|
-	// |					|
-	// ----------------------
-	
+	private double currentSpeed = 0L;
+
 	/**
-	 * Return the sprinting indicator of this Unit.
+	 * Return the sprinting state of this Unit.
 	 */
 	@Basic @Raw
 	public boolean isSprinting() 

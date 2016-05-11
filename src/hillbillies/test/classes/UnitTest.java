@@ -436,4 +436,31 @@ public class UnitTest {
 	{
 		unit.setPositionAt(-1, 2.5);
 	}
+	
+	@Test
+	public void canHaveAsCurrentSpeed_TrueCase()
+	{
+		assertTrue(unit.canHaveAsCurrentSpeed(0));
+		// In this case, both walking and sprint speed are zero, because the Unit isn't moving currently.
+		// See later tests to see the current speed can also be equals to the walking and sprinting speed.
+	}
+	
+	@Test
+	public void canHaveAsCurrentSpeed_FalseCase()
+	{
+		assertFalse(unit.canHaveAsCurrentSpeed(103));
+	}
+	
+	@Test
+	public void setCurrentSpeed_LegalCase()
+	{
+		unit.setCurrentSpeed(0);
+		assertEquals(0, unit.getCurrentSpeed(), 0);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void setCurrentSpeed_IllegalCase() throws Exception
+	{
+		unit.setCurrentSpeed(-10);
+	}
 }
