@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import be.kuleuven.cs.som.annotate.*;
-import hillbillies.model.statements.Statement;
 import ogp.framework.util.ModelException;
 
 /**
