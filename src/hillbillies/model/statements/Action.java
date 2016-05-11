@@ -5,11 +5,8 @@ package hillbillies.model.statements;
  * @version 0.1
  *
  */
-public class Action implements Statement {
+public abstract class Action implements Statement {
 
 	@Override
-	public void execute() {
-		
-	}
-
+	public abstract void execute();
 }

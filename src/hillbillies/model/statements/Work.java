@@ -7,4 +7,10 @@ package hillbillies.model.statements;
  */
 public class Work extends Action {
 
+	@Override
+	public void execute() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
