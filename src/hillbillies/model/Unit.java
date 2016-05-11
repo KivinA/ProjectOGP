@@ -272,7 +272,7 @@ public class Unit {
 			setCurrentStaminapoints(getMaxStaminapoints());
 			
 			//setCubeCoordinates(initialPosition);
-			setUnitPosition(initialPosition);
+			setPosition(initialPosition);
 			
 			// Default behaviour of this Unit: We will only change the behaviour to true if true is given. Otherwise the checker is invalid!
 			if (enableDefaultBehaviour)
@@ -448,9 +448,9 @@ public class Unit {
 				}
 				
 				// Moving to adjacent cube: 
-				for(int i = 0; i < getUnitPosition().length; i++)
+				for(int i = 0; i < getPosition().length; i++)
 				{
-					setUnitPosition(i, getUnitPosition()[i] + (getVelocity()[i]*duration));
+					setUnitPosition(i, getPosition()[i] + (getVelocity()[i]*duration));
 				}
 				
 				// Sprinting: 
@@ -492,7 +492,7 @@ public class Unit {
 					}	
 					
 					//setCubeCoordinates(getNextCubeCoordinates()); // Correct the current cube coordinates.
-					setUnitPosition(getNextCoordinates()); // Correct the unit's position.
+					setPosition(getNextCoordinates()); // Correct the unit's position.
 				}
 			}
 			
@@ -1106,12 +1106,12 @@ public class Unit {
 	private boolean destinationReached()
 	{
 		boolean hasReached = false;
-		for (int i = 0; i < getUnitPosition().length; i++)
+		for (int i = 0; i < getPosition().length; i++)
 		{
 			// The new unit position component is higher than the current one, thus we check with operator <=
 			if (getDeltaNewPositions()[i] == 1)
 			{
-				if (getUnitPosition()[i] <= (getNextCoordinates()[i] + (World.getCubeLength() / 2.0)))
+				if (getPosition()[i] <= (getNextCoordinates()[i] + (World.getCubeLength() / 2.0)))
 				{
 					hasReached = false;
 					break;
@@ -1122,7 +1122,7 @@ public class Unit {
 			// The new unit position component is lower than the current one, thus we check with operator >=
 			else if (getDeltaNewPositions()[i] == -1)
 			{
-				if (getUnitPosition()[i] >= (getNextCoordinates()[i] + (World.getCubeLength() / 2.0)))
+				if (getPosition()[i] >= (getNextCoordinates()[i] + (World.getCubeLength() / 2.0)))
 				{
 					hasReached = false;
 					break;
@@ -1282,9 +1282,9 @@ public class Unit {
 	public void die() throws IllegalArgumentException
 	{
 		if (isCarryingLog())
-			dropLog(getUnitPosition());
+			dropLog(getPosition());
 		else if (isCarryingBoulder())
-			dropBoulder(getUnitPosition());
+			dropBoulder(getPosition());
 		
 		// Disable all behaviour:
 		setIsMoving(false);
@@ -1891,7 +1891,7 @@ public class Unit {
 	@Basic @Raw
 	public int[] getCubeCoordinates() 
 	{
-		return World.getCubeCoordinates(getUnitPosition());
+		return World.getCubeCoordinates(getPosition());
 	}
 	
 	/**
@@ -1994,14 +1994,16 @@ public class Unit {
 	 * Variable registering the falling state of this Unit.
 	 */
 	private boolean isFalling;
-	
+		
 	/**
 	 * Return the coordinates of the cube to which this Unit will move to next.
+	 * 
+	 * TODO		Add return clauses.
 	 */
 	@Basic @Raw
-	public int[] getNextCoordinates() 
+	private int[] getNextCoordinates() 
 	{
-		return this.nextCoordinates;
+		return Arrays.copyOf(nextCoordinates, nextCoordinates.length);
 	}
 	
 	/**
@@ -2014,7 +2016,7 @@ public class Unit {
 	 *       	| result == ( canUseAsCubeCoordinates(nextCubeCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCoordinates) )
 	 */
 	@Raw
-	public boolean canHaveAsNextCoordinates(int[] nextCoordinates) 
+	private boolean canHaveAsNextCoordinates(int[] nextCoordinates) 
 	{
 		return (canUseAsCubeCoordinates(nextCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCoordinates));
 	}
@@ -2035,7 +2037,7 @@ public class Unit {
 	 *       	| !isFalling() && !getWorld().hasSolidNeighbouringCube(nextCubeCoordinates[0], nextCubeCoordinates[1], nextCubeCoordinates[2])
 	 */
 	@Raw
-	public void setNextCoordinates(int[] nextCoordinates) throws IllegalArgumentException 
+	private void setNextCoordinates(int[] nextCoordinates) throws IllegalArgumentException 
 	{
 		if (! canHaveAsNextCoordinates(nextCoordinates))
 			throw new IllegalArgumentException("The nextCubeCoordinates are invalid for this Unit.");
@@ -2062,7 +2064,7 @@ public class Unit {
 	 * Return the unitPosition of this Unit.
 	 */
 	@Basic @Raw
-	public double[] getUnitPosition() 
+	public double[] getPosition() 
 	{
 		return Arrays.copyOf(position, position.length);
 	}
@@ -2078,12 +2080,9 @@ public class Unit {
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given coordinates as its cubeCoordinates.
 	 *       	| ! canHaveAsCubeCoordinates(coordinates)
-	 * 
-	 * @note	We could specify that each component of the Unit's position consists out of the sum between that coordinate component
-	 * 			and half a cube length, but current notation is also clear. 
 	 */
 	@Raw
-	public void setUnitPosition(int[] coordinates) throws IllegalArgumentException 
+	public void setPosition(int[] coordinates) throws IllegalArgumentException 
 	{
 		if (! canUseAsCubeCoordinates(coordinates))
 			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position are not valid.");
@@ -2091,10 +2090,12 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given position value as its position value.
+	 * Check whether this Unit can have the given position value at the given index of its position.
 	 * 
 	 * @param 	value
 	 * 			The value to be checked.
+	 * @param	index
+	 * 			The index of which component must be used in the checker.
 	 * @return	True if and only if the given value is between the lower boundary of this World
 	 * 			and either the amount of x cubes, y cubes or z cubes of this World depending on the given index of the position.
 	 * 			| if (index == 0)
@@ -2103,14 +2104,16 @@ public class Unit {
 	 * 			|	then result == ((value >= getWorld().getLowerBoundary()) && (value < getWorld().getNbCubesY()))
 	 * 			| else if (index == 2)
 	 * 			|	then result == ((value >= getWorld().getLowerBoundary()) && (value < getWorld().getNbCubesZ()))
+	 * 			| else
+	 * 			|	result == false
 	 */
-	public boolean canHaveAsUnitPositionValue(int index, double value)
+	public boolean canHaveAsPositionAt(int index, double value)
 	{
 		/* 
-		 * We could have used isValidCubeCoordinates but this would interfere the function of setCubeCoordinates.
-		 * If we used a for loop to set the values in setCubeCoordinates, we would have to check if each component was valid,
-		 * using this checker. This seems feasible but according to the programming rules of this course this would allow the setter
-		 * to change some properties without changing it entirely. Example: the x component is valid, thus it is changed, BUT the y component
+		 * We use this method mainly in the setter to set each value of the position individually. We could use the setter of position to 
+		 * set the entire position at once. This seems feasible but according to the programming rules of this course 
+		 * this would allow the setter to change some properties without changing it entirely. 
+		 * Example: the x component is valid, thus it is changed, BUT the y component
 		 * is invalid and thus an error is thrown. The property is partially changed and this is not allowed due to the rules. 
 		 */
 		switch (index)
@@ -2127,60 +2130,56 @@ public class Unit {
 	}
 	
 	/**
-	 * Set a certain element of the unitPosition of this Unit to the given value.
+	 * Set the value of this Unit's position at the given index equal to the given value.
 	 * 
 	 * @param 	index
-	 * 			The index of the element to be changed.
+	 * 			The index of the position component to be changed.
 	 * @param 	value
-	 * 			The new value for this element.
-	 * 
+	 * 			The new value for this Unit's position component.
 	 * @throws 	IllegalArgumentException
 	 * 			This Unit cannot have the given value as its value for one of its position components.
-	 * 			| ! canHaveAsUnitPositionValue(value)
-	 * 
+	 * 			| !canHaveAsUnitPositionValue(value)
 	 * @post	The value of the element of the unitPosition with the given index is equal to the given value.
 	 * 			| new.getUnitPosition()[index] == value
 	 */
 	public void setUnitPosition(int index, double value) throws IllegalArgumentException 
 	{
-		if (!canHaveAsUnitPositionValue(index, value))
-			throw new IllegalArgumentException("Value is invalid for this Unit position. " + value);
+		if (!canHaveAsPositionAt(index, value))
+			throw new IllegalArgumentException("Value is invalid for this Unit position.");
 		this.position[index] = value;
 	}
 	
 	/**
-	 * Variable registering the unitPosition of this Unit.
+	 * Variable registering the precise position of this Unit.
 	 */
 	private double[] position = new double[3];
 	
-	// ----------------------
-	// |					|
-	// |		DELTA		|
-	// |    NEW POSITIONS	|
-	// |					|
-	// |					|
-	// ----------------------
+	/*
+	 * FIXME	Not happy about name of this property, please reconsider.
+	 */
 	
 	/**
-	 * Return the deltaNewPositions of this Unit.
+	 * Return the difference between current and next positions of this Unit.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private int[] getDeltaNewPositions() 
 	{
 		return this.deltaNewPositions;
 	}
 	
 	/**
-	 * Check whether the given deltaNewPositions is a valid deltaNewPositions for any Unit.
+	 * Check whether the given difference between current and next positions is a valid difference between current and next positions
+	 * for any Unit.
 	 *  
 	 * @param  	deltaNewPositions
-	 *         	The deltaNewPositions to check.
+	 *         	The difference between current and next positions to check.
 	 * @return 	True if and only if every delta coordinate in the array is either -1, 0 or 1.
-	 *       	| for (int i = 0; i < deltaNewPositions.length; i++)
+	 * 			| for each i in 0..deltaNewPosition.length:
 	 *       	| 	if (!(deltaNewPositions[i] == 0 || deltaNewPositions[i] == 1 || deltaNewPositions[i] == -1))
-	 *       	|	then result == false
+	 *       	|		then result == false
 	 *       	| result == true
 	 */
+	@Raw @Model
 	private static boolean isValidDeltaNewPositions(int[] deltaNewPositions) 
 	{
 		for (int i = 0; i < deltaNewPositions.length; i++)
@@ -2195,34 +2194,26 @@ public class Unit {
 	 * Set the deltaNewPositions of this Unit to the given deltaNewPositions.
 	 * 
 	 * @param  	deltaNewPositions
-	 *         	The new deltaNewPositions for this Unit.
-	 *         
-	 * @post   	The deltaNewPositions of this new Unit is equal to the given deltaNewPositions.
+	 *         	The new difference between current and next positions for this Unit.
+	 * @post   	The difference between current and next positions of this new Unit is equal to the
+	 * 			given difference between current and next positions.
 	 *       	| new.getDeltaNewPositions() == deltaNewPositions
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	The given deltaNewPositions is not a valid deltaNewPositions for any Unit.
-	 *       	| ! isValidDeltaNewPositions(getDeltaNewPositions())
+	 *         	The given difference between current and next positions is not a valid difference between current and next positions
+	 *         	for any Unit.
+	 *       	| !isValidDeltaNewPositions(getDeltaNewPositions())
 	 */
-	@Raw
+	@Raw @Model
 	private void setDeltaNewPositions(int[] deltaNewPositions) throws IllegalArgumentException {
-		if (! isValidDeltaNewPositions(deltaNewPositions))
-			throw new IllegalArgumentException("The given delta new positions array is invalid for this Unit.");
+		if (!isValidDeltaNewPositions(deltaNewPositions))
+			throw new IllegalArgumentException("The given difference between current and next positions is invalid for this Unit.");
 		this.deltaNewPositions = Arrays.copyOf(deltaNewPositions, 3);
 	}
 	
 	/**
-	 * Variable registering the deltaNewPositions of this Unit.
+	 * Variable registering the difference between current and next positions of this Unit.
 	 */
-	private int[] deltaNewPositions = new int[3];
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |     BASE SPEED		|
-	// |					|
-	// |					|
-	// ----------------------
+	private int[] deltaNewPositions;
 	
 	/**
 	 * Return the baseSpeed of this Unit.
@@ -3746,7 +3737,7 @@ public class Unit {
 	 */
 	private boolean checkPositions(Unit other)
 	{
-		for (int i = 0; i < getUnitPosition().length; i++)
+		for (int i = 0; i < getPosition().length; i++)
 		{
 			if (!(getCubeCoordinates()[i] == other.getCubeCoordinates()[i] || getCubeCoordinates()[i] == other.getCubeCoordinates()[i] - 1
 					|| getCubeCoordinates()[i] == other.getCubeCoordinates()[i] + 1))
@@ -3813,8 +3804,8 @@ public class Unit {
 					setWasMoving(true);
 				}
 				
-				double arg0 = defender.getUnitPosition()[1] - getUnitPosition()[1];
-				double arg1 = defender.getUnitPosition()[0] - getUnitPosition()[0];
+				double arg0 = defender.getPosition()[1] - getPosition()[1];
+				double arg1 = defender.getPosition()[0] - getPosition()[0];
 				setOrientation(Math.atan2(arg0, arg1));
 				
 				setIsAttacking(true);
@@ -3894,8 +3885,8 @@ public class Unit {
 				
 				setIsDefending(true);
 				boolean hasEarnedExp = false;
-				double arg0 = attacker.getUnitPosition()[1] - getUnitPosition()[1];
-				double arg1 = attacker.getUnitPosition()[0] - getUnitPosition()[0];
+				double arg0 = attacker.getPosition()[1] - getPosition()[1];
+				double arg1 = attacker.getPosition()[0] - getPosition()[0];
 				setOrientation(Math.atan2(arg0, arg1));
 				
 				if (hasDogded(attacker))
