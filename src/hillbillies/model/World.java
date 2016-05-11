@@ -259,9 +259,9 @@ public class World {
 	{
 		if (coordinates == null)
 			return null;
-		int x = (int)(coordinates[0] - 0.5);
-		int y = (int)(coordinates[1] - 0.5);
-		int z = (int)(coordinates[2] - 0.5);
+		int x = round(coordinates[0]);
+		int y = round(coordinates[1]);
+		int z = round(coordinates[2]);
 		return new int[]{x, y, z};
 	}
 	
@@ -281,6 +281,28 @@ public class World {
 		double y = coordinates[1] + 0.5;
 		double z = coordinates[2] + 0.5;	
 		return new double[]{x, y, z};
+	}
+	
+	/**
+	 * An auxiliary method to help round the given double number to an integer number. 
+	 * 
+	 * @param 	number
+	 * 			The number to round.
+	 * @return	The rounded integer number: 
+	 * 			Rounded down if the decimal was lower or equal to 0.5.
+	 * 			Rounded up if the decimal was higher than 0.5.
+	 * @note	We have created this method because Math.round() rounds the given double up starting from 0.5 and up.
+	 * 			We need a rounding method that can provide us with rounding a given number down, even when the decimal point is 0.5.
+	 */
+	private static int round(double number)
+	{
+		double numberAbs = Math.abs(number);
+		int intNumber = (int) numberAbs;
+		double result = numberAbs - (double) intNumber;
+		if (result <= 0.5)
+			return number < 0 ? -intNumber: intNumber;
+		else
+			return number < 0 ? -(intNumber + 1) : intNumber + 1;
 	}
 	
 	/**

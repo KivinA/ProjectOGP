@@ -463,4 +463,18 @@ public class UnitTest {
 	{
 		unit.setCurrentSpeed(-10);
 	}
+	
+	@Test
+	public void canHaveAsSprintingState_TrueCase()
+	{
+		unit.setIsMoving(true);
+		assertTrue(unit.canHaveAsSprintingState(true));
+		assertTrue(unit.canHaveAsSprintingState(false));
+	}
+	
+	@Test
+	public void canHaveAsSprintingState_NotMoving()
+	{
+		assertFalse(unit.canHaveAsSprintingState(true));
+	}	
 }

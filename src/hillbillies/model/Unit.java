@@ -772,6 +772,7 @@ public class Unit {
 				int newZPos = getCubeCoordinates()[2] + dCoordinates[2];
 				
 				int[] newCoordinates = {newXPos, newYPos, newZPos};
+				System.out.println("The new coordinates: " + newXPos + ", " + newYPos + ", " + newZPos);
 				
 				// Check whether the new cube coordinates are valid. If so, calculate the speeds and orientation:
 				if (canUseAsCubeCoordinates(newCoordinates))
@@ -2434,8 +2435,8 @@ public class Unit {
 	 *         	This Unit cannot have the given sprinting state as its sprinting state.
 	 *       	| ! canHaveAsIsSprinting(getIsSprinting())
 	 */
-	@Raw
-	public void setSprintingState(boolean isSprinting) throws IllegalArgumentException 
+	@Raw @Model
+	private void setSprintingState(boolean isSprinting) throws IllegalArgumentException 
 	{
 		if (! canHaveAsSprintingState(isSprinting))
 			throw new IllegalArgumentException("Cannot have the given sprinting state.");
@@ -2471,7 +2472,7 @@ public class Unit {
 			// Only set the velocity if this method isn't called by the default behaviour. If the default behaviour decides to sprint, the correct 
 			// velocity will be calculated in the MoveToAdjacent method.
 			if (!isDefaultBehaviourEnabled())
-				setVelocity(getNextCoordinates()); // Velocity will be set wrongly because we don't have the correct integer coordinates. TODO TEST THIS!
+				setVelocity(getNextCoordinates()); // Velocity will be set wrongly because we don't have the correct integer coordinates. TEST THIS!
 		}
 	}
 	
