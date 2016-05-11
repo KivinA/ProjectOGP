@@ -488,7 +488,7 @@ public class Unit {
 						setIsMoving(false);
 						System.out.println("Stop with sprinting...");
 						if (isSprinting())
-							setIsSprinting(false);
+							setSprintingState(false);
 					}	
 					
 					//setCubeCoordinates(getNextCubeCoordinates()); // Correct the current cube coordinates.
@@ -2404,37 +2404,41 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether the given sprinting indicator is a valid sprinting indicator for any Unit.
+	 * Check whether this Unit can have the given sprinting state as its sprinting state.
 	 *  
 	 * @param  	isSprinting
-	 *         	The sprinting indicator to check.
-	 * @return 	True if and only if the given isSprinting indicator is true and the isMoving indicator of this Unit is true or if the given 
-	 * 			isSprinting indicator is false.
-	 *       	| result == ((isSprinting && isMoving()) || !isSprinting)
+	 *         	The sprinting state to check.
+	 * @return 	If this Unit is dead, true if and only if the given sprinting state is false.
+	 * 			Otherwise, true if and only if the given sprinting state is true and this Unit is currently moving or if the given 
+	 * 			spriting state is false.
+	 * 			| if (!isAlive())
+	 * 			|	then result == (!isFalling)
+	 * 			| else
+	 *       	| 	result == ( (isSprinting && isMoving()) || !isSprinting )
 	*/
-	public boolean canHaveAsIsSprinting(boolean isSprinting) 
+	public boolean canHaveAsSprintingState(boolean isSprinting) 
 	{
+		if (!isAlive())
+			return !isSprinting;
 		return (isSprinting && isMoving()) || !isSprinting;
 	}
 	
 	/**
-	 * Set the sprinting indicator of this Unit to the given sprinting indicator.
+	 * Set the sprinting state of this Unit to the given sprinting state.
 	 * 
 	 * @param  	isSprinting
-	 *         	The new isSprinting indicator for this Unit.
-	 *         
-	 * @post   	The isSprinting indicator of this new Unit is equal to the given isSprinting indicator.
-	 *       	| new.getIsSprinting() == isSprinting
-	 *       
+	 *         	The new sprinting state for this Unit.
+	 * @post   	The sprinting state of this new Unit is equal to the given sprinting state.
+	 *       	| new.isSprinting() == isSprinting
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isSprinting indicator as its isSprinting indicator.
+	 *         	This Unit cannot have the given sprinting state as its sprinting state.
 	 *       	| ! canHaveAsIsSprinting(getIsSprinting())
 	 */
 	@Raw
-	public void setIsSprinting(boolean isSprinting) throws IllegalArgumentException 
+	public void setSprintingState(boolean isSprinting) throws IllegalArgumentException 
 	{
-		if (! canHaveAsIsSprinting(isSprinting))
-			throw new IllegalArgumentException("The given value isSprinting is invalid for this Unit.");
+		if (! canHaveAsSprintingState(isSprinting))
+			throw new IllegalArgumentException("Cannot have the given sprinting state.");
 		this.isSprinting = isSprinting;
 	}
 	
@@ -2464,7 +2468,7 @@ public class Unit {
 	{
 		if (getCurrentStaminapoints() > 0 && isMoving() && !isFalling())
 		{
-			setIsSprinting(true);
+			setSprintingState(true);
 			setCurrentSpeed(getSprintSpeed());
 			
 			// Only set the velocity if this method isn't called by the default behaviour. If the default behaviour decides to sprint, the correct 
@@ -2488,7 +2492,7 @@ public class Unit {
 	 */
 	public void stopSprinting() throws IllegalArgumentException
 	{
-		setIsSprinting(false);
+		setSprintingState(false);
 		setCurrentSpeed(getWalkingSpeed());
 	}
 	
