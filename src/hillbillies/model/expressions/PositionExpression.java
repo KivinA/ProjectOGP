@@ -8,6 +8,6 @@ package hillbillies.model.expressions;
 public abstract class PositionExpression implements Expression {
 
 	@Override
-	public abstract Boolean evaluate();
+	public abstract Integer[] evaluate();
 
 }

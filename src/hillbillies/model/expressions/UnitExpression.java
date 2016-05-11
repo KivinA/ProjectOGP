@@ -1,5 +1,7 @@
 package hillbillies.model.expressions;
 
+import hillbillies.model.*;
+
 /**
  * @author Kevin Algoet & Jeroen Depuydt
  * @version 0.1
@@ -8,5 +10,5 @@ package hillbillies.model.expressions;
 public abstract class UnitExpression implements Expression {
 
 	@Override
-	public abstract Boolean evaluate();
+	public abstract Unit evaluate();
 }
