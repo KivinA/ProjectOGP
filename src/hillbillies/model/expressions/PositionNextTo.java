@@ -5,6 +5,12 @@ package hillbillies.model.expressions;
  * @version 0.1
  *
  */
-public class PositionNextTo extends Position {
+public class PositionNextTo extends PositionExpression {
+
+	@Override
+	public Boolean evaluate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

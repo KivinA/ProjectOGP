@@ -5,6 +5,12 @@ package hillbillies.model.expressions;
  * @version 0.1
  *
  */
-public class PositionBoulder extends Position {
+public class PositionBoulder extends PositionExpression {
+
+	@Override
+	public Boolean evaluate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

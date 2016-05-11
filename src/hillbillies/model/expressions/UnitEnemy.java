@@ -5,6 +5,12 @@ package hillbillies.model.expressions;
  * @version 0.1
  *
  */
-public class UnitEnemy extends Unit {
+public class UnitEnemy extends UnitExpression {
+
+	@Override
+	public Boolean evaluate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
