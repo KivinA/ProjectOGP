@@ -2443,30 +2443,27 @@ public class Unit {
 	}
 	
 	/**
-	 * Start sprinting with this Unit.
+	 * Let this Unit sprint.
 	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
-	 * @effect	The isSprinting of this Unit is enabled, if its currentStaminapoints is higher than 0 and the Unit is currently moving
-	 * 			and if the Unit isn't falling.
-	 * 			| if (getCurrentStaminapoints() > 0 && isMoving() && !isFalling())
+	 * @effect	The sprinting state of this Unit is enabled, if its current staminapoints is higher than 0, if the Unit is currently moving,
+	 * 			if the Unit isn't falling and if the Unit is alive.
+	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive() )
 	 * 			| 	then this.setIsSprinting(true)
-	 * 
-	 * @effect	The currentSpeed of this Unit is set to its sprintSpeed, if its currentStaminapoints is higher than 0 and the Unit is
-	 * 			currently moving and if the Unit isn't falling.
-	 * 			| if (getCurrentStaminapoints() > 0 && isMoving() && !isFalling())
+	 * @effect	The current speed of this Unit is set to its sprint speed, if its current staminapoints is higher than 0, if the Unit is
+	 * 			currently moving, if the Unit isn't falling and if the Unit is alive.
+	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive() )
 	 * 			| 	then this.setCurrentSpeed(getSprintSpeed())
-	 * 
 	 * @effect	The velocity of this Unit is set to the calculated velocity using this Unit's cube coordinates, if its currentStaminapoints
 	 * 			is higher than 0, if the Unit is currently moving, if the Unit isn't falling and if the isDefaultBehaviourEnabled indicator
 	 * 			is deactivated.
-	 * 			| if (getCurrentStaminapoints() > 0 && isMoving() && !isFalling() && !isDefaultBehaviourEnabled())
+	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive() && !isDefaultBehaviourEnabled())
 	 * 			| 	then this.setVelocity(getNextCubeCoordinates())
 	 */
 	public void startSprinting() throws IllegalArgumentException
 	{
-		if (getCurrentStaminapoints() > 0 && isMoving() && !isFalling())
+		if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive())
 		{
 			setSprintingState(true);
 			setCurrentSpeed(getSprintSpeed());
@@ -2474,19 +2471,17 @@ public class Unit {
 			// Only set the velocity if this method isn't called by the default behaviour. If the default behaviour decides to sprint, the correct 
 			// velocity will be calculated in the MoveToAdjacent method.
 			if (!isDefaultBehaviourEnabled())
-				setVelocity(getNextCoordinates());
+				setVelocity(getNextCoordinates()); // Velocity will be set wrongly because we don't have the correct integer coordinates. TODO TEST THIS!
 		}
 	}
 	
 	/**
-	 * Stop sprinting with this Unit.
+	 * Let this Unit stop sprinting.
 	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
 	 * @effect	The isSprinting indicator of this Unit is disabled.
 	 * 			| this.setIsSprinting(false)
-	 * 
 	 * @effect	The current speed of this Unit is set to its walking speed.
 	 * 			| this.setCurrentSpeed(getWalkingSpeed())
 	 */
@@ -2497,17 +2492,9 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the sprinting indicator of this Unit.
+	 * Variable registering the sprinting state of this Unit.
 	 */
-	private boolean isSprinting;
-
-	// ----------------------
-	// |					|
-	// |					|
-	// | SPRINTING DURATION	|
-	// |					|
-	// |					|
-	// ----------------------
+	private boolean isSprinting = false;
 	
 	/**
 	 * Return the sprinting duration of this Unit.
