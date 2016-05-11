@@ -2,6 +2,8 @@ package hillbillies.model;
 
 import java.util.List;
 
+import hillbillies.model.expressions.Expression;
+import hillbillies.model.statements.*;
 import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
 
@@ -29,8 +31,8 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 	@Override
 	public Statement createIf(Expression condition, Statement ifBody, Statement elseBody,
 			SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		If ifStatement = new If(condition, ifBody, elseBody, sourceLocation);
+		return ifStatement;
 	}
 
 	@Override

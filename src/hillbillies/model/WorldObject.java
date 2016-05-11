@@ -184,7 +184,7 @@ public abstract class WorldObject {
 	public double[] getPosition()
 	{
 		if (this.position != null)
-			return Arrays.copyOf(position, 3);
+			return Arrays.copyOf(position, position.length);	// Return a copy of the position array for safety
 		return this.position;
 	}
 	
