@@ -363,6 +363,7 @@ public class UnitTest {
 				new int[] { 0, 0, 0 }, false, theWorld);
 		int[] coordinates = { 0, 0, 2 };
 		double[] expectedPos = { 0.5, 0.5, 2.5 };
+		theUnit.setCubeCoordinates(coordinates);
 		theUnit.setPosition(coordinates);
 		assertArrayEquals(expectedPos, theUnit.getPosition(), 0);
 		assertTrue(theUnit.isFalling());
@@ -376,6 +377,7 @@ public class UnitTest {
 				new int[] { 0, 0, 1 }, false, theWorld);
 		int[] coordinates = {0, 0, 0};
 		assertTrue(theUnit.isFalling());
+		theUnit.setCubeCoordinates(coordinates);
 		theUnit.setPosition(coordinates);
 		assertFalse(theUnit.isFalling());
 	}
@@ -389,6 +391,7 @@ public class UnitTest {
 				new int[] { 0, 0, 1 }, false, theWorld);
 		int[] coordinates = {0, 0, 1};
 		assertTrue(theUnit.isFalling());
+		theUnit.setCubeCoordinates(coordinates);
 		theUnit.setPosition(coordinates);
 		assertTrue(theUnit.isFalling());
 	}

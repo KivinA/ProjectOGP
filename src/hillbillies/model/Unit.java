@@ -491,7 +491,7 @@ public class Unit {
 							setSprintingState(false);
 					}	
 					
-					//setCubeCoordinates(getNextCubeCoordinates()); // Correct the current cube coordinates.
+					setCubeCoordinates(getNextCoordinates()); // Correct the current cube coordinates.
 					setPosition(getNextCoordinates()); // Correct the unit's position.
 				}
 			}
@@ -1950,8 +1950,8 @@ public class Unit {
 	 * @param  	isFalling
 	 *         	The falling state to check.
 	 * @return	If this Unit is dead, true if and only if the given falling state is false.
-	 * 			Otherwise, true if and only if the given falling state is true and the cube coordinates of this Unit don't have a
-	 * 			solid neighbouring cube, or if the given falling state is false and the cube coordinates of this Unit do have
+	 * 			Otherwise, true if and only if the given falling state is true and the current cube coordinates of this Unit don't have a
+	 * 			solid neighbouring cube, or if the given falling state is false and the current cube coordinates of this Unit do have
 	 * 			a solid neighbouring cube.
 	 * 			| if (!isAlive)
 	 * 			|	result == (!isFalling)
@@ -1989,7 +1989,7 @@ public class Unit {
 	public void setFallingState(boolean isFalling) throws IllegalArgumentException 
 	{
 		if (!canHaveAsFallingState(isFalling))
-			throw new IllegalArgumentException("This Unit cannot have the given isFalling indicator as its isFalling indicator.");
+			throw new IllegalArgumentException("Cannot have falling state!");
 		this.isFalling = isFalling;
 	}
 	
@@ -1998,9 +1998,12 @@ public class Unit {
 	 * 
 	 * @param 	coordinates
 	 * 			The coordinates to use in this calculation.
-	 * @return	True if and only if the given cube doesn't have a solid neighbouring cube and if the Unit isn't already falling.
-	 * 			| result == ( !(getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2])) && !isFalling() )
-	 * TODO	REVISE DOC
+	 * @return	False if and only if the given z-coordinate of the given coordinates is equal to zero.
+	 * 			Otherwise, true if and only if the given cube coordinates don't have a solid neighbouring cube.
+	 * 			| if (coordinates[2] == 0)
+	 * 			|	then result == false;
+	 * 			| else
+	 * 			|	result = ( !getWorld().hasSolidNeighbouringCube(coordinates[0], coordinates[1], coordinates[2]) )
 	 */
 	@Raw @Model
 	private boolean mustUnitFall(int[] coordinates)
