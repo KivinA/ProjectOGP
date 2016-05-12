@@ -2684,7 +2684,7 @@ public class Unit {
 	 * 			state is false.
 	 *       	| result == ( (wasMoving && !isMoving()) || (!wasMoving && isMoving()) )
 	 */
-	@Raw
+	@Raw @Model
 	private boolean canHaveAsWasMoving(boolean wasMoving) 
 	{
 		return ((wasMoving && !isMoving()) || (!wasMoving && isMoving()));
@@ -2713,122 +2713,88 @@ public class Unit {
 	 * Variable registering whether this Unit was moving.
 	 */
 	private boolean wasMoving = false;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    IS MOVING TO	|
-	// |					|
-	// |					|
-	// ----------------------
-	
+		
 	/**
 	 * Return whether this Unit is moving to a cube in the {@link World}.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private boolean isMovingTo() 
 	{
 		return this.isMovingTo;
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isMovingTo indicator as its isMovingTo indicator.
+	 * Check whether this Unit can have the given isMovingTo state as its isMovingTo state.
 	 *  
 	 * @param  	isMovingTo
-	 *         	The moving to indicator to check.
+	 *         	The moving to state to check.
 	 * @return 	True if and only if the Unit is currently moving.
-	 *       	| result == (isMoving ())
-	 *      
-	 * @note	The isMovingTo indicator must be enabled after the isMoving indicator is enabled and it must be disabled before the isMoving
-	 * 			indicator is disabled. This means at all time the isMoving indicator must be true.
+	 *       	| result == ( isMoving() )
+	 * @note	The isMovingTo state must be enabled after the isMoving state is enabled and it must be disabled before the isMoving
+	 * 			state is disabled. This means at all time the isMoving indicator must be true.
 	 */
+	@Raw @Model
 	private boolean canHaveAsIsMovingTo(boolean isMovingTo) 
 	{
-		return (isMoving());
+		return isMoving();
 	}
 	
 	/**
-	 * Set the moving to indicator of this Unit to the given moving to indicator.
+	 * Set the moving to state of this Unit to the given moving to state.
 	 * 
 	 * @param  	isMovingTo
-	 *         	The new moving to indicator for this Unit.
-	 *         
-	 * @post   	The moving to indicator of this new Unit is equal to the given moving to indicator.
+	 *         	The new moving to state for this Unit.
+	 * @post   	The moving to state of this new Unit is equal to the given moving to state.
 	 *       	| new.getIsMovingTo() == isMovingTo
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isMovingTo indicator as its isMovingTo indicator.
-	 *       	| ! canHaveAsIsMovingTo(getIsMovingTo())
+	 *         	This Unit cannot have the given isMovingTo state as its isMovingTo state.
+	 *       	| !canHaveAsIsMovingTo(isMovingTo)
 	 */
-	@Raw
+	@Raw @Model
 	private void setIsMovingTo(boolean isMovingTo) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsMovingTo(isMovingTo))
-			throw new IllegalArgumentException("The given value isMovingTo is invalid for this Unit.");
+			throw new IllegalArgumentException("Cannot have the given moving to state!");
 		this.isMovingTo = isMovingTo;
 	}
 	
 	/**
-	 * Variable registering the moving to indicator of this Unit.
+	 * Variable registering whether this Unit is moving to a cube in the {@link World}.
 	 */
 	private boolean isMovingTo;
 
-	// ----------------------
-	// |					|
-	// |					|
-	// |    IS MOVING TO 	|
-	// |	  ADJACENT		|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the moving to adjacent cube indicator of this Unit.
+	 * Return whether this Unit is moving to an adjacent cube in the {@link World}.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private boolean isMovingToAdjacent() 
 	{
 		return this.isMovingToAdjacent;
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isMovingToAdjacent indicator as its isMovingToAdjacent indicator.
-	 *  
-	 * @param  	isMovingToAdjacent
-	 *         	The moving to adjacent cube indicator to check.
-	 * @return 	True if and only if the Unit is currently moving.
-	 *       	| result == (isMoving())
-	 * 
-	 * @note	The isMovingToAdjacent indicator must be enabled after the isMoving indicator is enabled and it must be disabled before the
-	 * 			isMoving indicator is disabled. This means at all time the isMoving indicator must be true.	
-	 */
-	private boolean canHaveAsIsMovingToAdjacent(boolean isMovingToAdjacent) 
-	{
-		return (isMoving());
-	}
-	
-	/**
-	 * Set the moving to adjacent cube indicator of this Unit to the given moving to adjacent cube indicator.
+	 * Set the moving to adjacent cube state of this Unit to the given moving to adjacent cube state.
 	 * 
 	 * @param  	isMovingToAdjacent
-	 *         	The new moving to adjacent cube indicator for this Unit.
-	 *         
-	 * @post   	The moving to adjacent cube indicator of this new Unit is equal to the given moving to adjacent cube indicator.
+	 *         	The new moving to adjacent cube state for this Unit.
+	 * @post   	The moving to adjacent cube state of this new Unit is equal to the given moving to adjacent cube state.
 	 *       	| new.getIsMovingToAdjacent() == isMovingToAdjacent
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isMovingToAdjacent indicator as its isMovingToAdjacent indicator.
-	 *       	| ! canHaveAsIsMovingToAdjacent(getIsMovingToAdjacent())
+	 *         	This Unit cannot have the given isMovingTo state as its isMovingTo state.
+	 *       	| !canHaveAsIsMovingTo(isMovingToAdjacent)
+	 * @note	We use the same checker, because this state is almost the same as the isMovingTo state. The only difference is that we use
+	 * 			this state to check if its moving to an adjacent cube.
 	 */
-	@Raw
+	@Raw @Model
 	private void setIsMovingToAdjacent(boolean isMovingToAdjacent) throws IllegalArgumentException 
 	{
-		if (! canHaveAsIsMovingToAdjacent(isMovingToAdjacent))
-			throw new IllegalArgumentException("The given value isMovingToAdjacent is invalid for this Unit.");
+		if (!canHaveAsIsMovingTo(isMovingToAdjacent))
+			throw new IllegalArgumentException("Cannot have the given is moving to adjacent cube state!");
 		this.isMovingToAdjacent = isMovingToAdjacent;
 	}
 	
 	/**
-	 * Variable registering the moving to adjacent cube indicator of this Unit.
+	 * Variable registering whether this Unit is currently moving to an adjacent cube in the {@link World}.
 	 */
 	private boolean isMovingToAdjacent;
 	
