@@ -754,7 +754,7 @@ public class Unit {
 					setIsWorking(false);
 				
 				setIsMovingTo(true);
-				setTargetCube(cube);
+				setDestinationCube(cube);
 				
 			}
 			catch (IllegalArgumentException e)
@@ -826,7 +826,7 @@ public class Unit {
 		// Calculate the Path: 
 		//System.out.println("Destination cube is: " + "[" + getDestinationCube()[0] + ", " + getDestinationCube()[1] + ", " + getDestinationCube()[2] + "]");
 		pathQueue = new ArrayList<Tuple<int[], Integer>>();
-		Tuple<int[], Integer> destination = new Tuple<int[], Integer>(getTargetCube(), 0);
+		Tuple<int[], Integer> destination = new Tuple<int[], Integer>(getDestinationCube(), 0);
 		pathQueue.add(destination);
 		
 		Iterator<Tuple<int[], Integer>> iter;
@@ -2693,80 +2693,38 @@ public class Unit {
 	// ----------------------
 	
 	/**
-	 * Return the target cube to which this Unit might move or might work on.
+	 * Return the destination cube of this Unit.
 	 */
-	@Basic @Raw @Model
-	private int[] getTargetCube() {
-		return this.targetCube;
+	@Basic @Raw
+	private int[] getDestinationCube() {
+		return this.destinationCube;
 	}
 	
 	/**
-	 * Check whether this Unit can have the given target cube as its target cube.
+	 * Set the destination cube of this Unit to the given destination cube.
 	 * 
-	 * @param 	targetCube
-	 * 			The target cube to check.
-	 * @return	If this Unit is currently moving, true if and only is this Unit can have the target cube coordinates
-	 * 			as its cube coordinates.
-	 * 			If this Unit is currently working, true if and only if the given target cube is within the World's boundaries
-	 * 			and if the target cube is a neighbouring cube from this Unit's current cube.
-	 *			| if (isMoving())
-	 *			|	then result == ( canHaveAsCubeCoordinates(targetCube) )
-	 *			| else if (isWorking())
-	 *			|	then result == ( getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2])
-	 *			|						 && isNeighbouringCube(targetCube) )
-	 */
-	@Raw @Model
-	private boolean canHaveAsTargetCube(int[] targetCube)
-	{
-		if (isMoving())
-			return canHaveAsCubeCoordinates(targetCube);
-		else if (isWorking())
-			return (getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && isNeighbouringCube(targetCube));
-		return false;
-	}
-	
-	/**
-	 * Set the target cube of this Unit to the given target cube.
-	 * 
-	 * @param  	targetCube
+	 * @param  	destinationCube
 	 *         	The new destination cube for this Unit.
-	 * @post   	The target cube of this new Unit is equal to the given target cube.
-	 *       	| new.getTargetCube() == targetCube
+	 *         
+	 * @post   	The destination cube of this new Unit is equal to the given destination cube.
+	 *       	| new.getDestinationCube() == destinationCube
+	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given target cube as its target cube.
-	 *       	| ! canHaveAsTarget(targetCube)
+	 *         	This Unit cannot have the given destinationCube as its cubeCoordinates.
+	 *       	| ! canHaveAsCubeCoordinates(destinationCube)
 	 */
-	@Raw @Model
-	private void setTargetCube(int[] targetCube) throws IllegalArgumentException 
+	@Raw
+	private void setDestinationCube(int[] destinationCube) throws IllegalArgumentException 
 	{
-		if (!canHaveAsTargetCube(targetCube))
+		if (! canHaveAsCubeCoordinates(destinationCube))
 			throw new IllegalArgumentException("The given destinationCube is invalid for this Unit.");
-		this.targetCube = Arrays.copyOf(targetCube, 3);
+		this.destinationCube = Arrays.copyOf(destinationCube, 3);
 	}
 	
 	/**
-	 * Check whether the given cube is a neighbouring cube of this Unit's cube.
-	 * 
-	 * @param 	cube
-	 * 			The cube to check.
-	 * @return	True if and only if the cube is a neighbouring cube. This means the coordinates components are either the Unit's cubeCoordinates
-	 * 			components +1, -1 or if the cube components are equal to the Unit's cubeCoordinates components.
-	 * 			| result ==  ((getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
-	 *			| && (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
-	 *			| && (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]))
+	 * Variable registering the destination cube of this Unit.
 	 */
-	@Raw @Model
-	private boolean isNeighbouringCube(int [] cube)
-	{
-		return ((getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
-				&& (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
-				&& (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]));
-	}
-	
-	/**
-	 * Variable registering the target cube of this Unit, where it might move to or work on.
-	 */
-	private int[] targetCube = new int[3];
+	private int[] destinationCube;
 	
 	// FIXME	DONE REVISION TILL HERE.
 	
@@ -2915,6 +2873,81 @@ public class Unit {
 	 */
 	private boolean isWorking;
 	
+	// ----------------------
+	// |					|
+	// |					|
+	// |    TARGET CUBE		|
+	// |					|
+	// |					|
+	// ----------------------
+	
+	/**
+	 * Return the targetCube of this Unit.
+	 */
+	@Basic @Raw
+	public int[] getTargetCube() 
+	{
+		return this.targetCube;
+	}
+	
+	/**
+	 * Check whether this Unit can have the given targetCube as its targetCube.
+	 *  
+	 * @param  	targetCube
+	 *         	The targetCube to check.
+	 * @return 	True if and only if the targetCube coordinates are between this World's boundaries
+	 * 			and the targetCube is a neighbouring cube of the current Unit's cube or the current cube itself.
+	 *       	| result == getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && isTargetCube(targetCube)
+	*/
+	public boolean canHaveAsTargetCube(int[] targetCube) 
+	{
+		return getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && isNeighbouringCube(targetCube);
+	}
+	
+	/**
+	 * Check whether the given cube is a neighbouring cube of this Unit's cube.
+	 * 
+	 * @param 	cube
+	 * 			The cube to check.
+	 * @return	True if and only if the cube is a neighbouring cube. This means the coordinates components are either the Unit's cubeCoordinates
+	 * 			components +1, -1 or if the cube components are equal to the Unit's cubeCoordinates components.
+	 * 			| result ==  ((getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
+	 *			| && (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
+	 *			| && (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]))
+	 */
+	private boolean isNeighbouringCube(int [] cube)
+	{
+		return ((getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
+				&& (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
+				&& (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]));
+	}
+	
+	/**
+	 * Set the targetCube of this Unit to the given targetCube.
+	 * 
+	 * @param  	targetCube
+	 *         	The new targetCube for this Unit.
+	 *         
+	 * @post   	The targetCube of this new Unit is equal to the given targetCube.
+	 *       	| new.getTargetCube() == targetCube
+	 *       
+	 * @throws 	IllegalArgumentException
+	 *         	This Unit cannot have the given targetCube as its targetCube.
+	 *       	| ! canHaveAsTargetCube(getTargetCube())
+	 */
+	@Raw
+	public void setTargetCube(int[] targetCube) throws IllegalArgumentException 
+	{
+		if (! canHaveAsTargetCube(targetCube))
+			throw new IllegalArgumentException("The given targetCube to work at is invalid.");
+		this.targetCube = targetCube;
+	}
+	
+	/**
+	 * Variable registering the targetCube of this Unit.
+	 */
+	private int[] targetCube;
+		
 	// ----------------------
 	// |					|
 	// |					|
