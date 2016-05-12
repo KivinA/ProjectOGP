@@ -300,10 +300,10 @@ public class World {
 		double numberAbs = Math.abs(number);
 		int intNumber = (int) numberAbs;
 		double result = numberAbs - (double) intNumber;
-		if (result <= 0.5)
-			return number < 0 ? -intNumber: intNumber;
+		if (result < 0.5)
+			return number < 0 ? -intNumber: intNumber - 1;
 		else
-			return number < 0 ? -(intNumber + 1) : intNumber + 1;
+			return number < 0 ? -(intNumber + 1) : intNumber;
 	}
 	
 	/**

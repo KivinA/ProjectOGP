@@ -150,6 +150,15 @@ public class WorldTest
 	}
 	
 	@Test
+	public void getCubeCoordinates_SingleCase()
+	{
+		int[] expectedCoord = {6, 12, 6};
+		double[] pos = {6.7, 12.5, 6.5};
+		
+		assertArrayEquals(expectedCoord, World.getCubeCoordinates(pos));
+	}
+	
+	@Test
 	public void isValidTerrain_TrueCase()
 	{
 		int[][][] theTerrain = new int[5][5][5];
