@@ -719,6 +719,9 @@ public class Unit {
 	 * 			The given cube to move to.
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
+	 * @throws	IllegalStateException
+	 * 			This Unit is dead.
+	 * 			| !isAlive()
 	 * @effect	The isMovingTo indicator of this Unit is enabled, if the Unit has finished the initial resting period.
 	 * 			| if (hasRestedOnePoint())
 	 * 			| then this.setIsMovingTo(true)
@@ -737,6 +740,8 @@ public class Unit {
 	 */
 	public void moveTo(int[] cube) throws IllegalArgumentException
 	{
+		if (!isAlive())
+			throw new IllegalStateException("Cannot move to a cube, Unit is dead!");
 		if (hasRestedOnePoint())
 		{
 			try
@@ -944,8 +949,6 @@ public class Unit {
 	@Raw @Model
 	private Tuple<int[], Integer> findNextCube(int[] coordinates)
 	{
-		
-		
 		Iterator<Tuple<int[], Integer>> iter = pathQueue.iterator();
 		Tuple<int[], Integer> result = new Tuple<int[], Integer>(null, getWorld().getNbCubesX());
 		while (iter.hasNext())
