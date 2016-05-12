@@ -2665,63 +2665,54 @@ public class Unit {
 	 * Variable registering the moving state of this Unit.
 	 */
 	private boolean isMoving = false;
-
-	// ----------------------
-	// |					|
-	// |					|
-	// |     WAS MOVING		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
-	 * Return the wasMoving indicator of this Unit.
+	 * Return whether this Unit was moving.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private boolean wasMoving() 
 	{
 		return this.wasMoving;
 	}
 	
 	/**
-	 * Check whether this Unit can have the given wasMoving indicator as its wasMoving indicator.
+	 * Check whether this Unit can have the given was moving state as its was moving state.
 	 *  
 	 * @param  	wasMoving
-	 *         	The wasMoving indicator to check.
-	 * @return 	True if and only if the given wasMoving is true and the Unit isn't moving currently or if the Unit is currently Moving and the given
-	 * 			wasMoving is false.
-	 *       	| result == ((wasMoving && !isMoving()) || (!wasMoving && isMoving()))
-	*/
+	 *         	The was moving state to check.
+	 * @return 	True if and only if the given state is true and the Unit isn't moving currently or if the Unit is currently Moving and the given
+	 * 			state is false.
+	 *       	| result == ( (wasMoving && !isMoving()) || (!wasMoving && isMoving()) )
+	 */
+	@Raw
 	private boolean canHaveAsWasMoving(boolean wasMoving) 
 	{
 		return ((wasMoving && !isMoving()) || (!wasMoving && isMoving()));
 	}
 	
 	/**
-	 * Set the wasMoving indicator of this Unit to the given wasMoving indicator.
+	 * Set the was moving state of this Unit to the given state.
 	 * 
 	 * @param  	wasMoving
-	 *         	The new wasMoving indicator for this Unit.
-	 *         
-	 * @post   	The wasMoving indicator of this new Unit is equal to the given wasMoving indicator.
+	 *         	The new was moving state for this Unit.
+	 * @post   	The was moving state of this new Unit is equal to the given state.
 	 *       	| new.getWasMoving() == wasMoving
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given wasMoving indicator as its wasMoving indicator.
-	 *       	| ! canHaveAsWasMoving(getWasMoving())
+	 *         	This Unit cannot have the given was moving state as its was moving state.
+	 *       	| !canHaveAsWasMoving(wasMoving)
 	 */
-	@Raw
+	@Raw @Model
 	private void setWasMoving(boolean wasMoving) throws IllegalArgumentException 
 	{
 		if (! canHaveAsWasMoving(wasMoving))
-			throw new IllegalArgumentException("The given value wasMoving is invalid for this Unit.");
+			throw new IllegalArgumentException("Cannot have the given was moving state!");
 		this.wasMoving = wasMoving;
 	}
 	
 	/**
-	 * Variable registering the wasMoving indicator of this Unit.
+	 * Variable registering whether this Unit was moving.
 	 */
-	private boolean wasMoving;
+	private boolean wasMoving = false;
 	
 	// ----------------------
 	// |					|
@@ -2732,7 +2723,7 @@ public class Unit {
 	// ----------------------
 	
 	/**
-	 * Return the moving to indicator of this Unit.
+	 * Return whether this Unit is moving to a cube in the {@link World}.
 	 */
 	@Basic @Raw
 	private boolean isMovingTo() 
