@@ -273,7 +273,6 @@ public class Unit {
 			setCurrentStaminapoints(getMaxStaminapoints());
 			
 			setCubeCoordinates(initialPosition);
-			setPosition(initialPosition);
 			
 			// Default behaviour of this Unit: We will only change the behaviour to true if true is given. Otherwise the checker is invalid!
 			if (enableDefaultBehaviour)
@@ -492,7 +491,6 @@ public class Unit {
 					}	
 					
 					setCubeCoordinates(getNextCoordinates()); // Correct the current cube coordinates.
-					setPosition(getNextCoordinates()); // Correct the unit's position.
 				}
 			}
 			
@@ -1924,6 +1922,10 @@ public class Unit {
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given cube coordinates as its current cube coordinates.
 	 *       	| !canHaveAsCubeCoordinates(cubeCoordinates)
+	 * @effect	Set the precise position of this Unit according to the given cube coordinates.
+	 * 			| this.setPosition(cubeCoordinates)
+	 * @note	We immediately update the position of this Unit if we change its coordinates. This is because these properties
+	 * 			work along with one another.
 	 */
 	@Raw
 	public void setCubeCoordinates(int[] cubeCoordinates) throws IllegalArgumentException 
@@ -1931,6 +1933,7 @@ public class Unit {
 		if (!canHaveAsCubeCoordinates(cubeCoordinates))
 			throw new IllegalArgumentException("Cannot have cube coordinates!");
 		this.cubeCoordinates = Arrays.copyOf(cubeCoordinates, 3);
+		setPosition(cubeCoordinates);
 	}
 	
 	/**
@@ -2509,23 +2512,23 @@ public class Unit {
 	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * @effect	The sprinting state of this Unit is enabled, if its current staminapoints is higher than 0, if the Unit is currently moving,
-	 * 			if the Unit isn't falling and if the Unit is alive.
-	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive() )
+	 * @effect	The sprinting state of this Unit is enabled, if its current staminapoints is higher than 0, if the Unit is currently moving, and
+	 * 			if the Unit isn't falling.
+	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() )
 	 * 			| 	then this.setIsSprinting(true)
 	 * @effect	The current speed of this Unit is set to its sprint speed, if its current staminapoints is higher than 0, if the Unit is
-	 * 			currently moving, if the Unit isn't falling and if the Unit is alive.
-	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive() )
+	 * 			currently moving, and if the Unit isn't falling.
+	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() )
 	 * 			| 	then this.setCurrentSpeed(getSprintSpeed())
 	 * @effect	The velocity of this Unit is set to the calculated velocity using this Unit's cube coordinates, if its currentStaminapoints
 	 * 			is higher than 0, if the Unit is currently moving, if the Unit isn't falling and if the isDefaultBehaviourEnabled indicator
 	 * 			is deactivated.
-	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive() && !isDefaultBehaviourEnabled() )
+	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && !isDefaultBehaviourEnabled() )
 	 * 			| 	then this.setVelocity(getNextCubeCoordinates())
 	 */
 	public void startSprinting() throws IllegalArgumentException
 	{
-		if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive())
+		if ((getCurrentStaminapoints() > 0) && isMoving() && !isFalling())
 		{
 			setSprintingState(true);
 			setCurrentSpeed(getSprintSpeed());
@@ -2542,15 +2545,20 @@ public class Unit {
 	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * @effect	The isSprinting indicator of this Unit is disabled.
-	 * 			| this.setIsSprinting(false)
-	 * @effect	The current speed of this Unit is set to its walking speed.
-	 * 			| this.setCurrentSpeed(getWalkingSpeed())
+	 * @effect	The isSprinting indicator of this Unit is disabled, if this Unit is currently moving.
+	 * 			| if (isMoving())
+	 * 			| 	then this.setIsSprinting(false)
+	 * @effect	The current speed of this Unit is set to its walking speed, if this Unit is currently moving.
+	 * 			| if (isMoving())
+	 * 			| 	then this.setCurrentSpeed(getWalkingSpeed())
 	 */
 	public void stopSprinting() throws IllegalArgumentException
 	{
-		setSprintingState(false);
-		setCurrentSpeed(getWalkingSpeed());
+		if (isMoving())
+		{
+			setSprintingState(false);
+			setCurrentSpeed(getWalkingSpeed());
+		}
 	}
 	
 	/**

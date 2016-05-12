@@ -287,21 +287,44 @@ public class UnitTest {
 	}
 
 	@Test
-	public void canUseAsCubeCoordinates_TrueCase() {
+	public void canHaveAsCubeCoordinates_TrueCase() {
 		int[] position = { 0, 0, 1 };
 		assertTrue(unit.canHaveAsCubeCoordinates(position));
 	}
 
 	@Test
-	public void canUseAsCubeCoordinates_OutOfBoundaries() {
+	public void canHaveAsCubeCoordinates_OutOfBoundaries() {
 		int[] position = { 3, 1, 1 };
 		assertFalse(unit.canHaveAsCubeCoordinates(position));
 	}
 
 	@Test
-	public void canUseAsCubeCoordinates_SolidCube() {
+	public void canHaveAsCubeCoordinates_SolidCube() {
 		int[] position = { 1, 1, 0 };
 		assertFalse(unit.canHaveAsCubeCoordinates(position));
+	}
+	
+	@Test
+	public void setCubeCoordinates_LegalCase()
+	{
+		int[] coordinates = {2, 2, 2};
+		unit.setCubeCoordinates(coordinates);
+		assertArrayEquals(coordinates, unit.getCubeCoordinates());
+		assertArrayEquals(World.getPreciseCoordinates(coordinates), unit.getPosition(), 0);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void setCubeCoordinates_IllegalCoordinates() throws Exception
+	{
+		int[] coordinates = {5, 3, 4};
+		unit.setCubeCoordinates(coordinates);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void setCubeCoordinates_SolidCube() throws Exception
+	{
+		int[] coordinates = {2, 2, 1};
+		unit.setCubeCoordinates(coordinates);
 	}
 
 	@Test
@@ -435,9 +458,16 @@ public class UnitTest {
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
-	public void setPositionAt_IllegalCase() throws Exception
+	public void setPositionAt_IllegalPosition() throws Exception
 	{
 		unit.setPositionAt(-1, 2.5);
+	}
+	
+	@Test (expected = IllegalStateException.class)
+	public void setPosition_DeadUnit() throws Exception
+	{
+		unit.die();
+		unit.setPositionAt(0, 2.5);
 	}
 	
 	@Test
@@ -479,5 +509,53 @@ public class UnitTest {
 	public void canHaveAsSprintingState_NotMoving()
 	{
 		assertFalse(unit.canHaveAsSprintingState(true));
-	}	
+	}
+	
+	@Test
+	public void canHaveAsSprintingState_DeadUnit()
+	{
+		unit.die();
+		assertFalse(unit.canHaveAsSprintingState(true));
+	}
+	
+	@Test
+	public void startSprinting_NotMoving()
+	{
+		unit.startSprinting();
+		assertFalse(unit.isSprinting());
+		assertEquals(0, unit.getCurrentSpeed(), 0);
+	}
+	
+	@Test
+	public void startSprinting_FallingUnit()
+	{
+		int[][][] terrain = new int[3][3][3];
+		World theWorld = new World(terrain, new DefaultTerrainChangeListener());
+		Unit theUnit = new Unit("Hillbiilly", DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY,
+				new int[] { 0, 0, 1 }, false, theWorld);
+		theUnit.startSprinting();
+		assertFalse(theUnit.isSprinting());
+		assertEquals(0, theUnit.getCurrentSpeed(), 0);
+	}
+	
+	@Test
+	public void startSprinting_NoStaminaPoints()
+	{
+		unit.setCurrentStaminapoints(0);
+		unit.startSprinting();
+		assertFalse(unit.isSprinting());
+		assertEquals(0, unit.getCurrentSpeed(), 0);
+	}
+	
+	// TODO	Add tests where we can start sprinting. Can only be done after we have revised moveToAdjacent.
+	
+	@Test
+	public void stopSprinting_NotMoving()
+	{
+		unit.stopSprinting();
+		assertFalse(unit.isSprinting());
+		assertEquals(0, unit.getCurrentSpeed(), 0);
+	}
+	
+	// TODO	Add tests where we can stop sprinting. Can only be done after we have revised moveToAdjacent.
 }
