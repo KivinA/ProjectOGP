@@ -2021,7 +2021,12 @@ public class Unit {
 	/**
 	 * Return the coordinates of the cube to which this Unit will move to next.
 	 * 
-	 * TODO		Add return clauses.
+	 * @return	The length of the resulting array is equal to the length of this Unit's next cube coordinates array.
+	 * 			| result.length == this.nextCoordinates.length()
+	 * @return	Each element of the resulting array corresponds with the element of this Unit's next cube coordinates array
+	 * 			at the corresponding index.
+	 * 			| for each i in 0..result.length:
+	 * 			|	result[i] == this.nextCoordinates[i]
 	 */
 	@Basic @Raw
 	private int[] getNextCoordinates() 
@@ -2034,13 +2039,19 @@ public class Unit {
 	 *  
 	 * @param  	nextCoordinates
 	 *         	The next cube coordinates to check.
-	 * @return	True if and only if this Unit can use the next cube coordinates as cube coordinates and if
-	 * 			the given next cube coordinates are different from the current cube coordinates.
-	 *       	| result == ( canUseAsCubeCoordinates(nextCubeCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCoordinates) )
+	 * @return	If this Unit is dead, true if and only if the given next cube coordinates is ineffective.
+	 * 			Otherwise, true if and only if this Unit can have the next cube coordinates as its current cube coordinates and if
+	 *			the given next cube coordinates are different from the current cube coordinates.
+	 *			| if (!isAlive())
+	 *			|	then result == (nextCoordinates == null)
+	 *			| else
+	 *			|	result == ( canHaveAsCubeCoordinates(nextCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCoordinates) )
 	 */
 	@Raw
 	private boolean canHaveAsNextCoordinates(int[] nextCoordinates) 
 	{
+		if (!isAlive())
+			return nextCoordinates == null;
 		return (canHaveAsCubeCoordinates(nextCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCoordinates));
 	}
 	
@@ -2052,34 +2063,32 @@ public class Unit {
 	 * @post   	The next cube coordinates of this new Unit is equal to the given next cube coordinates.
 	 *       	| new.getNextCubeCoordinates() == nextCubeCoordinates
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given nextCubeCoordinates as its nextCubeCoordinates.
-	 *       	| ! canHaveAsNextCubeCoordinates(getNextCubeCoordinates())
+	 *         	This Unit cannot have the given next cube coordinates as its next cube coordinates.
+	 *       	| !canHaveAsNextCubeCoordinates(nextCoordinates)
 	 * @throws	IllegalArgumentException
-	 * 			If the Unit isn't falling and there isn't a solid cube neighbouring the destination cube 
-	 * 			and the Unit isn't currently falling.
-	 *       	| !isFalling() && !getWorld().hasSolidNeighbouringCube(nextCubeCoordinates[0], nextCubeCoordinates[1], nextCubeCoordinates[2])
+	 * 			The Unit isn't currently falling and there isn't a solid cube neighbouring the next cube coordinates.
+	 *       	| !isFalling() && !getWorld().hasSolidNeighbouringCube(nextCoordinates[0], nextCoordinates[1], nextCoordinates[2])
 	 */
 	@Raw
 	private void setNextCoordinates(int[] nextCoordinates) throws IllegalArgumentException 
 	{
 		if (! canHaveAsNextCoordinates(nextCoordinates))
-			throw new IllegalArgumentException("The nextCubeCoordinates are invalid for this Unit.");
+			throw new IllegalArgumentException("Cannot have the next cube coordinates!");
 		
 		// Check whether the Unit is falling, if so it can have the given nextCubeCoordinates as its nextCubeCoordinates:
 		if (isFalling())
 			this.nextCoordinates = Arrays.copyOf(nextCoordinates, nextCoordinates.length);
-		
 		// Else: check whether the nextCubeCoordinates has a solid neigbouring cube.
 		else
 		{
 			if (!getWorld().hasSolidNeighbouringCube(nextCoordinates[0], nextCoordinates[1], nextCoordinates[2]))
-				throw new IllegalArgumentException("There isn't a solid cube neighbouring the destination cube.");
+				throw new IllegalArgumentException("There isn't a solid cube neighbouring the given next cube coordinates!");
 			this.nextCoordinates = Arrays.copyOf(nextCoordinates, nextCoordinates.length);				
 		}
 	}
 		
 	/**
-	 * Variable registering the coordinates of the next cube to which this Unit will move to next.
+	 * Variable registering the coordinates of the cube to which this Unit will move to next.
 	 */
 	private int[] nextCoordinates;
 	
