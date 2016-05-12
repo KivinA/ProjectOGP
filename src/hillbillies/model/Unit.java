@@ -2093,7 +2093,13 @@ public class Unit {
 	private int[] nextCoordinates;
 	
 	/**
-	 * Return the unitPosition of this Unit.
+	 * Return the position of this Unit.
+	 * 
+	 * @return	The length of the resulting array is equals to the length of this Unit's position array.
+	 * 			| result.length == this.position.length
+	 * @return	Each element of the resulting array equals with the elemen of this Unit's position array at the corresponding index.
+	 * 			| for each i in 0..result.length:
+	 * 			|	result[i] == this.position[i]
 	 */
 	@Basic @Raw
 	public double[] getPosition() 
@@ -2102,22 +2108,29 @@ public class Unit {
 	}
 	
 	/**
-	 * Set the position of this Unit to the given position.
+	 * Calculate the precise position with the given cube coordinates.
 	 * 
 	 * @param  	coordinates
 	 *         	The cube coordinates used to calculate the new position of this Unit.
-	 * @post   	Each element of the position of this Unit is equal to the corresponding element of the given coordinates. 
+	 * @post   	Each element of the position of this Unit is equal to the sum of the corresponding element of the given coordinates
+	 * 			and the cubelength of any World divided by 2. 
 	 * 			| for each i in 0..coordinates.length:
 	 * 			|	new.position[i] == (coordinates[i] + (World.getCubeLength() / 2.0))       
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given coordinates as its cubeCoordinates.
 	 *       	| ! canHaveAsCubeCoordinates(coordinates)
+	 * @effect	Enable the falling state of this Unit, if it must fall with the current cube coordinates.
+	 * 			| if (mustUnitFall(getCubeCoordinates())
+	 * 			|	then this.setFallingState(true)
+	 * @effect	Disable the falling state of this Unit, if the unit is currently falling.
+	 * 			| if (isFalling())
+	 * 			|	then this.setFallingState(false)
 	 */
 	@Raw
 	public void setPosition(int[] coordinates) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCubeCoordinates(coordinates))
-			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position are not valid.");
+			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position are not valid!");
 		position = World.getPreciseCoordinates(coordinates);
 		
 		if (mustUnitFall(getCubeCoordinates()))
@@ -2136,11 +2149,11 @@ public class Unit {
 	 * @return	True if and only if the given value is between the lower boundary of this World
 	 * 			and either the amount of x cubes, y cubes or z cubes of this World depending on the given index of the position.
 	 * 			| if (index == 0)
-	 * 			| 	then result == ((value >= getWorld().getLowerBoundary()) && (value < getWorld().getNbCubesX()))
+	 * 			| 	then result == ( (value >= getWorld().getLowerBoundary()) && (value < getWorld().getNbCubesX()) )
 	 * 			| else if (index == 1)
-	 * 			|	then result == ((value >= getWorld().getLowerBoundary()) && (value < getWorld().getNbCubesY()))
+	 * 			|	then result == ( (value >= getWorld().getLowerBoundary()) && (value < getWorld().getNbCubesY()) )
 	 * 			| else if (index == 2)
-	 * 			|	then result == ((value >= getWorld().getLowerBoundary()) && (value < getWorld().getNbCubesZ()))
+	 * 			|	then result == ( (value >= getWorld().getLowerBoundary()) && (value < getWorld().getNbCubesZ()) )
 	 * 			| else
 	 * 			|	result == false
 	 */
@@ -2174,13 +2187,18 @@ public class Unit {
 	 * @param 	value
 	 * 			The new value for this Unit's position component.
 	 * @throws 	IllegalArgumentException
-	 * 			This Unit cannot have the given value as its value for one of its position components.
+	 * 			This Unit cannot have the given value as its value for its position at the given index.
 	 * 			| !canHaveAsUnitPositionValue(value)
-	 * @post	The value of the element of the unitPosition with the given index is equal to the given value.
-	 * 			| new.getUnitPosition()[index] == value
+	 * @throws	IllegalStateException
+	 * 			This Unit is dead.
+	 * 			| !isAlive()
+	 * @post	The value of the element of the position with the given index is equal to the given value.
+	 * 			| new.getPosition()[index] == value
 	 */
-	public void setPositionAt(int index, double value) throws IllegalArgumentException 
+	public void setPositionAt(int index, double value) throws IllegalArgumentException, IllegalStateException
 	{
+		if (!isAlive())
+			throw new IllegalStateException("Cannot change position at the given index if Unit is dead!");
 		if (!canHaveAsPositionAt(index, value))
 			throw new IllegalArgumentException("Value or index is invalid for this Unit position. Value: " + value);
 		this.position[index] = value;
@@ -2189,7 +2207,7 @@ public class Unit {
 	/**
 	 * Variable registering the precise position of this Unit.
 	 */
-	private double[] position = new double[3];
+	private double[] position;
 	
 	/*
 	 * FIXME	Not happy about name of this property, please reconsider.
