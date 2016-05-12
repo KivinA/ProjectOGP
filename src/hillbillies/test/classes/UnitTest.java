@@ -289,19 +289,19 @@ public class UnitTest {
 	@Test
 	public void canUseAsCubeCoordinates_TrueCase() {
 		int[] position = { 0, 0, 1 };
-		assertTrue(unit.canUseAsCubeCoordinates(position));
+		assertTrue(unit.canHaveAsCubeCoordinates(position));
 	}
 
 	@Test
 	public void canUseAsCubeCoordinates_OutOfBoundaries() {
 		int[] position = { 3, 1, 1 };
-		assertFalse(unit.canUseAsCubeCoordinates(position));
+		assertFalse(unit.canHaveAsCubeCoordinates(position));
 	}
 
 	@Test
 	public void canUseAsCubeCoordinates_SolidCube() {
 		int[] position = { 1, 1, 0 };
-		assertFalse(unit.canUseAsCubeCoordinates(position));
+		assertFalse(unit.canHaveAsCubeCoordinates(position));
 	}
 
 	@Test

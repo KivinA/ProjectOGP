@@ -272,7 +272,7 @@ public class Unit {
 			this.maxStaminaPoints = ((int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100)));
 			setCurrentStaminapoints(getMaxStaminapoints());
 			
-			//setCubeCoordinates(initialPosition);
+			setCubeCoordinates(initialPosition);
 			setPosition(initialPosition);
 			
 			// Default behaviour of this Unit: We will only change the behaviour to true if true is given. Otherwise the checker is invalid!
@@ -775,7 +775,7 @@ public class Unit {
 				System.out.println("The new coordinates: " + newXPos + ", " + newYPos + ", " + newZPos);
 				
 				// Check whether the new cube coordinates are valid. If so, calculate the speeds and orientation:
-				if (canUseAsCubeCoordinates(newCoordinates))
+				if (canHaveAsCubeCoordinates(newCoordinates))
 				{
 					// Set the delta coordinates:
 					setDeltaNewPositions(dCoordinates);
@@ -907,7 +907,7 @@ public class Unit {
 					 *	-	(c,n| n <= n0) is not an element of Queue: Check whether the queue doesn't already have a tuple containing the given
 					 *		coordinate.
 					 */ 
-					if (getWorld().hasSolidNeighbouringCube(x, y, z) && canUseAsCubeCoordinates(neighBouringCube) 
+					if (getWorld().hasSolidNeighbouringCube(x, y, z) && canHaveAsCubeCoordinates(neighBouringCube) 
 							&& (neighBouringCube != startTuple.getFirstValue()) && !hasTupleWithGivenCoordinates(neighBouringCube, pathQueue)
 							&& !hasTupleWithGivenCoordinates(neighBouringCube, tempPaths))
 					{
@@ -1873,24 +1873,29 @@ public class Unit {
 	private double orientation = (Math.PI/2);
 	
 	/**
-	 * Return the cube coordinates of this Unit.
+	 * Return the current cube coordinates in which this Unit is located.
 	 * 
-	 * TODO	Return clauses.
+	 * @return 	The given array length is equals to the array length of this Unit's current cube coordinates.
+	 * 			| result.lenght == this.cubeCoordinates.length;
+	 * @return	Each elemen of the resulting array corresponds with the element of this Unit's current cube coordinates at the corresponding
+	 * 			index.
+	 * 			| for each i in 0..result.length:
+	 * 			|	result[i] == this.cubeCoordinates[i]
 	 */
 	@Basic @Raw
 	public int[] getCubeCoordinates() 
 	{
-		return World.getCubeCoordinates(getPosition());
+		return Arrays.copyOf(cubeCoordinates, cubeCoordinates.length);
 	}
 	
 	/**
-	 * Check whether this Unit can use the given cube coordinates in its calculations.
+	 * Check whether this Unit can have the given current cube coordinates as its current cube coordinates.
 	 * 
 	 * @param  	coordinates
-	 *         	The coordinates to check.
-	 * @return	If this Unit is dead, true if and only if the given coordinates are ineffective.
-	 * 			Otherwise, true if and only if the given coordinates are within the boundaries of this Unit's World
-	 * 			and if the given coordinates correspond to a passable cube.
+	 *         	The cube coordinates to check.
+	 * @return	If this Unit is dead, true if and only if the given cube coordinates are ineffective.
+	 * 			Otherwise, true if and only if the given cube coordinates are within the boundaries of this Unit's World
+	 * 			and if the given cube coordinates correspond to a passable cube.
 	 * 			| if (!isAlive())
 	 * 			|	result == (coordinates == null)
 	 * 			| else
@@ -1898,15 +1903,37 @@ public class Unit {
 	 * 			|					&& getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2]) )
 	 */
 	@Raw
-	public boolean canUseAsCubeCoordinates(int[] coordinates) 
+	public boolean canHaveAsCubeCoordinates(int[] coordinates) 
 	{
 		if (!isAlive())
 			return coordinates == null;
-		return  getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2])
-				&& getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2]);
+		return  (getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2])
+				&& getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2]));
 	}
 
+	/**
+	 * Set the current cube coordinates of this Unit to the given cube coordinates.
+	 * 
+	 * @param  	cubeCoordinates
+	 *         	The new cube coordinates for this Unit.
+	 * @post   	The current cube coordinates of this new Unit is equal to the given cube coordinates.
+	 *       	| new.getCubeCoordinates() == cubeCoordinates
+	 * @throws 	IllegalArgumentException
+	 *         	This Unit cannot have the given cube coordinates as its current cube coordinates.
+	 *       	| !canHaveAsCubeCoordinates(cubeCoordinates)
+	 */
+	@Raw
+	public void setCubeCoordinates(int[] cubeCoordinates) throws IllegalArgumentException 
+	{
+		if (!canHaveAsCubeCoordinates(cubeCoordinates))
+			throw new IllegalArgumentException("Cannot have cube coordinates!");
+		this.cubeCoordinates = Arrays.copyOf(cubeCoordinates, 3);
+	}
 	
+	/**
+	 * Variable registering the current cube coordinates of this Unit.
+	 */
+	private int[] cubeCoordinates = new int[3];
 	
 	/**
 	 * Return the falling state of this Unit.
@@ -1934,8 +1961,6 @@ public class Unit {
 	 * 			|	in
 	 * 			|		result == ( (isFalling && !(getWorld().hasSolidNeighbouringCube((coordinates[0], coordinates[1], coordinates[2]))))
 	 * 			|					|| (!isFalling && getWorld().hasSolidNeighbouringCube((coordinates[0], coordinates[1], coordinates[2]))) )
-	 * 
-	 * TODO	REVISE DOC
 	 */
 	@Raw
 	public boolean canHaveAsFallingState(boolean isFalling) 
@@ -2013,7 +2038,7 @@ public class Unit {
 	@Raw
 	private boolean canHaveAsNextCoordinates(int[] nextCoordinates) 
 	{
-		return (canUseAsCubeCoordinates(nextCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCoordinates));
+		return (canHaveAsCubeCoordinates(nextCoordinates) && !Arrays.equals(getCubeCoordinates(), nextCoordinates));
 	}
 	
 	/**
@@ -2079,7 +2104,7 @@ public class Unit {
 	@Raw
 	public void setPosition(int[] coordinates) throws IllegalArgumentException 
 	{
-		if (! canUseAsCubeCoordinates(coordinates))
+		if (! canHaveAsCubeCoordinates(coordinates))
 			throw new IllegalArgumentException("The given cube coordinates to calculate the Unit's position are not valid.");
 		position = World.getPreciseCoordinates(coordinates);
 		
@@ -2322,7 +2347,7 @@ public class Unit {
 	@Raw @Model
 	private void setVelocity(int[] coordinates) throws IllegalArgumentException 
 	{
-		if (!canUseAsCubeCoordinates(coordinates))
+		if (!canHaveAsCubeCoordinates(coordinates))
 			throw new IllegalArgumentException("Cannot use the given cube coordinates in the calculation of the velocity!");
 		
 		int[] cubeCoordinates = getCubeCoordinates();
@@ -2815,7 +2840,7 @@ public class Unit {
 	@Raw
 	private void setDestinationCube(int[] destinationCube) throws IllegalArgumentException 
 	{
-		if (! canUseAsCubeCoordinates(destinationCube))
+		if (! canHaveAsCubeCoordinates(destinationCube))
 			throw new IllegalArgumentException("The given destinationCube is invalid for this Unit.");
 		this.destinationCube = Arrays.copyOf(destinationCube, 3);
 	}
