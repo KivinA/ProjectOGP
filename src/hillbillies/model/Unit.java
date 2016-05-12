@@ -749,8 +749,11 @@ public class Unit {
 	 * 			| 	then this.setCurrentSpeed(getSprintSpeed())
 	 * 			| 	else this.setCurrentSpeed(getWalkingSpeed())
 	 */
-	public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException
+	public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException
 	{
+		// REVISION:
+		if (!isAlive())
+			throw new IllegalStateException("Unit cannot move while its dead!");
 		// This method will only work if the Unit isn't currently already moving and if the destination cube isn't the same cube.
 		if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint())
 		{
@@ -2343,17 +2346,17 @@ public class Unit {
 	/**
 	 * Return the velocity of this Unit.
 	 */
-	@Basic @Raw @Model
+	@Basic @Raw @Model @Immutable
 	private double[] getVelocity() 
 	{
 		return this.velocity;
 	}
 	
 	/**
-	 * Calculate the velocity with the given next cube coordinates, the walking or sprinting speed of this Unit, the current cube.
+	 * Calculate the velocity with the given next cube coordinates, the walking or sprinting speed of this Unit, the current cube coordinates.
 	 * 
 	 * @param  	coordinates
-	 *         	The coordinates to calculate the velocity.
+	 *         	The next cube coordinates to calculate the velocity.
 	 * @post   	The velocity of this new Unit is equal to the multiplication of the sprint speed of this Unit, if this Unit is currently sprinting,
 	 * 			or it is equal to the multiplication of the walking speed of this Unit, if this Unit is currently walking, 
 	 * 			with the difference between the given coordinate components and the current coordinate components divided by the square root
@@ -2371,14 +2374,14 @@ public class Unit {
 	 * 			|		else
 	 * 			|			new.getVelocity()[i] == (walkingSpeed * (components[i] / d))    
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot use the given coordinates in the calculation of the velocity.
-	 *      	| ! canUseAsCubeCoordinates(coordinates)
+	 *         	This Unit cannot have the given coordinates in the calculation of the velocity.
+	 *      	| !canHaveAsCubeCoordinates(coordinates)
 	 */
 	@Raw @Model
 	private void setVelocity(int[] coordinates) throws IllegalArgumentException 
 	{
 		if (!canHaveAsCubeCoordinates(coordinates))
-			throw new IllegalArgumentException("Cannot use the given cube coordinates in the calculation of the velocity!");
+			throw new IllegalArgumentException("Cannot have the given cube coordinates in the calculation of the velocity!");
 		
 		int[] cubeCoordinates = getCubeCoordinates();
 		double[] components = {coordinates[0] - cubeCoordinates[0], coordinates[1] - cubeCoordinates[1], coordinates[2] - cubeCoordinates[2]};
@@ -2397,7 +2400,7 @@ public class Unit {
 	/**
 	 * Variable registering the velocity of this Unit.
 	 */
-	private double[] velocity = new double[3];
+	private final double[] velocity = new double[3];
 	
 	/**
 	 * Return the current speed of this Unit.
@@ -2473,7 +2476,8 @@ public class Unit {
 	 * 			|	then result == (!isFalling)
 	 * 			| else
 	 *       	| 	result == ( (isSprinting && isMoving()) || !isSprinting )
-	*/
+	 */
+	@Raw
 	public boolean canHaveAsSprintingState(boolean isSprinting) 
 	{
 		if (!isAlive())
@@ -2490,13 +2494,13 @@ public class Unit {
 	 *       	| new.isSprinting() == isSprinting
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given sprinting state as its sprinting state.
-	 *       	| ! canHaveAsIsSprinting(getIsSprinting())
+	 *       	| !canHaveAsIsSprinting(getIsSprinting())
 	 */
 	@Raw @Model
 	private void setSprintingState(boolean isSprinting) throws IllegalArgumentException 
 	{
 		if (! canHaveAsSprintingState(isSprinting))
-			throw new IllegalArgumentException("Cannot have the given sprinting state.");
+			throw new IllegalArgumentException("Cannot have the given sprinting state!");
 		this.isSprinting = isSprinting;
 	}
 	
@@ -2516,7 +2520,7 @@ public class Unit {
 	 * @effect	The velocity of this Unit is set to the calculated velocity using this Unit's cube coordinates, if its currentStaminapoints
 	 * 			is higher than 0, if the Unit is currently moving, if the Unit isn't falling and if the isDefaultBehaviourEnabled indicator
 	 * 			is deactivated.
-	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive() && !isDefaultBehaviourEnabled())
+	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && isAlive() && !isDefaultBehaviourEnabled() )
 	 * 			| 	then this.setVelocity(getNextCubeCoordinates())
 	 */
 	public void startSprinting() throws IllegalArgumentException
