@@ -2020,18 +2020,18 @@ public class Unit {
 		
 	/**
 	 * Return the coordinates of the cube to which this Unit will move to next.
-	 * 
-	 * @return	The length of the resulting array is equal to the length of this Unit's next cube coordinates array.
-	 * 			| result.length == this.nextCoordinates.length()
-	 * @return	Each element of the resulting array corresponds with the element of this Unit's next cube coordinates array
-	 * 			at the corresponding index.
-	 * 			| for each i in 0..result.length:
-	 * 			|	result[i] == this.nextCoordinates[i]
 	 */
+//	 * @return	The length of the resulting array is equal to the length of this Unit's next cube coordinates array.
+//	 * 			| result.length == this.nextCoordinates.length()
+//	 * @return	Each element of the resulting array corresponds with the element of this Unit's next cube coordinates array
+//	 * 			at the corresponding index.
+//	 * 			| for each i in 0..result.length:
+//	 * 			|	result[i] == this.nextCoordinates[i]
 	@Basic @Raw
 	private int[] getNextCoordinates() 
 	{
-		return Arrays.copyOf(nextCoordinates, nextCoordinates.length);
+		//return Arrays.copyOf(nextCoordinates, nextCoordinates.length);
+		return this.nextCoordinates;
 	}
 	
 	/**
@@ -2246,7 +2246,7 @@ public class Unit {
 	}
 	
 	/**
-	 * Set the deltaNewPositions of this Unit to the given deltaNewPositions.
+	 * Set the difference between current and next positions of this Unit to the given difference between current and next positions.
 	 * 
 	 * @param  	deltaNewPositions
 	 *         	The new difference between current and next positions for this Unit.
@@ -2261,7 +2261,7 @@ public class Unit {
 	@Raw @Model
 	private void setDeltaNewPositions(int[] deltaNewPositions) throws IllegalArgumentException {
 		if (!isValidDeltaNewPositions(deltaNewPositions))
-			throw new IllegalArgumentException("The given difference between current and next positions is invalid for this Unit.");
+			throw new IllegalArgumentException("The given difference between current and next positions is invalid for any Unit!");
 		this.deltaNewPositions = Arrays.copyOf(deltaNewPositions, 3);
 	}
 	
