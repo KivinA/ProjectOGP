@@ -2567,7 +2567,7 @@ public class Unit {
 	private boolean isSprinting = false;
 	
 	/**
-	 * Return the sprinting duration of this Unit.
+	 * Return the sprinting duration of this Unit .
 	 */
 	@Basic @Raw
 	private double getSprintingDuration() 
@@ -2580,16 +2580,12 @@ public class Unit {
 	 *  
 	 * @param  	sprinting duration
 	 *         	The sprinting duration to check.
-	 * @return 	True if and only if the given sprinting duration is between 0 and 0.2.
-	 *       	| result == ((sprintingDuration >= 0) && (sprintingDuration <= 0.2))
-	*/
+	 * @return 	True if and only if the given sprinting duration is positive.
+	 *       	| result == (sprintingDuration >= 0)
+	 */
 	private static boolean isValidSprintingDuration(double sprintingDuration) 
 	{
-		/*
-		 * Sprinting works every 0.1 second. Since we add the duration to this property and check whether its higher than 0.1, it is 
-		 * impossible to get higher than 0.2 with our implementation.
-		 */
-		return ((sprintingDuration >= 0) && (sprintingDuration <= 0.2));
+		return (sprintingDuration >= 0);
 	}
 	
 	/**
@@ -2597,10 +2593,8 @@ public class Unit {
 	 * 
 	 * @param  	sprintingDuration
 	 *        	The new sprinting duration for this Unit.
-	 *        
 	 * @post   	The sprinting duration of this new Unit is equal to the given sprinting duration.
 	 *       	| new.getSprintingDuration() == sprintingDuration
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	The given sprinting duration is not a valid sprinting duration for any Unit.
 	 *       	| ! isValidSprintingDuration(getSprintingDuration())
@@ -2609,25 +2603,17 @@ public class Unit {
 	private void setSprintingDuration(double sprintingDuration) throws IllegalArgumentException 
 	{
 		if (! isValidSprintingDuration(sprintingDuration))
-			throw new IllegalArgumentException("The sprinting duration is invalid for any Unit.");
+			throw new IllegalArgumentException("The sprinting duration is invalid for any Unit!");
 		this.sprintingDuration = sprintingDuration;
 	}
 	
 	/**
 	 * Variable registering the sprinting duration of this Unit.
 	 */
-	private double sprintingDuration;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |      IS MOVING		|
-	// |					|
-	// |					|
-	// ----------------------
+	private double sprintingDuration = 0L;
 	
 	/**
-	 * Return the moving indicator of this Unit.
+	 * Return the moving state of this Unit.
 	 */
 	@Basic @Raw
 	public boolean isMoving() 
@@ -2636,44 +2622,49 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether thisUnit can have the given isMoving indicator as its isMoving indicator.
+	 * Check whether this Unit can have the given moving state as its moving state.
 	 *  
 	 * @param  	isMoving
-	 *         	The moving indicator to check.
-	 * @return 	True if and only if the given isMoving indicator is true and the Unit isn't currently attacking or if the given 
-	 * 			isMoving indicator is false.
-	 *       	| result == ((isMoving && !isAttacking()) || !isMoving)
+	 *         	The moving state to check.
+	 * @return	If this Unit is dead, true if and only if the given moving state is false.
+	 * 			Otherwise, true if and only if the given moving state is true and this Unit isn't currently attacking anyone, or
+	 * 			if the given moving state is false.
+	 * 			| if (!isAlive())
+	 * 			|	then result == !isMoving
+	 * 			| else
+	 * 			|	result == ( (isMoving && !isAttacking()) || !isMoving )
 	 */
+	@Raw
 	public boolean canHaveAsIsMoving(boolean isMoving) 
 	{
+		if (!isAlive())
+			return !isMoving;
 		return ((isMoving && !isAttacking()) || !isMoving);
 	}
 	
 	/**
-	 * Set the isMoving indicator of this Unit to the given isMoving indicator.
+	 * Set the moving state of this Unit to the given moving state.
 	 * 
 	 * @param  	isMoving
-	 *         	The new isMoving indicator for this Unit.
-	 *         
-	 * @post   	The moving indicator of this new Unit is equal to the given moving indicator.
+	 *         	The new moving state for this Unit.
+	 * @post   	The moving state of this new Unit is equal to the given moving state.
 	 *       	| new.getIsMoving() == isMoving
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isMoving indicator as its isMoving indicator.
-	 *       	| ! canHaveAsIsMoving(getIsMoving())
+	 *         	This Unit cannot have the given moving state as its moving state.
+	 *       	| !canHaveAsIsMoving(isMoving)
 	 */
 	@Raw
 	public void setIsMoving(boolean isMoving) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsMoving(isMoving))
-			throw new IllegalArgumentException("The given value isMoving is invalid for this Unit.");
+			throw new IllegalArgumentException("Cannot have given moving state.");
 		this.isMoving = isMoving;
 	}
 	
 	/**
-	 * Variable registering the moving indicator of this Unit.
+	 * Variable registering the moving state of this Unit.
 	 */
-	private boolean isMoving;
+	private boolean isMoving = false;
 
 	// ----------------------
 	// |					|
