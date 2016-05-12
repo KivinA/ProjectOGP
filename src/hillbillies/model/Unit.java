@@ -655,17 +655,108 @@ public class Unit {
 	}
 	
 	/**
-	 * TODO	ADD DOCUMENTATION
+	 * Move this unit to an adjacent cube.
+	 * 
+	 * @param 	dx
+	 * 			The difference between the x-component of the current cube and the x-component of the destination cube.
+	 * @param 	dy
+	 * 			The difference between the y-component of the current cube and the y-component of the destination cube.
+	 * @param 	dz
+	 * 			The difference between the z-component of the current cube and the z-component of the destination cube.
+	 * 
+	 * @throws	IllegalArgumentException
+	 * 			A condition was violated or an error was thrown. 
+	 * 			If this Unit is already moving to an adjacent cube and if the function is called upon with all of its parameters equal to 0, 
+	 * 			an exception will be thrown.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0))
+	 * 
+	 * @effect	The isMoving indicator of this Unit is enabled if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy
+	 * 			and dz are equal to zero and if the Unit has finished the initial resting period and if the Unit isn't currently moving already.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && !isMoving())
+	 * 			| then this.setIsMoving(true)
+	 * 
+	 * @effect	The isResting indicator of this Unit is disabled if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy
+	 * 			and dz are equal to zero and if the Unit has finished the initial resting period and if the Unit is currently resting.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isResting())
+	 * 			| then this.setIsResting(false)
+	 * 
+	 * @effect	The isWorking indicator of this Unit is disabled if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy
+	 * 			and dz are equal to zero and if the Unit has finished the initial resting period and if the Unit is currently working.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isWorking())
+	 * 			| then this.setIsWorking(false)
+	 * 
+	 * @effect	The isMovingToAdjacent indicator of this Unit is enabled if the Unit's isMovingToAdjacent indicator is disabled, 
+	 * 			and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint())
+	 * 			| then this.setIsMovingToAdjacent(true)
+	 * 
+	 * @effect 	The deltaNewPositions of this Unit is set to the given dx, dy, dz collected in the array dCoordinates, 
+	 * 			if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero 
+	 * 			and if the Unit has finished the initial resting period and if the newCoordinates are valid coordinates.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
+	 *       	| then this.setDeltaNewPositions(dCoordinates)
+	 *       
+	 * @effect	The nextCubeCoordinates of this Unit is set to the calculated newCoordinates, if the Unit's isMovingToAdjacent indicator 
+	 * 			is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
+	 * 			and if the newCoordinates are valid coordinates.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
+	 * 			| then this.setNextCubeCoordinates(newCoordinates)
+	 *       
+	 * @effect 	The base speed of this Unit is set to the calculated base speed newBaseSpeed, if the Unit's isMovingToAdjacent indicator 
+	 * 			is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
+	 * 			and if the newCoordinates are valid coordinates.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
+	 *       	| this.setBaseSpeed(newBaseSpeed)
+	 *      	
+	 * @effect	The walking speed of this Unit is set to either 1/2 times the base speed, 1.2 times the base speed, or the base speed itself
+	 * 			depending whether the difference between the current z coordinate and the new z coordinate is either -1, 0 or 1 and
+	 * 			if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero and 
+	 * 			if the Unit has finished the initial resting period and if the newCoordinates are valid coordinates.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
+	 * 			| then
+	 * 			| 	if (getCubeCoordinates()[2] - newCoordinates[2] == -1)
+	 * 			| 	then this.setWalkingSpeed(getBaseSpeed() / 2)
+	 * 			| 	else if (getCubeCoordinates()[2] - newCoordinates[2] == 1)
+	 * 			| 	then this.setWalkingSpeed(getBaseSpeed() * 1.2)
+	 * 			| 	else this.setwalkingSpeed(getBaseSpeed())
+	 * 
+	 * @effect	The sprintSpeed of this Unit is set to 2 times its walking speed if the Unit's isMovingToAdjacent indicator 
+	 * 			is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
+	 * 			and if the newCoordinates are valid coordinates.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
+	 * 			| then this.setSprintSpeed(getWalkingSpeed() * 2)
+	 * 
+	 * @effect 	The velocity of this Unit is set to the calculated velocity using the new coordinates of the Unit if the Unit's isMovingToAdjacent
+	 * 			indicator is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
+	 * 			and if the newCoordinates are valid coordinates.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
+	 * 			| then this.setVelocity(newCoordinates)
+	 * 
+	 * @effect	The orientation of this Unit is set to the arctagent of the x- and y-component of the Unit's velocity if the Unit's 
+	 * 			isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has 
+	 * 			finished the initial resting period and if the newCoordinates are valid coordinates.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
+	 * 			| this.setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]))
+	 * 
+	 * @effect	The current speed of this Unit is either set to its walking speed or its sprinting speed depending on whether the Unit is sprinting
+	 * 			if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero 
+	 * 			and if the Unit has finished the initial resting period and if the newCoordinates are valid coordinates.
+	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
+	 * 			| then 
+	 * 			| 	if (isSprinting())
+	 * 			| 	then this.setCurrentSpeed(getSprintSpeed())
+	 * 			| 	else this.setCurrentSpeed(getWalkingSpeed())
 	 */
 	public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException
 	{
+		// REVISION:
 		if (!isAlive())
 			throw new IllegalStateException("Unit cannot move while its dead!");
-		
+		// This method will only work if the Unit isn't currently already moving and if the destination cube isn't the same cube.
 		if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint())
 		{
-			try
-			{
+			try {
+				// Disable behaviours and enable isMoving if it isn't already: 
 				if (!isMoving())
 					setIsMoving(true);
 				if (isResting())
@@ -674,40 +765,62 @@ public class Unit {
 					setIsWorking(false);
 				setIsMovingToAdjacent(true);
 				
-				int newXPos = getCubeCoordinates()[0] + dx;
-				int newYPos = getCubeCoordinates()[1] + dy;
-				int newZPos = getCubeCoordinates()[2] + dz;
+				// Calculate new coordinates:
+				int[] dCoordinates = {dx, dy, dz};
+	
+				int newXPos = getCubeCoordinates()[0] + dCoordinates[0];
+				int newYPos = getCubeCoordinates()[1] + dCoordinates[1];
+				int newZPos = getCubeCoordinates()[2] + dCoordinates[2];
 				
 				int[] newCoordinates = {newXPos, newYPos, newZPos};
-				setNextCoordinates(newCoordinates);
-				setDeltaNewPositions(new int[]{dx, dy, dz});
-				setWalkingSpeed(dz);
+				System.out.println("The new coordinates: " + newXPos + ", " + newYPos + ", " + newZPos);
 				
-				if (isFalling())
+				// Check whether the new cube coordinates are valid. If so, calculate the speeds and orientation:
+				if (canHaveAsCubeCoordinates(newCoordinates))
 				{
-					for (int i = 0; i < velocity.length; i++)
+					// Set the delta coordinates:
+					setDeltaNewPositions(dCoordinates);
+					
+					// Set the next cube coordinates to the new coordinates:
+					setNextCoordinates(newCoordinates);
+					
+					// Set walking speed:
+					setWalkingSpeed(dz);
+					
+					// Set the velocity:
+					if (!isFalling())
+						setVelocity(newCoordinates);
+					else
 					{
-						if (i == 2)
-							this.velocity[i] = -3;
-						else
-							this.velocity[i] = 0;
+						for (int i = 0; i < velocity.length; i++)
+						{
+							if (i == 2)
+								this.velocity[i] = -3;
+							else
+								this.velocity[i] = 0;
+						}
+						setCurrentHitpoints(getCurrentHitpoints() - 10); // If the Unit is falling, subtract 10 hitpoints
 					}
-					setCurrentHitpoints(getCurrentHitpoints() - 10); // If the Unit is falling, subtract 10 hitpoints
+						
+					// Set the orientation: 
+					setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
+					
+					// Set the current speed:
+					if (isSprinting())
+						setCurrentSpeed(getSprintSpeed());
+					else
+						setCurrentSpeed(getWalkingSpeed());
 				}
-				else
-					setVelocity(newCoordinates);
-				
-				setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
-				if (isSprinting())
-					setCurrentSpeed(getSprintSpeed());
-				else
-					setCurrentSpeed(getWalkingSpeed());
-			} 
-			catch (IllegalArgumentException e) 
+				else 
+					throw new IllegalArgumentException("Can't move towards this cube.");
+			}
+			catch (IllegalArgumentException e)
 			{
+				//e.printStackTrace();
+				
+				// Disable movement:
 				setIsMovingToAdjacent(false);
 				setIsMoving(false);
-				throw e;
 			}
 		}
 	}
@@ -717,23 +830,32 @@ public class Unit {
 	 * 
 	 * @param 	cube
 	 * 			The given cube to move to.
+	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
+<<<<<<< HEAD
 	 * @throws	IllegalStateException
 	 * 			This Unit is dead.
 	 * 			| !isAlive()
+=======
+	 * 
+>>>>>>> parent of 9ac7773... Revised movement methods (partially)
 	 * @effect	The isMovingTo indicator of this Unit is enabled, if the Unit has finished the initial resting period.
 	 * 			| if (hasRestedOnePoint())
 	 * 			| then this.setIsMovingTo(true)
+	 * 
 	 * @effect	The isMoving indicator of this Unit is enabled, only if it was disabled and if the Unit has finised the initial resting period.
 	 * 			| if (!isMoving() && hasRestedOnePoint())
 	 * 			| then this.setIsMoving(true)
+	 * 
 	 * @effect	The isResting indicator of this Unit is disabled, only if it was enabled and if the Unit has finised the initial resting period.
 	 * 			| if (isResting() && hasRestedOnePoint())
 	 * 			| then this.setIsResting(false)
+	 * 
 	 * @effect	The isWorking indicator of this Unit is disabled, only if it was enabled and if the Unit has finised the initial resting period.
 	 * 			| if (isWorking() && hasRestedOnePoint())
 	 * 			| then this.setIsWorking(false)
+	 * 
 	 * @effect	The destinationCube of this Unit is set to the given cube, if the Unit has finised the initial resting period.
 	 * 			| if (hasRestedOnePoint())
 	 * 			| then this.setDestinationCube(cube)
@@ -759,16 +881,14 @@ public class Unit {
 			}
 			catch (IllegalArgumentException e)
 			{
-				setIsMovingTo(false);
-				setIsMoving(false);
-				throw e;
+				//e.printStackTrace();
 			}
 		}
 	}
 	
 	/**
-	 * [TODO] Add documentation.
-	 * 
+	 * [TODO] Complete this function.
+	 * [FIXME] Add a checker to check values as well in (c,n| n <= n0).
 	 * @param position
 	 * @param n
 	 */
@@ -794,7 +914,7 @@ public class Unit {
 					 *	-	is of passable terrain: canHaveAsCubeCoordinates(neighBouringCube)
 					 *	-	is neighbouring solid terrain: getWorld().hasSolidNeighbouringCube(x, y, z)
 					 *	-	(c,n| n <= n0) is not an element of Queue: Check whether the queue doesn't already have a tuple containing the given
-					 *		coordinate: hasTupleWithGivenCoordinates.
+					 *		coordinate.
 					 */ 
 					if (getWorld().hasSolidNeighbouringCube(x, y, z) && canHaveAsCubeCoordinates(neighBouringCube) 
 							&& (neighBouringCube != startTuple.getFirstValue()) && !hasTupleWithGivenCoordinates(neighBouringCube, pathQueue)
@@ -818,10 +938,10 @@ public class Unit {
 	}
 
 	/**
-	 * [TODO] Add documentation!
+	 * [TODO]
 	 * @throws IllegalArgumentException
 	 */
-	private void findPath() throws IllegalArgumentException, IllegalStateException
+	private void findPath() throws IllegalArgumentException
 	{
 		// Calculate the Path: 
 		//System.out.println("Destination cube is: " + "[" + getDestinationCube()[0] + ", " + getDestinationCube()[1] + ", " + getDestinationCube()[2] + "]");
@@ -852,12 +972,14 @@ public class Unit {
 		// Check is we can still move...
 		if (hasTupleWithGivenCoordinates(getCubeCoordinates(), pathQueue))
 		{
+			System.out.println("This Unit can move to its destination.");
 			Tuple<int[], Integer> next = findNextCube(getCubeCoordinates());
 			// If the returned tuple from the queue is null, pathing is terminated.
 			if (next.getFirstValue() == null)
 			{
+				System.out.println("Pathing will now end, because there isn't a next cube.");
 				setIsMovingTo(false);
-				throw new IllegalStateException("Pathing will end here, there is no next cube.");
+				throw new IllegalArgumentException("Pathing will here.");
 			}
 			
 			else
@@ -906,26 +1028,27 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether the given array list contains a {@link Tuple} with the given coordinates.
+	 * Check whether the given ArrayList contains a Tuple with the given coordinates.
 	 * 
 	 * @param 	coordinates
 	 * 			The given coordinates to check upon.
 	 * @param 	list
 	 * 			The given list to check.
 	 * @return	True if and only if there is a tuple in the given list with the given coordinates as its first value.
-	 * 			| for each Tuple in list:
+	 * 			| (for each Tuple in list:
 	 * 			| 	if (Tuple.getFirstValue()[0] == coordinates[0] && currentTuple.getFirstValue()[1] == coordinates[1] 
 	 * 			|			&& currentTuple.getFirstValue()[2] == coordinates[2]) 
-	 * 			| 		then result == true
+	 * 			| 		result == true)
 	 */
-	@Model @Raw
 	private boolean hasTupleWithGivenCoordinates(int[] coordinates, ArrayList<Tuple<int[], Integer>> list)
 	{
-		for (Tuple<int[], Integer> tuple : list)
+		Iterator<Tuple<int[], Integer>> iter = list.iterator();
+		while(iter.hasNext())
 		{
-			if (tuple.getFirstValue()[0] == coordinates[0] && tuple.getFirstValue()[1] == coordinates[1]
-					&& tuple.getFirstValue()[2] == coordinates[2]);
-				return true;
+			Tuple<int[], Integer> currentTuple = iter.next();
+			if (currentTuple.getFirstValue()[0] == coordinates[0] && currentTuple.getFirstValue()[1] == coordinates[1]
+					&& currentTuple.getFirstValue()[2] == coordinates[2])
+					return true;
 		}
 		return false;
 	}
@@ -946,7 +1069,6 @@ public class Unit {
 	 * 			|				resultTuple = Tuple)
 	 * 			| result == resultTuple
 	 */
-	@Raw @Model
 	private Tuple<int[], Integer> findNextCube(int[] coordinates)
 	{
 		Iterator<Tuple<int[], Integer>> iter = pathQueue.iterator();
@@ -2731,11 +2853,9 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the destination cube of this Unit.
+	 * Variable registering the destination cube of this Unit, where it might move to or work on.
 	 */
 	private int[] destinationCube;
-	
-	// FIXME	DONE REVISION TILL HERE.
 	
 	// ----------------------
 	// |					|
