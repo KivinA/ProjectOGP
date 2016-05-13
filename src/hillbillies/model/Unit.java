@@ -833,13 +833,10 @@ public class Unit {
 	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-<<<<<<< HEAD
 	 * @throws	IllegalStateException
 	 * 			This Unit is dead.
 	 * 			| !isAlive()
-=======
 	 * 
->>>>>>> parent of 9ac7773... Revised movement methods (partially)
 	 * @effect	The isMovingTo indicator of this Unit is enabled, if the Unit has finished the initial resting period.
 	 * 			| if (hasRestedOnePoint())
 	 * 			| then this.setIsMovingTo(true)
