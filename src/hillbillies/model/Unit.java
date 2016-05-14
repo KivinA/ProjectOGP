@@ -3232,7 +3232,7 @@ public class Unit {
 	private Log log;
 	
 	/**
-	 * Return the isCarryingBoulder of this Unit.
+	 * Check whether this Unit is carrying a {@link Boulder}.
 	 */
 	@Basic @Raw
 	public boolean isCarryingBoulder() 
@@ -3241,34 +3241,33 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isCarryingBoulder indicator as its isCarryingBoulder indicator.
+	 * Check whether this Unit can have the given carrying {@link Boulder} state as its carrying {@link Boulder} state.
 	 *  
 	 * @param  	isCarryingBoulder
-	 *         	The isCarryingBoulder to check.
-	 * @return 	True if and only if the given isCarrying indicator is true and this Unit's Boulder isn't null 
-	 * 			or if the given isCarrying indicator is false and this Unit's Boulder is null.
+	 *         	The carrying {@link Boulder} state to check.
+	 * @return 	True if and only if the given carrying Boulder state is true and this Unit's Boulder isn't null 
+	 * 			or if the given carrying Boulder state is false and this Unit's Boulder is null.
 	 *       	| result == ((isCarryingBoulder && getBoulder() != null) || (!isCarryingBoulder && getBoulder() == null))
-	*/
+	 */
+	@Raw
 	public boolean canHaveAsIsCarryingBoulder(boolean isCarryingBoulder) 
 	{
 		return ((isCarryingBoulder && getBoulder() != null) || (!isCarryingBoulder && getBoulder() == null));
 	}
 	
 	/**
-	 * Set the isCarryingBoulder of this Unit to the given isCarryingBoulder.
+	 * Set the carrying {@link Boulder} state of this Unit to the given carrying {@link Boulder} state.
 	 * 
 	 * @param  	isCarryingBoulder
-	 *         	The new isCarryingBoulder for this Unit.
-	 *         
-	 * @post   	The isCarryingBoulder of this new Unit is equal to the given isCarryingBoulder.
+	 *         	The new carrying {@link Boulder} state for this Unit.
+	 * @post   	The carrying Boulder state of this new Unit is equal to the given carrying Boulder state.
 	 *       	| new.getIsCarryingBoulder() == isCarryingBoulder
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit can't have the given isCarryingBoulder indicator as its isCarryingBoulder indicator.
+	 *         	This Unit can't have the given carrying Boulder state as its carrying Boulder state.
 	 *       	| ! canHaveAsIsCarryingBoulder(getIsCarryingBoulder())
 	 */
-	@Raw
-	public void setIsCarryingBoulder(boolean isCarryingBoulder) throws IllegalArgumentException
+	@Raw @Model
+	private void setIsCarryingBoulder(boolean isCarryingBoulder) throws IllegalArgumentException
 	{
 		if (! canHaveAsIsCarryingBoulder(isCarryingBoulder))
 			throw new IllegalArgumentException("The given isCarryingBoulder indicator is invalid for this Unit.");
@@ -3276,20 +3275,12 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the isCarryingBoulder of this Unit.
+	 * Variable registering whether this Unit is carrying a {@link Boulder}.
 	 */
 	private boolean isCarryingBoulder;
-
-	// ----------------------
-	// |					|
-	// |					|
-	// |      BOULDER		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
-	 * Return the boulder of this Unit.
+	 * Return the {@link Boulder} of this Unit.
 	 */
 	@Basic @Raw
 	public Boulder getBoulder() 
@@ -3298,91 +3289,82 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given Boulder as its Boulder.
+	 * Check whether this Unit can have the given {@link Boulder} as its {@link Boulder}.
 	 *  
 	 * @param  	boulder
-	 *         	The Boulder to check.
-	 * @return 	True if and only if the given Boulder is either null or in this Unit's World and if this Unit isn't already carrying a Log.
-	 *       	| if (boulder == null && !isCarryingLog())
-	 *       	|	then result == true
-	 *       	| else
-	 *       	|	Iterator<Boulder> iterator = getWorld.getBoulders().iterator();
-	 *       	|	while (iterator.hasNext())
-	 *       	|		if (iterator.next() == boulder && !isCarryingLog())
-	 *       	|			then result == true; 
-	*/
+	 *         	The {@link Boulder} to check.
+	 * @return 	If this Unit is dead, true if and only if the given Boulder is ineffective.
+	 * 			Otherwise, true if and only if the given boulder is ineffective or if this Unit isn't already carrying a Log.
+	 * 			| if (!isAlive())
+	 * 			|	then result == (boulder == null)
+	 * 			| else
+	 * 			|	result == ( (boulder == null) || (!isCarryingLog()) )
+	 */
+	@Raw
 	public boolean canHaveAsBoulder(Boulder boulder) 
 	{
-		if (boulder == null && !isCarryingLog())
-			return true;
-		else
-		{
-			Iterator<Boulder> iterator = getWorld().getAllBoulders().iterator();
-			while (iterator.hasNext())
-				if (iterator.next() == boulder && !isCarryingLog())
-					return true;
-		}
-		return false;
+		if (!isAlive())
+			return boulder == null;
+		return (boulder == null || !isCarryingLog());
 	}
 	
 	/**
-	 * Set the Boulder of this Unit to the given Boulder.
+	 * Attach the given {@link Boulder} to this Unit.
 	 * 
 	 * @param  	boulder
 	 *         	The new Boulder for this Unit.
-	 *       
 	 * @effect	If the given Boulder is null, the weight of this unit is set to the difference between the current Unit's weight 
 	 * 			and the current Boulder's weight.
 	 *         	| if (boulder == null)
 	 *         	| 	then this.setWeight(getWeight() - getBoulder().getWeight())
-	 *         
 	 * @post   	The Boulder of this new Unit is equal to the given Boulder.
 	 *       	| new.getBoulder() == boulder
-	 *       
 	 * @post	The weight of this new Unit is equal to the sum of the current weight of this Unit and the weight of the given Boulder if the 
 	 * 			given Boulder isn't null.
 	 * 			| if (boulder != null)
-	 * 			| 	then new.getWeight() == old.getWeight() + boulder.getWeight()
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit can't have the given Boulder as its Boulder.
-	 *       	| ! canHaveAsBoulder(getBoulder())
+	 *       	| !canHaveAsBoulder(getBoulder())
 	 */
-	@Raw
-	public void setBoulder(Boulder boulder) throws IllegalArgumentException 
+	@Raw @Model
+	private void setBoulder(Boulder boulder) throws IllegalArgumentException 
 	{
 		if (! canHaveAsBoulder(boulder))
-			throw new IllegalArgumentException("The given boulder is invalid for this Unit.");
-		
-		// Set the weight:
+			throw new IllegalArgumentException("The given Boulder is invalid for this Unit.");
 		if (boulder != null)
 			this.weight = getWeight() + boulder.getWeight();
 		else
 			setWeight(getWeight() - getBoulder().getWeight());
-		
-		// Set the Boulder:
 		this.boulder = boulder;
-		
 	}
 	
 	/**
-	 * Drop this Unit's Boulder at the given target position.
+	 * Check whether this Unit has a proper {@link Boulder} attached to it.
+	 * 
+	 * @return	True if and only if this Unit can have its Boulder as its Boulder and if that Boulder is either ineffective or if it is
+	 * 			part of this Unit's World.
+	 * 			| result == ( canHaveAsBoulder(getBoulder()) && ( (boulder == null) || getWorld().hasBoulder(getBoulder()) ) )
+	 */
+	public boolean hasProperBoulder()
+	{
+		return (canHaveAsBoulder(getBoulder()) && ( (boulder == null) || getWorld().hasAsBoulder(getBoulder()) ));
+	}
+	
+	/**
+	 * Drop this Unit's {@link Boulder} at the given target position.
 	 * 
 	 * @param 	target
-	 * 			The given target position
-	 * 
+	 * 			The given target position to drop the Boulder.
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
 	 * @effect	The position of this Unit's Boulder is set to the given target position.
 	 * 			| this.getBoulder().setPosition(target)
-	 * 
 	 * @effect	This Unit's Boulder is set ineffective.
 	 * 			| this.setBoulder(null)
-	 * 
 	 * @effect	This Unit's isCarryingBoulder indicator is disabled.
 	 * 			| this.setIsCarryingBoulder(false)
 	 */
+	@Raw
 	public void dropBoulder(double[] target) throws IllegalArgumentException
 	{
 		getBoulder().setPosition(target);
@@ -3391,7 +3373,7 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the boulder of this Unit.
+	 * Variable referencing the {@link Boulder} attached to this Unit.
 	 */
 	private Boulder boulder;
 	

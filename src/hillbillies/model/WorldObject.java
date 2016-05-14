@@ -194,15 +194,21 @@ public abstract class WorldObject {
 	 * @param 	position
 	 * 			The position to check.
 	 * @return	If this WorldObject is terminated, true if and only if the given position is ineffective.
-	 * 			Otherwise, true if and only if the given position is effective, between the boundaries of the World of this WorldObject,
+	 * 			Otherwise, true if and only if the given position is ineffective or if the given
+	 * 			position is effective and between the boundaries of the World of this WorldObject,
 	 * 			and if the given cube is passable.
 	 */
 	public boolean canHaveAsPosition(int[] coordinates)
 	{
 		if (isTerminated())
 			return coordinates == null;
-		return coordinates != null && getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2]) 
+		else
+		{
+			if (coordinates == null)
+				return true;
+			return getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2]) 
 				&& getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2]);
+		}
 	}
 	
 	/**
