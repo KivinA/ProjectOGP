@@ -500,7 +500,7 @@ public class UnitTest {
 	@Test
 	public void canHaveAsSprintingState_TrueCase()
 	{
-		unit.setIsMoving(true);
+		unit.moveToAdjacent(1, 0, 1);
 		assertTrue(unit.canHaveAsSprintingState(true));
 		assertTrue(unit.canHaveAsSprintingState(false));
 	}

@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 import java.util.*;
+
 import be.kuleuven.cs.som.annotate.*;
 
 /* 
@@ -372,7 +373,7 @@ public class Unit {
 							setIsResting(false);
 							if (wasMoving())
 							{
-								setIsMoving(true);
+								setMovingState(true);
 								setWasMoving(false);
 							}
 						}
@@ -424,7 +425,7 @@ public class Unit {
 					setFightingDuration(0);
 					if (wasMoving())
 					{
-						setIsMoving(true);
+						setMovingState(true);
 						setWasMoving(false);
 						// Reset the orientation: 
 						setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
@@ -484,7 +485,7 @@ public class Unit {
 					// If the path is finished, we can exit the moving action:
 					if (!isMovingTo())
 					{
-						setIsMoving(false);
+						setMovingState(false);
 						System.out.println("Stop with sprinting...");
 						if (isSprinting())
 							setSprintingState(false);
@@ -591,7 +592,7 @@ public class Unit {
 					if (hasCompletedWork)
 						setExperience(getExperience() + 10);
 					
-					setIsWorking(false);
+					setWorking(false);
 					
 				}
 			}
@@ -758,11 +759,11 @@ public class Unit {
 			try {
 				// Disable behaviours and enable isMoving if it isn't already: 
 				if (!isMoving())
-					setIsMoving(true);
+					setMovingState(true);
 				if (isResting())
 					setIsResting(false);
 				if (isWorking())
-					setIsWorking(false);
+					setWorking(false);
 				setIsMovingToAdjacent(true);
 				
 				// Calculate new coordinates:
@@ -816,11 +817,10 @@ public class Unit {
 			}
 			catch (IllegalArgumentException e)
 			{
-				//e.printStackTrace();
-				
 				// Disable movement:
 				setIsMovingToAdjacent(false);
-				setIsMoving(false);
+				setMovingState(false);
+				throw e;
 			}
 		}
 	}
@@ -866,13 +866,13 @@ public class Unit {
 			try
 			{
 				if (!isMoving())
-					setIsMoving(true);
+					setMovingState(true);
 				if (isResting())
 					setIsResting(false);
 				if (isWorking())
-					setIsWorking(false);
+					setWorking(false);
 				
-				setIsMovingTo(true);
+				setMovingTo(true);
 				setDestinationCube(cube);
 				
 			}
@@ -975,7 +975,7 @@ public class Unit {
 			if (next.getFirstValue() == null)
 			{
 				System.out.println("Pathing will now end, because there isn't a next cube.");
-				setIsMovingTo(false);
+				setMovingTo(false);
 				throw new IllegalArgumentException("Pathing will here.");
 			}
 			
@@ -1008,7 +1008,7 @@ public class Unit {
 				
 				if (dx == 0 && dy == 0 && dz == 0)
 				{
-					setIsMovingTo(false);
+					setMovingTo(false);
 				}
 
 				else 
@@ -1017,8 +1017,8 @@ public class Unit {
 		}
 		else
 		{
-			setIsMovingTo(false);
-			setIsMoving(false);
+			setMovingTo(false);
+			setMovingState(false);
 			//System.out.println("Location is impossible to reach! Terminating movement...");
 		}
 			
@@ -1282,8 +1282,8 @@ public class Unit {
 			dropBoulder(getPosition());
 		
 		// Disable all behaviour:
-		setIsMoving(false);
-		setIsWorking(false);
+		setMovingState(false);
+		setWorking(false);
 		setIsAttacking(false);
 		setIsDefending(false);
 		setIsResting(false);
@@ -2623,16 +2623,8 @@ public class Unit {
 	 */
 	private double sprintingDuration;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |      IS MOVING		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the moving indicator of this Unit.
+	 * Check whether this Unit is moving.
 	 */
 	@Basic @Raw
 	public boolean isMoving() 
@@ -2641,34 +2633,33 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether thisUnit can have the given isMoving indicator as its isMoving indicator.
+	 * Check whether this Unit can have the given moving state as its moving state.
 	 *  
 	 * @param  	isMoving
-	 *         	The moving indicator to check.
-	 * @return 	True if and only if the given isMoving indicator is true and the Unit isn't currently attacking or if the given 
-	 * 			isMoving indicator is false.
+	 *         	The moving state to check.
+	 * @return 	True if and only if the given moving state is true and the Unit isn't currently attacking or if the given 
+	 * 			moving state is false.
 	 *       	| result == ((isMoving && !isAttacking()) || !isMoving)
 	 */
+	@Raw
 	public boolean canHaveAsIsMoving(boolean isMoving) 
 	{
 		return ((isMoving && !isAttacking()) || !isMoving);
 	}
 	
 	/**
-	 * Set the isMoving indicator of this Unit to the given isMoving indicator.
+	 * Set the moving state of this Unit to the given moving state.
 	 * 
 	 * @param  	isMoving
-	 *         	The new isMoving indicator for this Unit.
-	 *         
-	 * @post   	The moving indicator of this new Unit is equal to the given moving indicator.
+	 *         	The new moving state for this Unit.
+	 * @post   	The moving state of this new Unit is equal to the given moving stater.
 	 *       	| new.getIsMoving() == isMoving
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isMoving indicator as its isMoving indicator.
+	 *         	This Unit cannot have the given moving state as its moving state.
 	 *       	| ! canHaveAsIsMoving(getIsMoving())
 	 */
-	@Raw
-	public void setIsMoving(boolean isMoving) throws IllegalArgumentException 
+	@Raw @Model
+	private void setMovingState(boolean isMoving) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsMoving(isMoving))
 			throw new IllegalArgumentException("The given value isMoving is invalid for this Unit.");
@@ -2676,12 +2667,12 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the moving indicator of this Unit.
+	 * Variable registering the moving state of this Unit.
 	 */
 	private boolean isMoving = false;
 	
 	/**
-	 * Return whether this Unit was moving.
+	 * Check whether this Unit was moving.
 	 */
 	@Basic @Raw @Model
 	private boolean wasMoving() 
@@ -2729,7 +2720,7 @@ public class Unit {
 	private boolean wasMoving = false;
 		
 	/**
-	 * Return whether this Unit is moving to a cube in the {@link World}.
+	 * Check whether this Unit is currently moving to a cube in the {@link World}.
 	 */
 	@Basic @Raw @Model
 	private boolean isMovingTo() 
@@ -2738,17 +2729,17 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isMovingTo state as its isMovingTo state.
+	 * Check whether this Unit can have the given moving to state as its moving to state.
 	 *  
 	 * @param  	isMovingTo
 	 *         	The moving to state to check.
 	 * @return 	True if and only if the Unit is currently moving.
 	 *       	| result == ( isMoving() )
-	 * @note	The isMovingTo state must be enabled after the isMoving state is enabled and it must be disabled before the isMoving
-	 * 			state is disabled. This means at all time the isMoving indicator must be true.
+	 * @note	The moving to state must be enabled after the moving state is enabled and it must be disabled before the moving
+	 * 			state is disabled. This means at all times the moving state must be true.
 	 */
 	@Raw @Model
-	private boolean canHaveAsIsMovingTo(boolean isMovingTo) 
+	private boolean canHaveAsMovingTo(boolean isMovingTo) 
 	{
 		return isMoving();
 	}
@@ -2761,13 +2752,13 @@ public class Unit {
 	 * @post   	The moving to state of this new Unit is equal to the given moving to state.
 	 *       	| new.getIsMovingTo() == isMovingTo
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isMovingTo state as its isMovingTo state.
+	 *         	This Unit cannot have the given moving state as its moving to state.
 	 *       	| !canHaveAsIsMovingTo(isMovingTo)
 	 */
 	@Raw @Model
-	private void setIsMovingTo(boolean isMovingTo) throws IllegalArgumentException 
+	private void setMovingTo(boolean isMovingTo) throws IllegalArgumentException 
 	{
-		if (! canHaveAsIsMovingTo(isMovingTo))
+		if (! canHaveAsMovingTo(isMovingTo))
 			throw new IllegalArgumentException("Cannot have the given moving to state!");
 		this.isMovingTo = isMovingTo;
 	}
@@ -2778,7 +2769,7 @@ public class Unit {
 	private boolean isMovingTo;
 
 	/**
-	 * Return whether this Unit is moving to an adjacent cube in the {@link World}.
+	 * Check whether this Unit is currently moving to an adjacent cube in the {@link World}.
 	 */
 	@Basic @Raw @Model
 	private boolean isMovingToAdjacent() 
@@ -2802,7 +2793,7 @@ public class Unit {
 	@Raw @Model
 	private void setIsMovingToAdjacent(boolean isMovingToAdjacent) throws IllegalArgumentException 
 	{
-		if (!canHaveAsIsMovingTo(isMovingToAdjacent))
+		if (!canHaveAsMovingTo(isMovingToAdjacent))
 			throw new IllegalArgumentException("Cannot have the given is moving to adjacent cube state!");
 		this.isMovingToAdjacent = isMovingToAdjacent;
 	}
@@ -2812,18 +2803,10 @@ public class Unit {
 	 */
 	private boolean isMovingToAdjacent;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |  DESTINATION CUBE	|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the destination cube of this Unit.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private int[] getDestinationCube() {
 		return this.destinationCube;
 	}
@@ -2833,15 +2816,13 @@ public class Unit {
 	 * 
 	 * @param  	destinationCube
 	 *         	The new destination cube for this Unit.
-	 *         
 	 * @post   	The destination cube of this new Unit is equal to the given destination cube.
 	 *       	| new.getDestinationCube() == destinationCube
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given destinationCube as its cubeCoordinates.
 	 *       	| ! canHaveAsCubeCoordinates(destinationCube)
 	 */
-	@Raw
+	@Raw @Model
 	private void setDestinationCube(int[] destinationCube) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCubeCoordinates(destinationCube))
@@ -2850,20 +2831,12 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the destination cube of this Unit, where it might move to or work on.
+	 * Variable registering the destination cube of this Unit.
 	 */
 	private int[] destinationCube;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |     IS WORKING		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the working indicator of this Unit.
+	 * Check whether this Unit is working.
 	 */
 	@Basic @Raw
 	public boolean isWorking() 
@@ -2872,33 +2845,32 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isWorking indicator as its isWorking indicator.
+	 * Check whether this Unit can have the given working state as its working state.
 	 *  
 	 * @param  	isWorking
-	 *         	The working indicator to check.
+	 *         	The working state to check.
 	 * @return 	True if and only if the Unit isn't currently moving or attacking or defending.
 	 *       	| result == ((!isMoving() || !isAttacking() || !isDefending)
-	*/
+	 */
+	@Raw 
 	public boolean canHaveAsIsWorking(boolean isWorking) {
 		return (!isMoving() || !isAttacking() || !isDefending());
 	}
 	
 	/**
-	 * Set the working indicator of this Unit to the given working indicator.
+	 * Set the working state of this Unit to the given working state.
 	 * 
 	 * @param  	isWorking
-	 *         	The new working indicator for this Unit.
-	 *         
-	 * @post   	The working indicator of this new Unit is equal to the given working indicator.
+	 *         	The new working state for this Unit.
+	 * @post   	The working state of this new Unit is equal to the given working state.
 	 *       	| new.getIsWorking() == isWorking
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isWorking indicator as its isWorking indicator.
+	 *         	This Unit cannot have the given working state as its working state.
 	 *       	| ! canHaveAsIsWorking(getIsWorking())
 	 */
-	@Raw
-	public void setIsWorking(boolean isWorking) throws IllegalArgumentException {
-		if (! canHaveAsIsWorking(isWorking))
+	@Raw @Model
+	private void setWorking(boolean isWorking) throws IllegalArgumentException {
+		if (!canHaveAsIsWorking(isWorking))
 			throw new IllegalArgumentException("The given value isWorking is invalid for this Unit.");
 		this.isWorking = isWorking;
 	}
@@ -2908,22 +2880,20 @@ public class Unit {
 	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
 	 * @effect	The resting indicator of this Unit is disabled, only if the Unit isn't moving, attacking or already working and if the Unit
 	 * 			has completed the initial resting period and if the Unit is currently resting.
 	 * 			| if ((!(isMoving() || isAttacking()) && !isWorking()) && hasRestedOnePoint() && isResting())
 	 * 			| then this.setIsResting(false)
-	 * 
 	 * @effect	The working indicator of this Unit is enabled, only if the Unit isn't moving, attacking or already working and if the Unit
 	 * 			has completed the initial resting period.
 	 * 			| if (!(isMoving() || isAttacking()) && !isWorking() && hasRestedOnePoint()) 
-	 * 			| then this.setIsWorking(true)
-	 * 
+	 * 			| then this.setWorking(true)
 	 * @effect	The working duration of this Unit is set to 500 divided by its strength, only if the Unit isn't moving, attacking
 	 * 			or already working and if the Unit has completed the initial restin)g period.
 	 * 			| if (!(isMoving() || isAttacking() && !isWorking() && hasRestedOnePoint())
 	 * 			| then this.setWorkingDuration(500/getStrength())
 	 */
+	@Raw
 	public void work() throws IllegalArgumentException
 	{
 		if (!(isMoving() || isAttacking()) && !isWorking() && hasRestedOnePoint())
@@ -2931,7 +2901,7 @@ public class Unit {
 			if (isResting())
 				setIsResting(false);
 			
-			setIsWorking(true);
+			setWorking(true);
 			setWorkingDuration(500/getStrength());
 		}
 		else
@@ -2947,25 +2917,22 @@ public class Unit {
 	 * 			The given y coordinate of the target cube.
 	 * @param 	z
 	 * 			The given z coordinate of the target cube.
-	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
 	 * @effect	Set the target cube to the given cube coordinates, if the Unit isn't already working.
 	 * 			| if (!isWorking())
 	 * 			| 	then
 	 * 			|		 targetCube = {x, y, z}	 
 	 * 			|		 this.setTargetCube(targetCube)
-	 * 
 	 * @effect	The orientation is set to the arctangens of the difference between the given y coordinate and the current y coordinate
 	 * 			and the difference between the given x coordinate and the current x coordinate, if the Unit isn't already working.
 	 * 			| if (!isWorking())
 	 * 			|	then this.setOrientation((y - getCubeCoordinates()[1]), (x - getCubeCoordinates[0]))
-	 * 
 	 * @effect	If the Unit isn't already working, let the Unit work.
 	 * 			| if (!isWorking())
 	 * 			|	then this.work()
 	 */
+	@Raw
 	public void workAt(int x, int y, int z) throws IllegalArgumentException
 	{
 		if (!isWorking())
@@ -2986,45 +2953,36 @@ public class Unit {
 			}
 			catch (IllegalArgumentException e)
 			{
-				//e.printStackTrace();
-				
-				// Disable working:
-				setIsWorking(false);
+				setWorking(false);
+				throw e;
 			}
 		}
 	}
 	
 	/**
-	 * Variable registering the working indicator of this Unit.
+	 * Variable registering the working state of this Unit.
 	 */
 	private boolean isWorking;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    TARGET CUBE		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the targetCube of this Unit.
+	 * Return the target cube of this Unit.
 	 */
-	@Basic @Raw
-	public int[] getTargetCube() 
+	@Basic @Raw @Model
+	private int[] getTargetCube() 
 	{
 		return this.targetCube;
 	}
 	
 	/**
-	 * Check whether this Unit can have the given targetCube as its targetCube.
+	 * Check whether this Unit can have the given target cube as its target cube.
 	 *  
 	 * @param  	targetCube
-	 *         	The targetCube to check.
-	 * @return 	True if and only if the targetCube coordinates are between this World's boundaries
-	 * 			and the targetCube is a neighbouring cube of the current Unit's cube or the current cube itself.
+	 *         	The target cube to check.
+	 * @return 	True if and only if the target cube coordinates are between this World's boundaries
+	 * 			and the target cube is a neighbouring cube of the current Unit's cube or the current cube itself.
 	 *       	| result == getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && isTargetCube(targetCube)
-	*/
+	 */
+	@Raw @Model
 	public boolean canHaveAsTargetCube(int[] targetCube) 
 	{
 		return getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && isNeighbouringCube(targetCube);
@@ -3041,6 +2999,7 @@ public class Unit {
 	 *			| && (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
 	 *			| && (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]))
 	 */
+	@Raw @Model
 	private boolean isNeighbouringCube(int [] cube)
 	{
 		return ((getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
@@ -3049,20 +3008,18 @@ public class Unit {
 	}
 	
 	/**
-	 * Set the targetCube of this Unit to the given targetCube.
+	 * Set the targetCube of this Unit to the given target cube.
 	 * 
 	 * @param  	targetCube
-	 *         	The new targetCube for this Unit.
-	 *         
-	 * @post   	The targetCube of this new Unit is equal to the given targetCube.
+	 *         	The new target cube for this Unit.
+	 * @post   	The target cube of this new Unit is equal to the given target cube.
 	 *       	| new.getTargetCube() == targetCube
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given targetCube as its targetCube.
 	 *       	| ! canHaveAsTargetCube(getTargetCube())
 	 */
-	@Raw
-	public void setTargetCube(int[] targetCube) throws IllegalArgumentException 
+	@Raw @Model
+	private void setTargetCube(int[] targetCube) throws IllegalArgumentException 
 	{
 		if (! canHaveAsTargetCube(targetCube))
 			throw new IllegalArgumentException("The given targetCube to work at is invalid.");
@@ -3070,22 +3027,14 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the targetCube of this Unit.
+	 * Variable registering the target cube of this Unit.
 	 */
 	private int[] targetCube;
-		
-	// ----------------------
-	// |					|
-	// |					|
-	// |  WORKING DURATION	|
-	// |					|
-	// |					|
-	// ----------------------
-	
+			
 	/**
 	 * Return the working duration of this Unit.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private double getWorkingDuration() 
 	{
 		return this.workingDuration;
@@ -3097,14 +3046,14 @@ public class Unit {
 	 * @param  	workingDuration
 	 *         	The working duration to check.
 	 * @return 	True if and only if the given working duration is between -0.2 and (500/getStrength())
-	 *       	| result == ((workingDuration >= -0.2) && (workingDuration <= (500/getStrength())))
-	 *       
+	 *       	| result == ( (workingDuration >= -0.2) && ( workingDuration <= (500 / getStrength()) ) )
 	 * @note	We use the value -0.2 because we need to account for the fact that an advanceTime call could have 0.2 as duration,
 	 * 			which could make the variable -0.2 (if it was already close to 0). This is rather rare, but still.
-	*/
+	 */
+	@Raw @Model
 	private boolean canHaveAsWorkingDuration(double workingDuration)
 	{
-		return ((workingDuration >= -0.2) && (workingDuration <= (double)(500/getStrength())));
+		return (workingDuration >= -0.2) && (workingDuration <= (500 / getStrength()));
 	}
 	
 	/**
@@ -3112,15 +3061,13 @@ public class Unit {
 	 * 
 	 * @param  	workingDuration
 	 *         	The new working duration for this Unit.
-	 *         
 	 * @post   	The working duration of this new Unit is equal to the given working duration.
 	 *       	| new.getWorkingDuration() == workingDuration
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given workingDuration as its workingDuration.
+	 *         	This Unit cannot have the given working duration as its working duration.
 	 *       	| ! canHaveAsWorkingDuration(getWorkingDuration())
 	 */
-	@Raw
+	@Raw @Model
 	private void setWorkingDuration(double workingDuration) throws IllegalArgumentException 
 	{
 		if (! canHaveAsWorkingDuration(workingDuration))
@@ -3133,16 +3080,8 @@ public class Unit {
 	 */
 	private double workingDuration;
 
-	// ----------------------
-	// |					|
-	// |					|
-	// |   IS CARRYING LOG	|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the isCarryingLog of this Unit.
+	 * Check whether this Unit is carrying a log.
 	 */
 	@Basic @Raw
 	public boolean isCarryingLog() 
@@ -3151,55 +3090,46 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isCarryingLog indicator as its isCarryingLog indicator.
+	 * Check whether this Unit can have the given carrying log state as its carrying log state.
 	 *  
 	 * @param  	isCarryingLog
-	 *         	The isCarryingLog indicator to check.
-	 * @return 	True if and only if the given isCarryingLog indicator is true and the Unit currently has a log object 
-	 * 			or if the isCarryingLog indicator is false and the Unit currently has no log object.
+	 *         	The carrying log state to check.
+	 * @return 	True if and only if the given carrying log state is true and the Unit currently has a log object 
+	 * 			or if the carrying log state is false and the Unit currently has no log object.
 	 *       	| result == ((isCarryingLog && getLog() != null) || (!isCarryingLog && getLog() == null))
-	*/
+	 */
+	@Raw
 	public boolean canHaveAsIsCarryingLog(boolean isCarryingLog) 
 	{
 		return ((isCarryingLog && getLog() != null) || (!isCarryingLog && getLog() == null));
 	}
 	
 	/**
-	 * Set the isCarryingLog of this Unit to the given isCarryingLog.
+	 * Set the carrying log state of this Unit to the given carrying log state.
 	 * 
 	 * @param  	isCarryingLog
-	 *         	The new isCarryingLog for this Unit.
-	 *         
-	 * @post   	The isCarryingLog of this new Unit is equal to the given isCarryingLog.
+	 *         	The new carrying log state for this Unit.
+	 * @post   	The carrying log state of this new Unit is equal to the given carrying log state.
 	 *       	| new.getIsCarryingLog() == isCarryingLog
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isCarryingLog indicator as its isCarryingLog indicator.
+	 *         	This Unit cannot have the given carrying log state as its carrying log state.
 	 *       	| ! canHaveAsIsCarryingLog(getIsCarryingLog())
 	 */
-	@Raw
-	public void setIsCarryingLog(boolean isCarryingLog) throws IllegalArgumentException 
+	@Raw @Model
+	private void setIsCarryingLog(boolean isCarryingLog) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsCarryingLog(isCarryingLog))
-			throw new IllegalArgumentException("The given isCarryingLog indicator is invalid for this Unit.");
+			throw new IllegalArgumentException("Cannot have the given carrying log state!");
 		this.isCarryingLog = isCarryingLog;
 	}
 	
 	/**
-	 * Variable registering the isCarryingLog of this Unit.
+	 * Variable registering the carrying log state of this Unit.
 	 */
 	private boolean isCarryingLog;
-
-	// ----------------------
-	// |					|
-	// |					|
-	// |        LOG			|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
-	 * Return the Log of this Unit.
+	 * Return the {@link Log} of this Unit.
 	 */
 	@Basic @Raw
 	public Log getLog()
@@ -3208,10 +3138,10 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given Log as its Log.
+	 * Check whether this Unit can have the given {@link Log} as its {@link Log}.
 	 *  
 	 * @param  	log
-	 *         	The Log to check.
+	 *         	The {@link Log} to check.
 	 * @return 	True if and only if the given Log is part of this Unit's world or if the given Log is equal to null and if this Unit isn't 
 	 * 			already carrying a boulder.
 	 *       	| if (log == null && !isCarryingBoulder())
@@ -3224,16 +3154,9 @@ public class Unit {
 	 */
 	public boolean canHaveAsLog(Log log) 
 	{
-		if (log == null && !isCarryingBoulder())
-			return true;
-		else
-		{
-			Iterator<Log> iterator = getWorld().getAllLogs().iterator();
-			while (iterator.hasNext())
-				if (iterator.next() == log && !isCarryingBoulder())
-					return true;
-		}
-		return false;
+		if (!isAlive())
+			return log == null;
+		return !isCarryingBoulder();
 	}
 	
 	/**
@@ -3241,23 +3164,18 @@ public class Unit {
 	 * 
 	 * @param  	log
 	 *         	The new Log for this Unit.
-	 *         
 	 * @effect	If the log is a null object, the weight of this Unit is set to the difference between the current weight 
 	 * 			and the current Log's weight.
 	 * 			| if (log == null)
 	 * 			| 	then this.setWeight(getWeight() - getLog().getWeight())
-	 *         
 	 * @post   	The Log of this new Unit is equal to the given Log.
 	 *       	| new.getLog() == log
-	 *       
 	 * @post	The weight of this new Unit is equal to the sum of the Unit's current weight and the given Log's weight if the Log isn't null.
 	 * 			| if (log != null)
 	 * 			| 	then new.getWeight() == old.getWeight() + log.getWeight()
-	 * 
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit can't have the given Log as its Log.
 	 *       	| ! canHaveAsLog(getLog())
-	 *       
 	 * @note	If the Log is effective, the weight is manually set to the current weight + the weight of the log. This is done without
 	 * 			the setter, because this temporary weight may exceed the checker.
 	 */
@@ -3292,7 +3210,7 @@ public class Unit {
 	 * @effect	Set this Unit's Log ineffective.
 	 * 			| this.setLog()
 	 * 
-	 * @effect	Disable the isCarryingLog indicator of this Unit.
+	 * @effect	Disable the carrying log state of this Unit.
 	 * 			| this.setIsCarryingLog(false)
 	 */
 	public void dropLog(double[] target) throws IllegalArgumentException
@@ -3303,17 +3221,9 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the log of this Unit.
+	 * Variable registering the {@link Log} of this Unit.
 	 */
 	private Log log;
-
-	// ----------------------
-	// |					|
-	// |					|
-	// | IS CARRYING BOULDER|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the isCarryingBoulder of this Unit.
@@ -3693,12 +3603,12 @@ public class Unit {
 		if (checkPositions(defender) && defender.getFaction() != getFaction())
 		{
 				if (isWorking())
-					setIsWorking(false);
+					setWorking(false);
 				if (isResting())
 					setIsResting(false);
 				if (isMoving())
 				{
-					setIsMoving(false);
+					setMovingState(false);
 					setWasMoving(true);
 				}
 				
@@ -3772,12 +3682,12 @@ public class Unit {
 		if (checkPositions(attacker) && attacker.getFaction() != getFaction())
 		{
 				if (isWorking())
-					setIsWorking(false);
+					setWorking(false);
 				if (isResting())
 					setIsResting(false);
 				if (isMoving())
 				{
-					setIsMoving(false);
+					setMovingState(false);
 					setWasMoving(true);
 				}
 				
@@ -3963,10 +3873,10 @@ public class Unit {
 		if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints()) && !isResting())
 		{
 			if (isWorking())
-				setIsWorking(false);
+				setWorking(false);
 			if (isMoving())
 			{
-				setIsMoving(false);
+				setMovingState(false);
 				setWasMoving(true);
 			}
 			if (hasRestedOnePoint())
