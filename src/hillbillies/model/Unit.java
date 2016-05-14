@@ -3142,28 +3142,26 @@ public class Unit {
 	 *  
 	 * @param  	log
 	 *         	The {@link Log} to check.
-	 * @return 	True if and only if the given Log is part of this Unit's world or if the given Log is equal to null and if this Unit isn't 
-	 * 			already carrying a boulder.
-	 *       	| if (log == null && !isCarryingBoulder())
-	 *       	| 	then result == true
-	 *       	| else
-	 *       	|	Iterator<Log> iterator = getWorld().getLogs().iterator();
-	 *       	| 	while (iterator.hasNext())
-	 *       	|		if (iterator.next() == log && !isCarryingBoulder())
-	 *       	|			then result == true
+	 * @return	If this Unit is dead, true if and only if the given Log is ineffective.
+	 * 			Otherwise, true if and only if this Unit isn't carrying a boulder or if the given Log is ineffective.
+	 * 			| if (!isAlive())
+	 * 			|	then result == (log == null)
+	 * 			| else
+	 * 			|	result == ( (log == null) || !isCarryingBoulder() )
 	 */
+	@Raw
 	public boolean canHaveAsLog(Log log) 
 	{
 		if (!isAlive())
 			return log == null;
-		return !isCarryingBoulder();
+		return log == null || !isCarryingBoulder();
 	}
 	
 	/**
-	 * Set the Log of this Unit to the given Log.
+	 * Set the {@link Log} of this Unit to the given {@link Log}.
 	 * 
 	 * @param  	log
-	 *         	The new Log for this Unit.
+	 *         	The new {@link Log} for this Unit.
 	 * @effect	If the log is a null object, the weight of this Unit is set to the difference between the current weight 
 	 * 			and the current Log's weight.
 	 * 			| if (log == null)
@@ -3179,8 +3177,8 @@ public class Unit {
 	 * @note	If the Log is effective, the weight is manually set to the current weight + the weight of the log. This is done without
 	 * 			the setter, because this temporary weight may exceed the checker.
 	 */
-	@Raw
-	public void setLog(Log log) throws IllegalArgumentException 
+	@Raw @Model
+	private void setLog(Log log) throws IllegalArgumentException 
 	{
 		if (! canHaveAsLog(log))
 			throw new IllegalArgumentException("The given log is invalid for this Unit.");
@@ -3196,24 +3194,32 @@ public class Unit {
 	}
 	
 	/**
+	 * Check whether this Unit has a proper {@link Log} attached to it.
+	 * 
+	 * @return	True if and only if this Unit's can have its Log as its Log and if this Log is part of this Unit's World.
+	 * 			| result == ( canHaveAsLog(getLog()) && getWorld().hasAsLog(getLog()) ) 
+	 */
+	public boolean hasProperLog()
+	{
+		return canHaveAsLog(getLog()) && getWorld().hasAsLog(getLog());
+	}
+	
+	/**
 	 * Drop this Unit's Log at the given target cube.
 	 * 
 	 * @param 	target
 	 * 			The given target cube to drop the Log on.
-	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
 	 * @effect	Set the position of this Unit's Log to the given target position.
 	 * 			| this.getLog().setPosition(target)
-	 * 
 	 * @effect	Set this Unit's Log ineffective.
 	 * 			| this.setLog()
-	 * 
 	 * @effect	Disable the carrying log state of this Unit.
 	 * 			| this.setIsCarryingLog(false)
 	 */
-	public void dropLog(double[] target) throws IllegalArgumentException
+	@Raw @Model
+	private void dropLog(double[] target) throws IllegalArgumentException
 	{
 		getLog().setPosition(target);
 		setLog(null);
