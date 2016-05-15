@@ -66,8 +66,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Statement createAttack(Expression unit, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Attack(unit, sourceLocation);
 	}
 
 	@Override
