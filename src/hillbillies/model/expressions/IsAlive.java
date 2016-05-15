@@ -1,6 +1,7 @@
 package hillbillies.model.expressions;
 
 import hillbillies.model.Task;
+import hillbillies.model.Unit;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -8,11 +9,17 @@ import hillbillies.model.Task;
  *
  */
 public class IsAlive extends BooleanExpression {
-
+	
+	public IsAlive(UnitExpression unitE) {
+		this.unitE = unitE;
+	}
+	
+	private UnitExpression unitE;
+	
 	@Override
 	public Boolean evaluate(Task task) {
-		// TODO Auto-generated method stub
-		return null;
+		Unit unit = unitE.evaluate(task);
+		return unit.isAlive();
 	}
 
 }
