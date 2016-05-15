@@ -1,6 +1,6 @@
 package hillbillies.model.expressions;
 
-import hillbillies.model.Task;
+import hillbillies.model.*;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -9,10 +9,16 @@ import hillbillies.model.Task;
  */
 public class IsEnemy extends BooleanExpression {
 
+	public IsEnemy(UnitExpression unitE) {
+		this.unitE = unitE;
+	}
+	
+	private UnitExpression unitE;
+	
 	@Override
 	public Boolean evaluate(Task task) {
-		// TODO Auto-generated method stub
-		return null;
+		Unit enemy = unitE.evaluate(task);
+		Unit thisUnit = task.getUnit();
+		return (enemy.getFaction() != thisUnit.getFaction());
 	}
-
 }
