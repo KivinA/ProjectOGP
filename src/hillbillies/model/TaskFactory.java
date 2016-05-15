@@ -2,7 +2,9 @@ package hillbillies.model;
 
 import java.util.List;
 
+import hillbillies.model.expressions.CarriesItem;
 import hillbillies.model.expressions.Expression;
+import hillbillies.model.expressions.UnitExpression;
 import hillbillies.model.statements.*;
 import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
@@ -111,8 +113,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createCarriesItem(Expression unit, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new CarriesItem((UnitExpression) unit);
 	}
 
 	@Override

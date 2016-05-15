@@ -7,9 +7,11 @@ package hillbillies.model.expressions;
  */
 public class CarriesItem extends BooleanExpression {
 
+	public CarriesItem(UnitExpression Unit) {
+		
+	}
 	@Override
 	public Boolean evaluate() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
