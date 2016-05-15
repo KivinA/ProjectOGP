@@ -595,7 +595,7 @@ public class Unit {
 			// Default behaviour:
 			else if (isDefaultBehaviourEnabled())
 			{
-				int choice = new Random().nextInt(4);
+				int choice = new Random().nextInt(1);
 				int x, y, z;
 				switch (choice)
 				{
@@ -872,7 +872,9 @@ public class Unit {
 			}
 			catch (IllegalArgumentException e)
 			{
-				throw e;
+				setMovingTo(false);
+				setMovingState(false);
+				//throw e;
 			}
 		}
 		
