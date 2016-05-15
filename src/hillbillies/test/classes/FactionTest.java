@@ -66,6 +66,7 @@ public class FactionTest {
 		for (Iterator<Unit> i = world.getAllUnits().iterator(); i.hasNext();)
 		{
 			Unit unit = i.next();
+			unit.die();
 			unit.setWorld(null);
 			i.remove();
 		}

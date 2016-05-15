@@ -184,7 +184,7 @@ public abstract class WorldObject {
 	public double[] getPosition()
 	{
 		if (this.position != null)
-			return Arrays.copyOf(position, position.length);	// Return a copy of the position array for safety
+			return Arrays.copyOf(position, 3);
 		return this.position;
 	}
 	
@@ -194,15 +194,21 @@ public abstract class WorldObject {
 	 * @param 	position
 	 * 			The position to check.
 	 * @return	If this WorldObject is terminated, true if and only if the given position is ineffective.
-	 * 			Otherwise, true if and only if the given position is effective, between the boundaries of the World of this WorldObject,
+	 * 			Otherwise, true if and only if the given position is ineffective or if the given
+	 * 			position is effective and between the boundaries of the World of this WorldObject,
 	 * 			and if the given cube is passable.
 	 */
 	public boolean canHaveAsPosition(int[] coordinates)
 	{
 		if (isTerminated())
 			return coordinates == null;
-		return coordinates != null && getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2]) 
+		else
+		{
+			if (coordinates == null)
+				return true;
+			return getWorld().isBetweenBoundaries(coordinates[0], coordinates[1], coordinates[2]) 
 				&& getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2]);
+		}
 	}
 	
 	/**
@@ -219,7 +225,7 @@ public abstract class WorldObject {
 	 */
 	public void setPosition(double[] position) throws IllegalArgumentException
 	{
-		int[] coordinates = getCubeCoordinates(position);
+		int[] coordinates = World.getCubeCoordinates(position);
 		if (!canHaveAsPosition(coordinates))
 			throw new IllegalArgumentException("This " + getClass().getSimpleName() + " cannot have the given position as its position.");
 		
@@ -238,29 +244,6 @@ public abstract class WorldObject {
 		}
 		else 
 			this.position = position;
-	}
-	
-	/**
-	 * Get the integer cube coordinates which hold the given coordinates.
-	 * 
-	 * @param 	coordinates
-	 * 			The coordinates that are in the calculated cube.
-	 */
-	@Raw @Model
-	private int[] getCubeCoordinates(double[] coordinates)
-	{
-		if (coordinates != null)
-		{
-			int[] cube = new int[coordinates.length];
-			double halfCubeLength = getWorld().getCubeLength() / 2.0;
-			for (int i = 0; i < coordinates.length; i++)
-			{
-				cube[i] = (int)(coordinates[i] - halfCubeLength);
-			}
-			return cube;
-		}
-		else
-			return null;
 	}
 	
 	/**
@@ -288,7 +271,7 @@ public abstract class WorldObject {
 	 */
 	public boolean canHaveAsFallingState(boolean isFalling)
 	{
-		int[] coordinates = getCubeCoordinates(getPosition());
+		int[] coordinates = World.getCubeCoordinates(getPosition());
 		if (isFalling)
 		{
 			return (getWorld().isPassableCube(coordinates[0], coordinates[1], coordinates[2] - 1));	

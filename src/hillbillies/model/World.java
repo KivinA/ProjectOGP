@@ -23,14 +23,6 @@ import ogp.framework.util.ModelException;
  */
 public class World {
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	CONSTRUCTOR		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Initialize this new World with the given terrainTypes and {@link TerrainChangeListener}.
 	 * 
@@ -61,14 +53,6 @@ public class World {
 		initializeTerrain(terrain);
 	}
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |   MODELLISTENER	|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the {@link TerrainChangeListener} of this World.
 	 */
@@ -94,14 +78,6 @@ public class World {
 	 * Variable referencing the {@link TerrainChangeListener} of this World.
 	 */
 	private final TerrainChangeListener modelListener;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	ADVANCE TIME	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Advance the time of this World.
@@ -172,14 +148,6 @@ public class World {
 	{
 		return new Random().nextDouble() <= 0.25;
 	}
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  TERRAIN		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Check whether the given cube is attached to the borders of this World.
@@ -280,6 +248,65 @@ public class World {
 	}
 	
 	/**
+	 * Convert the given precise double coordinates to integer cube coordinates.
+	 * 
+	 * @param	coordinates
+	 * 			The double coordinates to convert.
+	 * @return	An ineffective array if the given array is ineffective.
+	 * @return	An integer array containing the x, y, z cube coordinates according to the given double precise coordinates.
+	 */
+	public static int[] getCubeCoordinates(double[] coordinates)
+	{
+		if (coordinates == null)
+			return null;
+		int x = round(coordinates[0]);
+		int y = round(coordinates[1]);
+		int z = round(coordinates[2]);
+		return new int[]{x, y, z};
+	}
+	
+	/**
+	 * Convert the given integer cube coordinates to precise double coordinates.
+	 * 
+	 * @param 	coordinates
+	 * 			The integer coordinates to convert.
+	 * @return	An ineffective array if the given array is ineffective.
+	 * @return	A double array containing the precise x, y, z coordinates according to the given integer coordinates.
+	 */
+	public static double[] getPreciseCoordinates(int[] coordinates)
+	{
+		if (coordinates == null)
+			return null;
+		double x = coordinates[0] + 0.5;
+		double y = coordinates[1] + 0.5;
+		double z = coordinates[2] + 0.5;	
+		return new double[]{x, y, z};
+	}
+	
+	/**
+	 * An auxiliary method to help round the given double number to an integer number. 
+	 * 
+	 * @param 	number
+	 * 			The number to round.
+	 * @return	The rounded integer number: 
+	 * 			Rounded down if the decimal was lower or equal to 0.5.
+	 * 			Rounded up if the decimal was higher than 0.5.
+	 * @note	We have created this method because Math.round() rounds the given double up starting from 0.5 and up.
+	 * 			We need a rounding method that can provide us with rounding a given number down, even when the decimal point is 0.5.
+	 */
+	@Model
+	private static int round(double number)
+	{
+		double numberAbs = Math.abs(number);
+		int intNumber = (int) numberAbs;
+		double result = numberAbs - (double) intNumber;
+		if (result < 0.5)
+			return number < 0 ? -intNumber: intNumber - 1;
+		else
+			return number < 0 ? -(intNumber + 1) : intNumber;
+	}
+	
+	/**
 	 * Return the terrain of this World.
 	 */
 	@Basic @Raw
@@ -363,8 +390,8 @@ public class World {
 	/**
 	 * Return the cube length of any World.
 	 */
-	@Raw @Basic @Immutable
-	public int getCubeLength()
+	@Basic @Immutable
+	public static int getCubeLength()
 	{
 		return CUBE_LENGTH;
 	}
@@ -514,14 +541,6 @@ public class World {
 	 * @invar	Each cube referenced in the list is effective.
 	 */
 	private List<int[]> notConnected = new ArrayList<>();
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	   UNITS		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the amount of {@link Unit}s of this World.
@@ -716,7 +735,7 @@ public class World {
 			theFaction.addUnit(newUnit);
 			newUnit.setFaction(theFaction);
 			return newUnit;
-}
+    }
 	
 	/**
 	 * Variable referencing a set of {@link Unit}s attached to this World.
@@ -731,14 +750,6 @@ public class World {
 	 * Constant registering the maximal amount of {@link Unit}s of any World.
 	 */
 	private final static int MAX_AMOUNT_OF_UNITS = 100;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  FACTIONS		|
-	// |					|
-	// |					|
-	// ----------------------
 
 	/**
 	 * Return the amount of {@link Faction}s of this World.
@@ -868,15 +879,7 @@ public class World {
 	 * Constant registering the maximum amount of {@link Faction}s of this World.
 	 */
 	private static final int MAX_AMOUNT_OF_FACTIONS = 5;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	   LOGS			|
-	// |					|
-	// |					|
-	// ----------------------
-	
+
 	/**
 	 * Return a set collecting all {@link Log}s in this World.
 	 */
@@ -1024,14 +1027,6 @@ public class World {
 	 */
 	private Set<Log> logs = new HashSet<Log>();
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  BOULDERS		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return a set collecting all {@link Boulder}s in this World.
 	 */
@@ -1143,14 +1138,6 @@ public class World {
 	 * @invar	No Boulder is registered more than once in the referenced set.
 	 */
 	private Set<Boulder> boulders = new HashSet<Boulder>();
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |  AUXILIARY METHODS	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Calculate a random weight.

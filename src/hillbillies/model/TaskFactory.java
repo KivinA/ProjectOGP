@@ -2,8 +2,11 @@ package hillbillies.model;
 
 import java.util.List;
 
+<<<<<<< HEAD
 import hillbillies.model.expressions.*;
 import hillbillies.model.statements.*;
+=======
+>>>>>>> refs/remotes/origin/UnitPositionRevision
 import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
 
@@ -29,7 +32,12 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 	@Override
 	public Statement createIf(Expression condition, Statement ifBody, Statement elseBody,
 			SourceLocation sourceLocation) {
+<<<<<<< HEAD
 		return new If(condition, ifBody, elseBody, sourceLocation);
+=======
+		// TODO Auto-generated method stub
+		return null;
+>>>>>>> refs/remotes/origin/UnitPositionRevision
 	}
 
 	@Override
