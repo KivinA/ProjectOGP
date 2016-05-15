@@ -1,5 +1,6 @@
 package hillbillies.model.expressions;
 
+import hillbillies.model.Task;
 import hillbillies.part3.programs.SourceLocation;
 
 /**
@@ -17,8 +18,8 @@ public class IsSolid extends BooleanExpression {
 	}
 	
 	@Override
-	public Boolean evaluate() {
-		return null;
+	public Boolean evaluate(Task task) {
+		Integer[] pos = position.evaluate(task);
+		return task.getUnit().getWorld().isSolidCube(pos[0], pos[1], pos[2]);
 	}
-
 }

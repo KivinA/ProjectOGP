@@ -1,5 +1,7 @@
 package hillbillies.model.expressions;
 
+import hillbillies.model.Task;
+
 /**
  * @author Kevin Algoet & Jeroen Depuydt
  * @version 0.1
@@ -8,6 +10,6 @@ package hillbillies.model.expressions;
 public abstract class PositionExpression implements Expression {
 
 	@Override
-	public abstract Integer[] evaluate();
+	public abstract Integer[] evaluate(Task task);
 
 }

@@ -1,13 +1,14 @@
 package hillbillies.model.expressions;
 
+import hillbillies.model.Task;
+
 /**
  * @author Kevin Algoet & Jeroen Depuydt
  * @version 0.1
  *
  */
 public abstract class BooleanExpression implements Expression {
-
-	@Override
-	public abstract Boolean evaluate();
+	
+	public abstract Boolean evaluate(Task task);
 
 }

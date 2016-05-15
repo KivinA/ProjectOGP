@@ -1,5 +1,7 @@
 package hillbillies.model.expressions;
 
+import hillbillies.model.Task;
+
 /**
  * @author Kevin Algoet & Jeroen Depuydt
  * @version 0.1
@@ -8,7 +10,7 @@ package hillbillies.model.expressions;
 public class PositionWorkshop extends PositionExpression {
 
 	@Override
-	public Integer[] evaluate() {
+	public Integer[] evaluate(Task task) {
 		// TODO Auto-generated method stub
 		return null;
 	}
