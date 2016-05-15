@@ -1,6 +1,7 @@
 package hillbillies.model.expressions;
 
 import hillbillies.model.*;
+import hillbillies.part3.programs.SourceLocation;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -8,10 +9,14 @@ import hillbillies.model.*;
  *
  */
 public class UnitAny extends UnitExpression {
-
+	private SourceLocation sourceLocation;
+	
+	public UnitAny(SourceLocation sourceLocation) {
+		this.sourceLocation = sourceLocation;
+	}
+	
 	@Override
 	public Unit evaluate(Task task) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
