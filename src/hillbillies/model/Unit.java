@@ -3006,9 +3006,12 @@ public class Unit {
 	 * 			The cube to check.
 	 * @return	True if and only if the cube is a neighbouring cube. This means the coordinates components are either the Unit's cubeCoordinates
 	 * 			components +1, -1 or if the cube components are equal to the Unit's cubeCoordinates components.
-	 * 			| result ==  ( (getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
-	 *			| && (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
-	 *			| && (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]) )
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates()
+	 * 			| in
+	 * 			|	result == ( ( (coordinates[0] == cube[0]) || (coordinates[0] + 1 == cube[0]) || (coordinates[0] - 1 == cube[0]) )
+	 * 			|				&& ( (coordinates[1] == cube[1]) || (coordinates[1] + 1 == cube[1]) || (coordinates[1] - 1 == cube[1]) )
+	 * 			|				&& ( (coordinates[2] == cube[2]) || (coordinates[2] + 1 == cube[2]) || (coordinates[2] - 1 == cube[2]) ) )
 	 */
 	@Raw @Model
 	private boolean isNeighbouringCube(int [] cube)
