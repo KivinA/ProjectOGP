@@ -191,5 +191,10 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public Expression createPositionOf(Expression unit, SourceLocation sourceLocation) {
+		return new PositionPositionOf(unit, sourceLocation);
+	}
 	
 }
