@@ -2,6 +2,7 @@ package hillbillies.model.statements;
 
 import hillbillies.model.expressions.BooleanExpression;
 import hillbillies.model.expressions.Expression;
+import hillbillies.model.Task;
 import hillbillies.part3.programs.SourceLocation;
 
 /**
@@ -21,11 +22,11 @@ public class If implements Statement {
 	}
 
 	@Override
-	public void execute() {
-		if (condition.evaluate())
-			ifBody.execute();
+	public void execute(Task task) {
+		if (condition.evaluate(task))
+			ifBody.execute(task);
 		else
-			elseBody.execute();
+			elseBody.execute(task);
 	}
 
 }

@@ -1,5 +1,6 @@
 package hillbillies.model.statements;
 
+import hillbillies.model.Task;
 import hillbillies.part3.programs.SourceLocation;
 
 /**
@@ -14,7 +15,7 @@ public class Break implements Statement {
 		this.sourceLocation = sourceLocation;
 	}
 	@Override
-	public void execute() {
+	public void execute(Task task) {
 		
 	}
 

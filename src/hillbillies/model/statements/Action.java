@@ -1,5 +1,7 @@
 package hillbillies.model.statements;
 
+import hillbillies.model.Task;
+
 /**
  * @author Kevin Algoet & Jeroen Depuydt
  * @version 0.1
@@ -8,5 +10,5 @@ package hillbillies.model.statements;
 public abstract class Action implements Statement {
 
 	@Override
-	public abstract void execute();
+	public abstract void execute(Task task);
 }

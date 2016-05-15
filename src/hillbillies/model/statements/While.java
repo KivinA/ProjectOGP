@@ -2,6 +2,7 @@ package hillbillies.model.statements;
 
 import hillbillies.model.expressions.BooleanExpression;
 import hillbillies.model.expressions.Expression;
+import hillbillies.model.Task;
 import hillbillies.part3.programs.SourceLocation;
 
 /**
@@ -21,9 +22,9 @@ public class While implements Statement {
 	}
 	
 	@Override
-	public void execute() {
-		while (condition.evaluate()) {
-			body.execute();
+	public void execute(Task task) {
+		while (condition.evaluate(task)) {
+			body.execute(task);
 		}
 	}
 

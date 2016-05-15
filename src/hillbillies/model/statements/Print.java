@@ -1,6 +1,7 @@
 package hillbillies.model.statements;
 
 import hillbillies.model.expressions.Expression;
+import hillbillies.model.Task;
 import hillbillies.part3.programs.SourceLocation;
 
 /**
@@ -18,7 +19,7 @@ public class Print implements Statement {
 	}
 	
 	@Override
-	public void execute() {
+	public void execute(Task task) {
 		System.out.println(value);
 	}
 
