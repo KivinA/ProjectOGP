@@ -1,6 +1,6 @@
 package hillbillies.model.expressions;
 
-import hillbillies.model.Task;
+import hillbillies.model.*;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -10,7 +10,7 @@ import hillbillies.model.Task;
 public class UnitAny extends UnitExpression {
 
 	@Override
-	public Boolean evaluate(Task task) {
+	public Unit evaluate(Task task) {
 		// TODO Auto-generated method stub
 		return null;
 	}

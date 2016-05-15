@@ -11,7 +11,7 @@ import hillbillies.model.Unit;
 public class UnitEnemy extends UnitExpression {
 
 	@Override
-	public Boolean evaluate(Task task) {
+	public Unit evaluate(Task task) {
 		// TODO Auto-generated method stub
 		return null;
 	}

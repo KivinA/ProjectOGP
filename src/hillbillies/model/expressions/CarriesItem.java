@@ -1,6 +1,6 @@
 package hillbillies.model.expressions;
 
-import hillbillies.model.Task;
+import hillbillies.model.*;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -9,12 +9,15 @@ import hillbillies.model.Task;
  */
 public class CarriesItem extends BooleanExpression {
 
-	public CarriesItem(UnitExpression Unit) {
-		
+	public CarriesItem(UnitExpression unit) {
+		this.unitE = unit;
 	}
+	
+	private UnitExpression unitE;
 	@Override
 	public Boolean evaluate(Task task) {
-		return null;
+		Unit unit = unitE.evaluate(task);
+		return (unit.isCarryingBoulder()) || (unit.isCarryingLog());
 	}
 
 }
