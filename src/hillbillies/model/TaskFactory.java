@@ -80,8 +80,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createIsPassable(Expression position, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new IsPassable(position, sourceLocation);
 	}
 
 	@Override
