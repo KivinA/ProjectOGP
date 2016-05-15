@@ -612,16 +612,18 @@ public class Unit {
 					break;
 				// Work:	
 				case 1:
-					int i = new Random().nextInt(3) - 1;
-					int j = new Random().nextInt(3) - 1;
-					int k = new Random().nextInt(3) - 1;
-					
-					x = getCubeCoordinates()[0] + i;
-					y = getCubeCoordinates()[1] + j;
-					z = getCubeCoordinates()[2] + k;
-					
+					while (true)
+					{
+						int i = new Random().nextInt(3) - 1;
+						int j = new Random().nextInt(3) - 1;
+						int k = new Random().nextInt(3) - 1;
+						x = getCubeCoordinates()[0] + i;
+						y = getCubeCoordinates()[1] + j;
+						z = getCubeCoordinates()[2] + k;
+						if (getWorld().isBetweenBoundaries(x, y, z))
+							break;
+					}
 					workAt(x, y, z);
-					
 					break;
 				// Rest:	
 				case 2:
@@ -968,7 +970,8 @@ public class Unit {
 			{
 				//System.out.println("Pathing will now end, because there isn't a next cube.");
 				setMovingTo(false);
-				throw new IllegalArgumentException("Pathing will here.");
+				setMovingState(false);
+				throw new IllegalArgumentException("Pathing will end here.");
 			}
 			
 			else
@@ -2872,6 +2875,9 @@ public class Unit {
 	/**
 	 * Make this Unit work.
 	 * 
+	 * @throws	IllegalArgumentException
+	 * 			This Unit is moving, attacking, already working or didn't rest its initial recovery period yet.
+	 * 			| !(isMoving() || isAttacking()) && !isWorking() && hasRestedOnePoint()
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The resting indicator of this Unit is disabled, only if the Unit isn't moving, attacking or already working and if the Unit
@@ -2899,7 +2905,18 @@ public class Unit {
 			setWorkingDuration(500/getStrength());
 		}
 		else
-			throw new IllegalArgumentException("Unable to work right now.");
+		{
+			if (isMoving())
+				System.err.println("Unit is still moving, thus no work can be done!");
+			if (isAttacking())
+				System.err.println("Unit is still attacking, thus no work can be done!");
+			if (isWorking())
+				System.err.println("Unit is already working, wait till Unit has finished working!");
+			if (!hasRestedOnePoint())
+				System.err.println("Unit hasn't rested its initial recovery period!");
+			throw new IllegalArgumentException("Unable to work right now!");
+		}
+			
 	}
 	
 	/**
@@ -2989,16 +3006,17 @@ public class Unit {
 	 * 			The cube to check.
 	 * @return	True if and only if the cube is a neighbouring cube. This means the coordinates components are either the Unit's cubeCoordinates
 	 * 			components +1, -1 or if the cube components are equal to the Unit's cubeCoordinates components.
-	 * 			| result ==  ((getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
+	 * 			| result ==  ( (getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
 	 *			| && (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
-	 *			| && (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]))
+	 *			| && (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]) )
 	 */
 	@Raw @Model
 	private boolean isNeighbouringCube(int [] cube)
 	{
-		return ((getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
-				&& (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
-				&& (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]));
+		int[] coordinates = getCubeCoordinates();
+		return ( ( (coordinates[0] == cube[0]) || (coordinates[0] + 1 == cube[0]) || (coordinates[0] - 1 == cube[0]) ) 
+				&& ( (coordinates[1] == cube[1]) || (coordinates[1] + 1 == cube[1]) || (coordinates[1] - 1 == cube[1]) )
+				&& ( (coordinates[2] == cube[2]) || (coordinates[2] + 1 == cube[2]) || (coordinates[2] - 1 == cube[2]) ) );
 	}
 	
 	/**
@@ -3065,7 +3083,7 @@ public class Unit {
 	private void setWorkingDuration(double workingDuration) throws IllegalArgumentException 
 	{
 		if (! canHaveAsWorkingDuration(workingDuration))
-			throw new IllegalArgumentException("The given workingDuration is invalid for this Unit.");
+			throw new IllegalArgumentException("The given workingDuration is invalid for this Unit: " + workingDuration);
 		this.workingDuration = workingDuration;
 	}
 	
