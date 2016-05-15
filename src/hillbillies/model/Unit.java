@@ -481,7 +481,7 @@ public class Unit {
 					if (!isMovingTo())
 					{
 						setMovingState(false);
-						System.out.println("Stop with sprinting...");
+						//System.out.println("Stop with sprinting...");
 						if (isSprinting())
 							setSprintingState(false);
 					}	
@@ -595,7 +595,7 @@ public class Unit {
 			// Default behaviour:
 			else if (isDefaultBehaviourEnabled())
 			{
-				int choice = new Random().nextInt(1);
+				int choice = new Random().nextInt(4);
 				int x, y, z;
 				switch (choice)
 				{
@@ -604,15 +604,11 @@ public class Unit {
 					x = new Random().nextInt(getWorld().getNbCubesX());
 					y = new Random().nextInt(getWorld().getNbCubesY());
 					z = new Random().nextInt(getWorld().getNbCubesZ());
-					
 					boolean choiceSprint = new Random().nextBoolean();
 					int[] cube = {x, y, z};
-					
 					moveTo(cube);
-					
 					if (choiceSprint)
 						startSprinting();
-					
 					break;
 				// Work:	
 				case 1:
@@ -769,7 +765,6 @@ public class Unit {
 				int newZPos = getCubeCoordinates()[2] + dCoordinates[2];
 				
 				int[] newCoordinates = {newXPos, newYPos, newZPos};
-				System.out.println("The new coordinates: " + newXPos + ", " + newYPos + ", " + newZPos);
 				
 				// Check whether the new cube coordinates are valid. If so, calculate the speeds and orientation:
 				if (canHaveAsCubeCoordinates(newCoordinates))
@@ -815,7 +810,7 @@ public class Unit {
 				// Disable movement:
 				setIsMovingToAdjacent(false);
 				setMovingState(false);
-				throw e;
+				//throw e;
 			}
 		}
 	}
@@ -966,12 +961,12 @@ public class Unit {
 		// Check is we can still move...
 		if (hasTupleWithGivenCoordinates(getCubeCoordinates(), pathQueue))
 		{
-			System.out.println("This Unit can move to its destination.");
+			//System.out.println("This Unit can move to its destination.");
 			Tuple<int[], Integer> next = findNextCube(getCubeCoordinates());
 			// If the returned tuple from the queue is null, pathing is terminated.
 			if (next.getFirstValue() == null)
 			{
-				System.out.println("Pathing will now end, because there isn't a next cube.");
+				//System.out.println("Pathing will now end, because there isn't a next cube.");
 				setMovingTo(false);
 				throw new IllegalArgumentException("Pathing will here.");
 			}
@@ -1098,6 +1093,8 @@ public class Unit {
 	private boolean destinationReached()
 	{
 		boolean hasReached = false;
+		if (getDeltaNewPositions() == null)
+			return hasReached;
 		for (int i = 0; i < getPosition().length; i++)
 		{
 			// The new unit position component is higher than the current one, thus we check with operator <=
@@ -2902,13 +2899,7 @@ public class Unit {
 			setWorkingDuration(500/getStrength());
 		}
 		else
-		{
-			System.err.println("Unit isn't moving: " + !isMoving());
-			System.err.println("Unit isn't attacking: " + !isAttacking());
-			System.err.println("Unit isn't working: " + !isWorking());
-			System.err.println("Unit hasn't fully rested:"  + hasRestedOnePoint());
 			throw new IllegalArgumentException("Unable to work right now.");
-		}
 	}
 	
 	/**
