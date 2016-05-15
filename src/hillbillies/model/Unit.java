@@ -4183,14 +4183,6 @@ public class Unit {
 	 * Variable registering the faction of this unit.
 	 */
 	private Faction faction;
-
-	// ----------------------
-	// |					|
-	// |					|
-	// |     EXPERIENCE		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the experience of this Unit.
@@ -4219,10 +4211,8 @@ public class Unit {
 	 * 
 	 * @param 	experience
 	 *        	The new experience for this Unit.
-	 *        
 	 * @post   	The experience of this new Unit is equal to the given experience.
 	 *       	| new.getExperience() == experience
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	The given experience is not a valid experience for any Unit.
 	 *       	| ! isValidExperience(getExperience())
