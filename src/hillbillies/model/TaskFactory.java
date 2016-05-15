@@ -50,8 +50,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Statement createMoveTo(Expression position, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new MoveTo(position, sourceLocation);
 	}
 
 	@Override
