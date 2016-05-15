@@ -124,8 +124,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createHerePosition(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionHere(sourceLocation);
 	}
 
 	@Override
@@ -158,8 +157,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createLiteralPosition(int x, int y, int z, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionXYZ(x, y, z, sourceLocation);
 	}
 
 	@Override
