@@ -121,8 +121,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createAnd(Expression left, Expression right, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Conjunction((BooleanExpression) left, (BooleanExpression) right);
 	}
 
 	@Override

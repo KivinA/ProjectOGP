@@ -9,10 +9,15 @@ import hillbillies.model.Task;
  */
 public class Conjunction extends BooleanExpression {
 
+	public Conjunction(BooleanExpression left, BooleanExpression right) {
+		this.left = left;
+		this.right = right;
+	}
+	
+	private BooleanExpression left, right;
+	
 	@Override
 	public Boolean evaluate(Task task) {
-		// TODO Auto-generated method stub
-		return null;
+		return (left.evaluate(task) && right.evaluate(task));
 	}
-
 }
