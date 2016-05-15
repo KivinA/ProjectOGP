@@ -278,12 +278,7 @@ public class Unit {
 			// Default behaviour of this Unit: We will only change the behaviour to true if true is given. Otherwise the checker is invalid!
 			if (enableDefaultBehaviour)
 				setIsDefaultBehaviour(enableDefaultBehaviour);
-			
 			setIsDefaultBehaviour(false);
-			
-			// Set the hasRestedOnePoint boolean true, because this has to be true, only if the Unit starts to rest, this will become false.
-			setHasRestedOnePoint(true);
-			
 			// Set the experience to 0:
 			setExperience(0);
 	}
@@ -861,7 +856,7 @@ public class Unit {
 	{
 		if (!isAlive())
 			throw new IllegalStateException("Cannot move to a cube, Unit is dead!");
-		if (hasRestedOnePoint())
+		if (hasRestedOnePoint() && (!Arrays.equals(cube, getCubeCoordinates())))
 		{
 			try
 			{
@@ -874,13 +869,13 @@ public class Unit {
 				
 				setMovingTo(true);
 				setDestinationCube(cube);
-				
 			}
 			catch (IllegalArgumentException e)
 			{
-				//e.printStackTrace();
+				throw e;
 			}
 		}
+		
 	}
 	
 	/**
@@ -2905,7 +2900,13 @@ public class Unit {
 			setWorkingDuration(500/getStrength());
 		}
 		else
+		{
+			System.err.println("Unit isn't moving: " + !isMoving());
+			System.err.println("Unit isn't attacking: " + !isAttacking());
+			System.err.println("Unit isn't working: " + !isWorking());
+			System.err.println("Unit hasn't fully rested:"  + hasRestedOnePoint());
 			throw new IllegalArgumentException("Unable to work right now.");
+		}
 	}
 	
 	/**
@@ -2962,7 +2963,7 @@ public class Unit {
 	/**
 	 * Variable registering the working state of this Unit.
 	 */
-	private boolean isWorking;
+	private boolean isWorking = false;
 	
 	/**
 	 * Return the target cube of this Unit.
@@ -3196,12 +3197,13 @@ public class Unit {
 	/**
 	 * Check whether this Unit has a proper {@link Log} attached to it.
 	 * 
-	 * @return	True if and only if this Unit's can have its Log as its Log and if this Log is part of this Unit's World.
-	 * 			| result == ( canHaveAsLog(getLog()) && getWorld().hasAsLog(getLog()) ) 
+	 * @return	True if and only if this Unit's can have its Log as its Log and if this Log is ineffective or
+	 * 			if this Log is part of this Unit's World.
+	 * 			| result == ( canHaveAsLog(getLog()) && ( (log == null) || getWorld().hasAsLog(getLog()) ) ) 
 	 */
 	public boolean hasProperLog()
 	{
-		return canHaveAsLog(getLog()) && getWorld().hasAsLog(getLog());
+		return canHaveAsLog(getLog()) && ( (log == null) || getWorld().hasAsLog(getLog()) );
 	}
 	
 	/**
@@ -4041,7 +4043,7 @@ public class Unit {
 	/**
 	 * Variable registering the hasRestedOnePoint of this Unit.
 	 */
-	private boolean hasRestedOnePoint;
+	private boolean hasRestedOnePoint = true;
 	
 	// ----------------------
 	// |					|
