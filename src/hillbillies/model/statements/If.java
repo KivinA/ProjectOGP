@@ -26,8 +26,6 @@ public class If implements Statement {
 			ifBody.execute();
 		else
 			elseBody.execute();
-			
-		
 	}
 
 }
