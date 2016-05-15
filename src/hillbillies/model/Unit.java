@@ -4206,16 +4206,12 @@ public class Unit {
 	 *  
 	 * @param  	experience
 	 *         	The experience to check.
-	 * @return 	True if and only if the given experience is between 0 and 30.
-	 *       	| result == (experience >= 0) && (experience < 30)
-	 *       
-	 * @note	The upper boundary of this checker is 30, because each time the experience counter reaches 10, the counter is resetted
-	 * 			to 0. The max amount of experience a Unit can get at once is 20 (from a successfull attack or defence), thus the maximum
-	 * 			experience one Unit can have at any given time is 30.
+	 * @return 	True if and only if the given experience is positive.
+	 *       	| result == (experience >= 0) 
 	 */
 	public static boolean isValidExperience(int experience) 
 	{
-		return (experience >= 0) && (experience <= 30);
+		return (experience >= 0);
 	}
 	
 	/**
