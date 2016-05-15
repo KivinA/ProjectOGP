@@ -8,7 +8,7 @@ package hillbillies.model.expressions;
 public class PositionBoulder extends PositionExpression {
 
 	@Override
-	public Boolean evaluate() {
+	public Integer[] evaluate() {
 		// TODO Auto-generated method stub
 		return null;
 	}

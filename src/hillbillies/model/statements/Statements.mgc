@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ClassDiagram>
-    <Class name="hillbillies.model.statements.MoveTo" x="135" y="44">
+    <Class name="hillbillies.model.statements.MoveTo" x="189" y="491">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -10,7 +10,7 @@
             accessors-accepted="false" constructors-accepted="false"/>
         <Extension destinationClassName="hillbillies.model.statements.Action"/>
     </Class>
-    <Class name="hillbillies.model.statements.Action" x="250" y="128">
+    <Class name="hillbillies.model.statements.Action" x="127" y="191">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -20,7 +20,7 @@
             accessors-accepted="false" constructors-accepted="false"/>
         <Extension destinationClassName="hillbillies.model.statements.Statement"/>
     </Class>
-    <Class name="hillbillies.model.statements.Attack" x="93" y="243">
+    <Class name="hillbillies.model.statements.Attack" x="29" y="485">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -63,7 +63,7 @@
         </Association>
         <Communication destinationClassName="hillbillies.model.statements.Statement"/>
     </Class>
-    <Class name="hillbillies.model.statements.Follow" x="252" y="243">
+    <Class name="hillbillies.model.statements.Follow" x="275" y="367">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -83,7 +83,7 @@
             accessors-accepted="false" constructors-accepted="false"/>
         <Extension destinationClassName="hillbillies.model.statements.Statement"/>
     </Class>
-    <Class name="hillbillies.model.statements.Work" x="296" y="43">
+    <Class name="hillbillies.model.statements.Work" x="115" y="379">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>
@@ -112,7 +112,7 @@
             default-accepted="false" static-accepted="false"
             accessors-accepted="false" constructors-accepted="false"/>
     </Class>
-    <Class name="hillbillies.model.statements.Print" x="938" y="342">
+    <Class name="hillbillies.model.statements.Print" x="959" y="290">
         <AttributesDisplayFilter public-accepted="true"
             private-accepted="true" protected-accepted="true"
             default-accepted="true" static-accepted="false"/>

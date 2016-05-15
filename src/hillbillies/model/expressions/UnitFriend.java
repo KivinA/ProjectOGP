@@ -1,5 +1,7 @@
 package hillbillies.model.expressions;
 
+import hillbillies.model.Unit;
+
 /**
  * @author Kevin Algoet & Jeroen Depuydt
  * @version 0.1

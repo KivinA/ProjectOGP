@@ -10,5 +10,5 @@ import hillbillies.model.*;
 public abstract class UnitExpression implements Expression {
 
 	@Override
-	public abstract Unit evaluate();
+	public abstract Boolean evaluate();
 }
