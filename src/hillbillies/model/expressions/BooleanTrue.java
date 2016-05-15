@@ -7,10 +7,13 @@ package hillbillies.model.expressions;
  */
 public class BooleanTrue extends BooleanExpression {
 
+	public BooleanTrue() {
+		
+	}
+	
 	@Override
 	public Boolean evaluate() {
-		// TODO Auto-generated method stub
-		return null;
+		return true;
 	}
 
 }
