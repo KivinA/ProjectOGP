@@ -6,11 +6,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import be.kuleuven.cs.som.annotate.*;
-<<<<<<< HEAD
 import hillbillies.model.expressions.Expression;
 import hillbillies.model.statements.Statement;
-=======
->>>>>>> refs/remotes/origin/UnitPositionRevision
 import ogp.framework.util.ModelException;
 
 /**
