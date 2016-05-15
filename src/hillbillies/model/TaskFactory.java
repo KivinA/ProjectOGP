@@ -18,8 +18,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Statement createAssignment(String variableName, Expression value, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Assignment(variableName, value, sourceLocation);
 	}
 
 	@Override
@@ -135,8 +134,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createLogPosition(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionLog(sourceLocation);
 	}
 
 	@Override
@@ -153,8 +151,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createSelectedPosition(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionSelected(sourceLocation);
 	}
 
 	@Override

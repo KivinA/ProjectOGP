@@ -1,9 +1,12 @@
 package hillbillies.model;
 
+import java.util.Map;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import be.kuleuven.cs.som.annotate.*;
+import hillbillies.model.expressions.Expression;
 import hillbillies.model.statements.Statement;
 import ogp.framework.util.ModelException;
 
@@ -258,5 +261,11 @@ public class Task {
 	 * Variable referencing the activities linked to this Task. This will most likely be a sequence of statements.
 	 */
 	private Statement acitivity;
+	
+	public Map<String, Expression> getTasks() {
+		return this.tasks;
+	}
+	
+	public Map<String, Expression> tasks = new HashMap<String, Expression>();
 	
 }
