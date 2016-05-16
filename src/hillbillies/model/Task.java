@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 import java.util.Map;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,17 +23,20 @@ import ogp.framework.util.ModelException;
  * 			| canHaveAsUnit(getUnit())
  */
 public class Task {
+	
 	public Task(String name, int priority)
 	{
 		this.name = name;
 		setPriority(priority);
+		this.selectedCube = null;
 	}
 	
-	public Task(String name, int priority, Statement activity)
+	public Task(String name, int priority, Statement activity, int[] selectedCube)
 	{
 		this.name = name;
 		setPriority(priority);
 		this.acitivity = activity;
+		this.selectedCube = Arrays.copyOf(selectedCube, selectedCube.length);
 	}
 	
 	/**
@@ -116,10 +120,10 @@ public class Task {
 	 * 			| new.getUnit() == unit
 	 */
 	@Raw
-	public void setUnit(@Raw Unit unit) throws ModelException
+	public void setUnit(@Raw Unit unit) throws IllegalArgumentException
 	{
 		if (!canHaveAsUnit(unit))
-			throw new ModelException("This Task cannot be assigned to the given Unit.");
+			throw new IllegalArgumentException("This Task cannot be assigned to the given Unit.");
 		this.unit = unit;
 	}
 	
@@ -174,10 +178,10 @@ public class Task {
 	 * 			This Task cannot have the given Scheduler as one of its Schedulers.
 	 * 			| !canHaveAsScheduler(scheduler)
 	 */
-	public void addScheduler(Scheduler scheduler) throws ModelException
+	public void addScheduler(Scheduler scheduler) throws IllegalArgumentException
 	{
 		if (!canHaveAsScheduler(scheduler))
-			throw new ModelException("This Task cannot have the given Scheduler as one of its Schedulers.");
+			throw new IllegalArgumentException("This Task cannot have the given Scheduler as one of its Schedulers.");
 		schedulers.add(scheduler);
 	}
 	
@@ -205,10 +209,10 @@ public class Task {
 	 * 			The given Scheduler cannot be removed from the list of Schedulers.
 	 * 			| !canRemoveAsScheduler(scheduler)
 	 */
-	public void removeScheduler(Scheduler scheduler) throws ModelException
+	public void removeScheduler(Scheduler scheduler) throws IllegalArgumentException
 	{
 		if (!canRemoveAsScheduler(scheduler))
-			throw new ModelException("This Task cannot remove the given Scheduler from the list of Schedulers.");
+			throw new IllegalArgumentException("This Task cannot remove the given Scheduler from the list of Schedulers.");
 		schedulers.remove(scheduler);
 	}
 	
@@ -262,10 +266,31 @@ public class Task {
 	 */
 	private Statement acitivity;
 	
+	/**
+	 * TODO Doc
+	 * @return
+	 */
 	public Map<String, Expression> getVariables() {
 		return this.variables;
 	}
 	
-	public Map<String, Expression> variables = new HashMap<String, Expression>();
+	/**
+	 * A variable referencing to a map which stores the used variables in this Task with their values.
+	 */
+	private Map<String, Expression> variables = new HashMap<String, Expression>();
+	
+	/**
+	 * Get the selected cube of this Task.
+	 */
+	@Basic @Raw @Immutable
+	public int[] getSelected()
+	{
+		return this.selectedCube;
+	}
+	
+	/**
+	 * Variable referencing the selected cube of this Task.
+	 */
+	private final int[] selectedCube;
 	
 }
