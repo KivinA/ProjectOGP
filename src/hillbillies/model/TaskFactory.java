@@ -128,13 +128,12 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createLogPosition(SourceLocation sourceLocation) {
-		return new PositionLog(sourceLocation);
+		return new PositionLog();
 	}
 
 	@Override
 	public Expression createBoulderPosition(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionBoulder();
 	}
 
 	@Override

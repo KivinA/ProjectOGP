@@ -1,7 +1,6 @@
 package hillbillies.model.expressions;
 
-import hillbillies.model.Task;
-import hillbillies.part3.programs.SourceLocation;
+import hillbillies.model.*;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -9,15 +8,49 @@ import hillbillies.part3.programs.SourceLocation;
  *
  */
 public class PositionLog extends PositionExpression {
-	private SourceLocation sourceLocation;
 	
-	public PositionLog(SourceLocation sourceLocation) {
-		this.sourceLocation = sourceLocation;
+	public PositionLog() {
+		
 	}
 	
 	@Override
 	public Integer[] evaluate(Task task) {
-		return null;
+		World world = task.getUnit().getWorld();
+		int[] coordinatesUnit = task.getUnit().getCubeCoordinates();
+		int resultdz = world.getNbCubesZ();
+		int dsum = world.getNbCubesX() + world.getNbCubesY();
+		Integer[] result = new Integer[3];
+		
+		for (Log log : world.getAllLogs())
+		{
+			int[] cubeCoordinatesBoulder = World.getCubeCoordinates(log.getPosition());
+			int dz = Math.abs(coordinatesUnit[2] - cubeCoordinatesBoulder[2]);
+			if (dz < resultdz)
+			{
+				for (int i = 0; i < result.length; i++)
+					result[i] = cubeCoordinatesBoulder[i];
+				dsum = sumXY(coordinatesUnit, cubeCoordinatesBoulder);
+				resultdz = dz;
+			}
+			else if (dz == resultdz)
+			{
+				int sum = sumXY(coordinatesUnit, cubeCoordinatesBoulder);
+				if (sum < dsum)
+				{
+					for (int i = 0; i < result.length; i++)
+						result[i] = cubeCoordinatesBoulder[i];
+					dsum = sum;
+					resultdz = dz;
+				}
+			}
+		}
+		return result;
 	}
 
+	private int sumXY(int[] coordinates1, int[] coordinates2)
+	{
+		int dx = Math.abs(coordinates1[0] - coordinates2[0]);
+		int dy = Math.abs(coordinates1[1] - coordinates2[1]);
+		return (dx + dy);
+	}
 }
