@@ -9,15 +9,16 @@ import hillbillies.part3.programs.SourceLocation;
  *
  */
 public class PositionSelected extends PositionExpression {
-	private SourceLocation sourceLocation;
 	
-	public PositionSelected(SourceLocation sourceLocation)  {
-		this.sourceLocation = sourceLocation;
+	public PositionSelected()  {
+
 	}
 	
 	@Override
 	public Integer[] evaluate(Task task) {
-		return null;
+		int[] selected = task.getSelected();
+		Integer[] result = {selected[0], selected[1], selected[2]};
+		return result;
 	}
 
 }

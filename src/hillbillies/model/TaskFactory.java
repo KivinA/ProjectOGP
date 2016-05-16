@@ -149,7 +149,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createSelectedPosition(SourceLocation sourceLocation) {
-		return new PositionSelected(sourceLocation);
+		return new PositionSelected();
 	}
 
 	@Override
