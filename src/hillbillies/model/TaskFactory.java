@@ -85,7 +85,9 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createIsFriend(Expression unit, SourceLocation sourceLocation) {
-		return new IsFriend<UnitExpression>(unit);
+		if (!(unit instanceof UnitExpression))
+			throw new IllegalArgumentException("Wrong expression, UnitExpression expected.");
+		return new IsFriend<UnitExpression>((UnitExpression) unit);
 	}
 
 	@Override
