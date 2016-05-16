@@ -8,7 +8,5 @@ import hillbillies.model.Task;
  *
  */
 public abstract class BooleanExpression implements Expression {
-	
 	public abstract Boolean evaluate(Task task);
-
 }

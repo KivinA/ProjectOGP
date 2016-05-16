@@ -46,7 +46,6 @@ public class UnitFriendTest {
 		UnitFriend test = new UnitFriend();
 		Unit result = test.evaluate(task);
 		assertEquals(unit3, result);
-		
 	}
 
 	@Test

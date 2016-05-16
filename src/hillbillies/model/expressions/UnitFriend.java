@@ -3,8 +3,8 @@ package hillbillies.model.expressions;
 import hillbillies.model.*;
 
 /**
- * @author Kevin Algoet & Jeroen Depuydt
- * @version 0.1
+ * @author 	Kevin Algoet & Jeroen Depuydt
+ * @version	0.1
  *
  */
 public class UnitFriend extends UnitExpression {
