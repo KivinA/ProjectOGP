@@ -18,10 +18,10 @@ public class Assignment implements Statement {
 	@Override
 	public void execute(Task task) {	
 		
-		if (!task.getTasks().containsKey(variableName))
-			task.getTasks().put(variableName, value);
+		if (!task.getVariables().containsKey(variableName))
+			task.getVariables().put(variableName, value);
 		else
-			task.getTasks().replace(variableName, value);			
+			task.getVariables().replace(variableName, value);			
 	}
 
 }

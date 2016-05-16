@@ -262,10 +262,10 @@ public class Task {
 	 */
 	private Statement acitivity;
 	
-	public Map<String, Expression> getTasks() {
-		return this.tasks;
+	public Map<String, Expression> getVariables() {
+		return this.variables;
 	}
 	
-	public Map<String, Expression> tasks = new HashMap<String, Expression>();
+	public Map<String, Expression> variables = new HashMap<String, Expression>();
 	
 }
