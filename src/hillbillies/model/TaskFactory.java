@@ -154,7 +154,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createNextToPosition(Expression position, SourceLocation sourceLocation) {
-		return new PositionNextTo(position, sourceLocation);
+		return new PositionNextTo(position);
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package hillbillies.model.expressions;
 
 import hillbillies.model.Task;
-import hillbillies.model.World;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
