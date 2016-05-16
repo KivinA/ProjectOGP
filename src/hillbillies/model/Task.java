@@ -101,7 +101,7 @@ public class Task {
 	{
 		if (unit == null)
 			return true;
-		return unit.getTask() == this;
+		return unit.getTask() == null;
 	}
 	
 	/**

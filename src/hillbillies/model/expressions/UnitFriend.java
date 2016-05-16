@@ -28,34 +28,27 @@ public class UnitFriend extends UnitExpression {
 			{
 				int[] coordinates = unit.getCubeCoordinates();
 				int dz = Math.abs(thisCoordinates[2] - coordinates[2]);
-				
-				
+				System.out.println("The difference between z-lvls of original and current Unit: " + dz);
+				System.out.println("The current difference from the result: " + resultdz);
 				if (dz < resultdz)
+				{
+					result = unit;
+					dsum = sumXY(thisCoordinates, coordinates);
+					resultdz = dz;
+				}
+				else
 				{
 					int sum = sumXY(coordinates, thisCoordinates);
 					if (sum < dsum)
 					{
 						result = unit;
 						dsum = sum;
+						resultdz = dz;
 					}
 				}
+					
 			}
 		}
-		
-//		for (Unit unit: faction.getAllUnits())
-//		{
-//			if (unit != task.getUnit() && unit != result)
-//			{
-//				int[] coordinates = unit.getCubeCoordinates();
-//				int sum = sumXY(coordinates, thisCoordinates);
-//				if (sum == dsum)
-//				{
-//					if (coordinates[2] < result.getCubeCoordinates()[2])
-//						result = unit;
-//				}
-//			}
-//		}
-		
 		return result;
 	}
 
