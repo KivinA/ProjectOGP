@@ -37,27 +37,22 @@ public class UnitEnemy extends UnitExpression {
 		
 		for (Unit unit : allUnits)
 		{
-			if (unit != task.getUnit())
+			int[] coordinates = unit.getCubeCoordinates();
+			int dz = Math.abs(thisCoordinates[2] - coordinates[2]);
+			if (dz < resultdz)
 			{
-				int[] coordinates = unit.getCubeCoordinates();
-				int dz = Math.abs(thisCoordinates[2] - coordinates[2]);
-				System.out.println("The difference between z-lvls of original and current Unit: " + dz);
-				System.out.println("The current difference from the result: " + resultdz);
-				if (dz < resultdz)
+				result = unit;
+				dsum = sumXY(thisCoordinates, coordinates);
+				resultdz = dz;
+			}
+			else if (dz == resultdz)
+			{
+				int sum = sumXY(coordinates, thisCoordinates);
+				if (sum < dsum)
 				{
 					result = unit;
-					dsum = sumXY(thisCoordinates, coordinates);
+					dsum = sum;
 					resultdz = dz;
-				}
-				else
-				{
-					int sum = sumXY(coordinates, thisCoordinates);
-					if (sum < dsum)
-					{
-						result = unit;
-						dsum = sum;
-						resultdz = dz;
-					}
 				}
 			}
 		}

@@ -175,7 +175,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createAny(SourceLocation sourceLocation) {
-		return new UnitAny(sourceLocation);
+		return new UnitAny();
 	}
 
 	@Override
