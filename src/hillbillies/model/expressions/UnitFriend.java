@@ -18,8 +18,8 @@ public class UnitFriend extends UnitExpression {
 		Unit result = null;
 		World world = task.getUnit().getWorld();
 		int[] thisCoordinates = task.getUnit().getCubeCoordinates();
-		//int dsum = world.getNbCubesX() + world.getNbCubesY() + world.getNbCubesZ();
 		int dsum = world.getNbCubesX() + world.getNbCubesY();
+		int resultdz = world.getNbCubesZ();
 		Faction faction = task.getUnit().getFaction();
 		
 		for (Unit unit : faction.getAllUnits())
@@ -27,38 +27,43 @@ public class UnitFriend extends UnitExpression {
 			if (unit != task.getUnit())
 			{
 				int[] coordinates = unit.getCubeCoordinates();
-				int dx = Math.abs(coordinates[0] - thisCoordinates[0]);
-				int dy = Math.abs(coordinates[1] - thisCoordinates[1]);
-				//int dz = Math.abs(coordinates[2] - thisCoordinates[2]);
-				//int sum = dx + dy + dz;
-				int sum = dx + dy;
-			
-				if (sum < dsum)
+				int dz = Math.abs(thisCoordinates[2] - coordinates[2]);
+				
+				
+				if (dz < resultdz)
 				{
-					result = unit;
-					dsum = sum;
+					int sum = sumXY(coordinates, thisCoordinates);
+					if (sum < dsum)
+					{
+						result = unit;
+						dsum = sum;
+					}
 				}
 			}
 		}
 		
-		for (Unit unit: faction.getAllUnits())
-		{
-			if (unit != task.getUnit() && unit != result)
-			{
-				int[] coordinates = unit.getCubeCoordinates();
-				int dx = Math.abs(coordinates[0] - thisCoordinates[0]);
-				int dy = Math.abs(coordinates[1] - thisCoordinates[1]);
-				int sum = dx + dy;
-				
-				if (sum == dsum)
-				{
-					if (coordinates[2] < result.getCubeCoordinates()[2])
-						result = unit;
-				}
-			}
-		}
+//		for (Unit unit: faction.getAllUnits())
+//		{
+//			if (unit != task.getUnit() && unit != result)
+//			{
+//				int[] coordinates = unit.getCubeCoordinates();
+//				int sum = sumXY(coordinates, thisCoordinates);
+//				if (sum == dsum)
+//				{
+//					if (coordinates[2] < result.getCubeCoordinates()[2])
+//						result = unit;
+//				}
+//			}
+//		}
 		
 		return result;
 	}
 
+	
+	private int sumXY(int[] coordinates1, int[] coordinates2)
+	{
+		int dx = Math.abs(coordinates1[0] - coordinates2[0]);
+		int dy = Math.abs(coordinates1[1] - coordinates2[1]);
+		return (dx + dy);
+	}
 }
