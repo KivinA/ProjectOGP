@@ -1,6 +1,7 @@
 package hillbillies.model.expressions;
 
 import hillbillies.model.Task;
+import hillbillies.model.World;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -11,8 +12,6 @@ public class Precedence extends BooleanExpression {
 
 	@Override
 	public Boolean evaluate(Task task) {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

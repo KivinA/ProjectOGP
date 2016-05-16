@@ -358,6 +358,9 @@ public class World {
 					// Change solid to passable terrain where needed and add all cubes that changed to a list.
 					if (isPassableCube(x, y, z))
 						addAllNotConnected(connectedToBorderObject.changeSolidToPassable(x, y, z));
+					
+					if (terrain[x][y][z] == 3)
+						addWorkshop(new int[]{x, y, z});
 				}
 			}
 		}
@@ -484,6 +487,54 @@ public class World {
 	private static final int DEFAULT_CUBE_TYPE = 0;
 
 	/**
+	 * Get all workshops that are in this World.
+	 * 
+	 * @return	The resulting list is effective.
+	 * @return	The number of elements in the resulting list is equal to the number of workshops in this World.
+	 * @return	Each element of the resulting set equals a position of a workshop in this World.
+	 */
+	public List<int[]> getAllWorkshops()
+	{
+		return new ArrayList<int[]>(workshops);
+	}
+	
+	/**
+	 * Check whether this World can add the given position of a workshops to its list of workshops.
+	 * 
+	 * @param 	workshop
+	 * 			The position to check.
+	 * @return	True if and only if the cube type of the given position (cube) is equal to 3.
+	 */
+	@Raw
+	private boolean canAddAsWorkshop(int[] workshop)
+	{
+		return getCubeType(workshop[0], workshop[1], workshop[2]) == 3;
+	}
+	
+	/**
+	 * Add the given workshop position to the list of workshops.
+	 * 
+	 * @param	workshop
+	 * 			The workshop position to add.
+	 * @post	The number of workshop positions in this World is incremented by 1.
+	 * @post	This World has the given workshop position as one of its workshop positions.
+	 * @throws	IllegalArgumentException
+	 * 			This World cannot add the given position to its workshop positions.
+	 */
+	@Raw
+	private void addWorkshop(int[] workshop) throws IllegalArgumentException
+	{
+		if (!canAddAsWorkshop(workshop))
+			throw new IllegalArgumentException("Given position isn't a workshop!");
+		workshops.add(workshop);
+	}
+	
+	/**
+	 * A variable referencing the workshop in this World.
+	 */
+	private final List<int[]> workshops = new ArrayList<int[]>();
+	
+	/**
 	 * Return a list containing all cubes that aren't connected to a border of this World.
 	 * 
 	 * @note	We are currently using the reference to the notConnected list, because we have no use of a copy list.
@@ -540,7 +591,7 @@ public class World {
 	 * @invar	The referenced list is effective.
 	 * @invar	Each cube referenced in the list is effective.
 	 */
-	private List<int[]> notConnected = new ArrayList<>();
+	private final List<int[]> notConnected = new ArrayList<>();
 	
 	/**
 	 * Return the amount of {@link Unit}s of this World.
@@ -744,7 +795,7 @@ public class World {
 	 * @invar	Each Unit registered in the referenced set is effective.
 	 * @invar	No Unit is registered more than once in the referenced set.
 	 */
-	private Set<Unit> units = new HashSet<Unit>();
+	private final Set<Unit> units = new HashSet<Unit>();
 	
 	/**
 	 * Constant registering the maximal amount of {@link Unit}s of any World.
