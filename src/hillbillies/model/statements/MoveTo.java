@@ -13,7 +13,7 @@ import hillbillies.part3.programs.SourceLocation;
 public class MoveTo extends Action {
 	private PositionExpression position;
 	
-	public MoveTo(Expression position, SourceLocation sourceLocation) {
+	public MoveTo(Expression position) {
 		this.position = (PositionExpression) position;
 	}
 	

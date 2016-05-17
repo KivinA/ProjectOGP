@@ -54,7 +54,10 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Statement createMoveTo(Expression position, SourceLocation sourceLocation) {
-		return new MoveTo(position, sourceLocation);
+		if (!(position instanceof PositionExpression))
+			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new MoveTo(position);
 	}
 
 	@Override

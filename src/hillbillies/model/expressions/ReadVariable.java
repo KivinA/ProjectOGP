@@ -14,6 +14,4 @@ public class ReadVariable implements Expression{
 	public Expression evaluate(Task task) {
 		return task.getVariableValue(name);
 	}
-
-	
 }
