@@ -267,11 +267,16 @@ public class Task {
 	private Statement acitivity;
 	
 	/**
-	 * TODO Doc
-	 * @return
+	 * Check whether the given variable is in the map of variables.
+	 * 
+	 * @param 	variableName
+	 * 			The name of the variable to check.
+	 * @return	True if and only if the given variable name is in the map of variables as a key.
+	 * 			| result == variables.containsKey(variableName)
 	 */
-	public Map<String, Expression> getVariables() {
-		return this.variables;
+	public boolean hasAsVariable(String variableName)
+	{
+		return variables.containsKey(variableName);
 	}
 	
 	/**
@@ -332,6 +337,12 @@ public class Task {
 	
 	/**
 	 * A variable referencing to a map which stores the used variables in this Task with their values.
+	 * 
+	 * @invar	The referenced map is effective.
+	 * 			| variables != null
+	 * @invar	The referenced map doesn't contain the same key twice.
+	 * 			| for each key in variables.keySet():
+	 * 			|	... (?)
 	 */
 	private Map<String, Expression> variables = new HashMap<String, Expression>();
 	
