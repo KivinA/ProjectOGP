@@ -49,8 +49,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Statement createSequence(List<Statement> Statement, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Sequence(Statement);
 	}
 
 	@Override
