@@ -274,6 +274,11 @@ public class Task {
 		return this.variables;
 	}
 	
+	public Expression getVariableValue(String variableName)
+	{
+		return variables.get(variableName);
+	}
+	
 	/**
 	 * A variable referencing to a map which stores the used variables in this Task with their values.
 	 */
