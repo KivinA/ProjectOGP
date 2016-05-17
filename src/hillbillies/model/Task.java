@@ -274,6 +274,57 @@ public class Task {
 		return this.variables;
 	}
 	
+	/**
+	 * Add the given variable to the list of variables, along with its value.
+	 * 
+	 * @param 	variableName
+	 * 			The name of the variable.
+	 * @param 	value
+	 * 			The value of the variable.
+	 * @post	The given variable name is added to the set of keys of the variables map.
+	 * 			| new.variables.keySet().contains(variableName)
+	 * @post	The value of the given variable name is equal to the given value.
+	 * 			| new.getVariableValue(variableName) == value
+	 */
+	public void addVariable(String variableName, Expression value)
+	{
+		variables.put(variableName, value);
+	}
+	
+	/**
+	 * Replace the value of the already existing variable with the new given variable.
+	 * 
+	 * @param 	variableName
+	 * 			The name of the variable to replace the value of.
+	 * @param 	value
+	 * 			The value to replace.
+	 * @post	The given variable name has the new given value as its value.
+	 * 			| new.getVariableValue(variableName) == value
+	 */
+	public void replaceValue(String variableName, Expression value)
+	{
+		variables.replace(variableName, value);
+	}
+	
+	/**
+	 * Check whether the given variable is in the list of variables.
+	 * 
+	 * @param	variableName
+	 * 			The variable name to check.
+	 * @return	True if and only if the given variable is in the list of variables.
+	 * 			| result == variables.containsKey(variableName)
+	 */
+	public boolean hasVariable(String variableName)
+	{
+		return variables.containsKey(variableName);
+	}
+	
+	/**
+	 * Get the value which is mapped to the given variable name in the list of variables.
+	 * 
+	 * @param 	variableName
+	 * 			The variable name that is linked to the value to return.
+	 */
 	public Expression getVariableValue(String variableName)
 	{
 		return variables.get(variableName);

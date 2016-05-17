@@ -19,9 +19,9 @@ public class Assignment implements Statement {
 	public void execute(Task task) {	
 		
 		if (!task.getVariables().containsKey(variableName))
-			task.getVariables().put(variableName, value);
+			task.addVariable(variableName, value);
 		else
-			task.getVariables().replace(variableName, value);			
+			task.replaceValue(variableName, value);			
 	}
 
 }
