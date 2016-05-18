@@ -1035,7 +1035,7 @@ public class Unit {
 		while (iter.hasNext())
 		{
 			Tuple<int[], Integer> next = iter.next();
-			if (isNeighbouringCube(next.getFirstValue()))
+			if (World.isNeighbouringCube(getCubeCoordinates(), next.getFirstValue()))
 			{
 				if (next.getSecondValue() < result.getSecondValue())
 					result = next;
@@ -2973,7 +2973,6 @@ public class Unit {
 		{
 			try
 			{
-				// Target cube:
 				int[] targetCube = {x, y, z};
 				setTargetCube(targetCube);
 				
@@ -2981,8 +2980,7 @@ public class Unit {
 				double arg0 = y - getCubeCoordinates()[1];
 				double arg1 = x - getCubeCoordinates()[0];
 				setOrientation(Math.atan2(arg0, arg1));
-				
-				// Start working:
+
 				work();
 			}
 			catch (IllegalArgumentException e)
@@ -3014,35 +3012,12 @@ public class Unit {
 	 *         	The target cube to check.
 	 * @return 	True if and only if the target cube coordinates are between this World's boundaries
 	 * 			and the target cube is a neighbouring cube of the current Unit's cube or the current cube itself.
-	 *       	| result == getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && isTargetCube(targetCube)
+	 *       	| result == getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && World.isNeighbouringCube(getCubeCoordinates(), targetCube)
 	 */
-	@Raw @Model
-	public boolean canHaveAsTargetCube(int[] targetCube) 
+	@Raw
+	private boolean canHaveAsTargetCube(int[] targetCube) 
 	{
-		return getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && isNeighbouringCube(targetCube);
-	}
-	
-	/**
-	 * Check whether the given cube is a neighbouring cube of this Unit's cube.
-	 * 
-	 * @param 	cube
-	 * 			The cube to check.
-	 * @return	True if and only if the cube is a neighbouring cube. This means the coordinates components are either the Unit's cubeCoordinates
-	 * 			components +1, -1 or if the cube components are equal to the Unit's cubeCoordinates components.
-	 * 			| let
-	 * 			|	coordinates = getCubeCoordinates()
-	 * 			| in
-	 * 			|	result == ( ( (coordinates[0] == cube[0]) || (coordinates[0] + 1 == cube[0]) || (coordinates[0] - 1 == cube[0]) )
-	 * 			|				&& ( (coordinates[1] == cube[1]) || (coordinates[1] + 1 == cube[1]) || (coordinates[1] - 1 == cube[1]) )
-	 * 			|				&& ( (coordinates[2] == cube[2]) || (coordinates[2] + 1 == cube[2]) || (coordinates[2] - 1 == cube[2]) ) )
-	 */
-	@Raw @Model
-	private boolean isNeighbouringCube(int [] cube)
-	{
-		int[] coordinates = getCubeCoordinates();
-		return ( ( (coordinates[0] == cube[0]) || (coordinates[0] + 1 == cube[0]) || (coordinates[0] - 1 == cube[0]) ) 
-				&& ( (coordinates[1] == cube[1]) || (coordinates[1] + 1 == cube[1]) || (coordinates[1] - 1 == cube[1]) )
-				&& ( (coordinates[2] == cube[2]) || (coordinates[2] + 1 == cube[2]) || (coordinates[2] - 1 == cube[2]) ) );
+		return getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && World.isNeighbouringCube(getCubeCoordinates(), targetCube);
 	}
 	
 	/**
@@ -3083,15 +3058,14 @@ public class Unit {
 	 *  
 	 * @param  	workingDuration
 	 *         	The working duration to check.
-	 * @return 	True if and only if the given working duration is between -0.2 and (500/getStrength())
-	 *       	| result == ( (workingDuration >= -0.2) && ( workingDuration <= (500 / getStrength()) ) )
-	 * @note	We use the value -0.2 because we need to account for the fact that an advanceTime call could have 0.2 as duration,
-	 * 			which could make the variable -0.2 (if it was already close to 0). This is rather rare, but still.
+	 * @return 	True if and only if the given working duration is lower than (500/getStrength())
+	 *       	| result == ( workingDuration <= (500 / getStrength() )
+	 * @note	If the working duration goes beneath zero, we will immediately set it to 0.
 	 */
-	@Raw @Model
+	@Raw
 	private boolean canHaveAsWorkingDuration(double workingDuration)
 	{
-		return (workingDuration >= -0.2) && (workingDuration <= (500 / getStrength()));
+		return (workingDuration <= (500 / getStrength()));
 	}
 	
 	/**
@@ -3099,8 +3073,12 @@ public class Unit {
 	 * 
 	 * @param  	workingDuration
 	 *         	The new working duration for this Unit.
-	 * @post   	The working duration of this new Unit is equal to the given working duration.
-	 *       	| new.getWorkingDuration() == workingDuration
+	 * @post   	The working duration of this new Unit is equal to the given working duration, if the given duration is positive.
+	 * 			Otherwise, the working duration of this new Unit is equal to zero.
+	 * 			| if (workingDuration >= 0)
+	 *       	| 	then new.getWorkingDuration() == workingDuration
+	 *       	| else
+	 *       	|	new.getWorkingDuration() == 0
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given working duration as its working duration.
 	 *       	| ! canHaveAsWorkingDuration(getWorkingDuration())
@@ -3109,8 +3087,11 @@ public class Unit {
 	private void setWorkingDuration(double workingDuration) throws IllegalArgumentException 
 	{
 		if (! canHaveAsWorkingDuration(workingDuration))
-			throw new IllegalArgumentException("The given workingDuration is invalid for this Unit: " + workingDuration);
-		this.workingDuration = workingDuration;
+			throw new IllegalArgumentException("The given workingDuration is invalid for this Unit.");
+		if (workingDuration < 0)
+			this.workingDuration = 0;
+		else
+			this.workingDuration = workingDuration;
 	}
 	
 	/**
