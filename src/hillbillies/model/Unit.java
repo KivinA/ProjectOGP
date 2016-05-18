@@ -3181,15 +3181,10 @@ public class Unit {
 	 * 
 	 * @param  	log
 	 *         	The new {@link Log} for this Unit.
-	 * @effect	If the log is a null object, the weight of this Unit is set to the difference between the current weight 
-	 * 			and the current Log's weight.
-	 * 			| if (log == null)
-	 * 			| 	then this.setWeight(getWeight() - getLog().getWeight())
+	 * @effect	Change the weight according to the given Log.
+	 * 			| this.changeWeight(log)
 	 * @post   	The Log of this new Unit is equal to the given Log.
 	 *       	| new.getLog() == log
-	 * @post	The weight of this new Unit is equal to the sum of the Unit's current weight and the given Log's weight if the Log isn't null.
-	 * 			| if (log != null)
-	 * 			| 	then new.getWeight() == old.getWeight() + log.getWeight()
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit can't have the given Log as its Log.
 	 *       	| ! canHaveAsLog(getLog())
@@ -3201,13 +3196,7 @@ public class Unit {
 	{
 		if (! canHaveAsLog(log))
 			throw new IllegalArgumentException("The given log is invalid for this Unit.");
-		
-		// Set weight:
-		if (log != null)
-			this.weight = getWeight() + log.getWeight();
-		else
-			setWeight(getWeight() - getLog().getWeight());
-		
+		changeWeight(log);
 		// Set Log:
 		this.log = log;
 	}
@@ -3333,15 +3322,10 @@ public class Unit {
 	 * 
 	 * @param  	boulder
 	 *         	The new Boulder for this Unit.
-	 * @effect	If the given Boulder is null, the weight of this unit is set to the difference between the current Unit's weight 
-	 * 			and the current Boulder's weight.
-	 *         	| if (boulder == null)
-	 *         	| 	then this.setWeight(getWeight() - getBoulder().getWeight())
+	 * @effect	Change the weight according to the given Boulder.
+	 * 			| this.changeWeight(boulder)
 	 * @post   	The Boulder of this new Unit is equal to the given Boulder.
 	 *       	| new.getBoulder() == boulder
-	 * @post	The weight of this new Unit is equal to the sum of the current weight of this Unit and the weight of the given Boulder if the 
-	 * 			given Boulder isn't null.
-	 * 			| if (boulder != null)
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit can't have the given Boulder as its Boulder.
 	 *       	| !canHaveAsBoulder(getBoulder())
@@ -3351,10 +3335,7 @@ public class Unit {
 	{
 		if (! canHaveAsBoulder(boulder))
 			throw new IllegalArgumentException("The given Boulder is invalid for this Unit.");
-		if (boulder != null)
-			this.weight = getWeight() + boulder.getWeight();
-		else
-			setWeight(getWeight() - getBoulder().getWeight());
+		changeWeight(boulder);
 		this.boulder = boulder;
 	}
 	
@@ -3396,14 +3377,38 @@ public class Unit {
 	 * Variable referencing the {@link Boulder} attached to this Unit.
 	 */
 	private Boulder boulder;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    IS ATTACKING	|
-	// |					|
-	// |					|
-	// ----------------------
+
+	/**
+	 * Change the weight of this Unit according to the given {@link Log} or {@link Boulder}.
+	 * 
+	 * @param 	object
+	 * 			The {@link Log} or {@link Boulder} for this change of weight.
+	 * @post	The weight of this Unit is equal to the sum of the current weight and the weight of the given object, if the given object
+	 * 			is effective.
+	 * 			| if (object != null)
+	 * 			|	then new.getWeight == (this.getWeight() + object.getWeight())
+	 * @effect	If the given object is ineffective, set the weight to the difference between the current weight and the weight of the Log or Boulder
+	 * 			this Unit is carrying.
+	 * 			| if (object == null)
+	 * 			|	then
+	 * 			|		if (isCarryingLog())
+	 * 			|			then this.setWeight(this.getWeight() - getLog().getWeight())
+	 * 			|		else
+	 * 			|			this.setWeight(this.getWeight() - getBoulder().getWeight())
+	 */
+	@Raw 
+	private void changeWeight(WorldObject object)
+	{
+		if (object != null)
+			this.weight = getWeight() + object.getWeight();
+		else
+		{
+			if (isCarryingLog())
+				setWeight(getWeight() - getLog().getWeight());
+			else if (isCarryingBoulder())
+				setWeight(getWeight() - getBoulder().getWeight());
+		}
+	}
 	
 	/**
 	 * Return the attacking indicator of this Unit.
@@ -3433,14 +3438,6 @@ public class Unit {
 	 * Variable registering the attacking indicator of this Unit.
 	 */
 	private boolean isAttacking;
-
-	// ----------------------
-	// |					|
-	// |					|
-	// |    IS DEFENDING	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the defending indicator of this Unit.
@@ -3470,14 +3467,6 @@ public class Unit {
 	 * Variable registering the defending indicator of this Unit.
 	 */
 	private boolean isDefending;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |  FIGHTING DURATION	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the fighting duration of this Unit.
@@ -3529,14 +3518,7 @@ public class Unit {
 	 * Variable registering the fighting duration of this Unit.
 	 */
 	private double fightingDuration;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |  	   FIGHT		|
-	// |					|
-	// |					|
-	// ----------------------
+
 	
 	/**
 	 * Check whether both Units are adjacent to each other.
@@ -3769,14 +3751,6 @@ public class Unit {
 		return hasBlocked;
 	}
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |     IS RESTING		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the resting indicator of this Unit.
 	 */
@@ -3903,14 +3877,6 @@ public class Unit {
 	 */
 	private boolean isResting;
 
-	// ----------------------
-	// |					|
-	// |					|
-	// |  CURRENT RESTING	|
-	// |	   PERIOD		|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the resting period of this Unit.
 	 */
@@ -3966,15 +3932,7 @@ public class Unit {
 	 * Constant registering the period whenever a unit must rest.
 	 */
 	private final static int RESTING_PERIOD = 180;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |  RESTING DURATION	|
-	// |					|
-	// |					|
-	// ----------------------
-	
+
 	/**
 	 * Return the resting duration of this Unit.
 	 */
@@ -4026,14 +3984,6 @@ public class Unit {
 	 */
 	private double restingDuration;
 
-	// ----------------------
-	// |					|
-	// |					|
-	// |HAS RESTED ONE POINT|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the hasRestedOnePoint of this Unit.
 	 */
@@ -4062,14 +4012,6 @@ public class Unit {
 	 * Variable registering the hasRestedOnePoint of this Unit.
 	 */
 	private boolean hasRestedOnePoint = true;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |IS DEFAULT BEHAVIOUR|
-	// |	  ENABLED		|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the default behaviour indicator of this Unit.
@@ -4119,14 +4061,6 @@ public class Unit {
 	 */
 	private boolean isDefaultBehaviourEnabled;
 
-	// ----------------------
-	// |					|
-	// |					|
-	// |      FACTION		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the faction of this unit.
 	 */
@@ -4234,14 +4168,6 @@ public class Unit {
 	 */
 	private int experience;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |      IS ALIVE		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the alive indicator of this Unit.
 	 */
@@ -4255,14 +4181,6 @@ public class Unit {
 	 * Variable registering whether this Unit is alive.
 	 */
 	private boolean isAlive = true;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |       WORLD		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the {@link World} to which this Unit is attached.
