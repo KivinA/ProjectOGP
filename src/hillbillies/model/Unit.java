@@ -1,7 +1,6 @@
 package hillbillies.model;
 
 import java.util.*;
-
 import be.kuleuven.cs.som.annotate.*;
 
 /* 
@@ -324,7 +323,7 @@ public class Unit {
 	 */
 	public void advanceTime(double duration) throws IllegalArgumentException
 	{
-		if (duration <= 0.2 && duration >= 0) // [FIXME] NORMALLY THIS SHOULD BE BETWEEN 0.2 (EXCLUSIVE) AND 0 (INCLUSIVE).
+		if ((duration <= 0.2 && duration >= 0) && isAlive()) // [FIXME] NORMALLY THIS SHOULD BE BETWEEN 0.2 (EXCLUSIVE) AND 0 (INCLUSIVE).
 		{
 			setCurrentRestingPeriod(getCurrentRestingPeriod() + duration); // Add time to the counter.
 			
@@ -611,8 +610,8 @@ public class Unit {
 				}
 			}
 		}
-		else
-			throw new IllegalArgumentException("The duration of advanceTime was too large: " + duration);
+//		else
+//			throw new IllegalArgumentException("The duration of advanceTime was too large: " + duration);
 	}
 	
 	/**
@@ -2240,10 +2239,6 @@ public class Unit {
 	 */
 	private double[] position;
 	
-	/*
-	 * FIXME	Not happy about name of this property, please reconsider.
-	 */
-	
 	/**
 	 * Return the difference between current and next positions of this Unit.
 	 */
@@ -3087,7 +3082,11 @@ public class Unit {
 	private void setWorkingDuration(double workingDuration) throws IllegalArgumentException 
 	{
 		if (! canHaveAsWorkingDuration(workingDuration))
-			throw new IllegalArgumentException("The given workingDuration is invalid for this Unit.");
+		{
+			System.err.println("Max working duration: "  + (500/getStrength()));
+			throw new IllegalArgumentException("The given workingDuration is invalid for this Unit." + workingDuration);
+		}
+			
 		if (workingDuration < 0)
 			this.workingDuration = 0;
 		else
@@ -3197,7 +3196,6 @@ public class Unit {
 		if (! canHaveAsLog(log))
 			throw new IllegalArgumentException("The given log is invalid for this Unit.");
 		changeWeight(log);
-		// Set Log:
 		this.log = log;
 	}
 	
@@ -3411,7 +3409,7 @@ public class Unit {
 	}
 	
 	/**
-	 * Return the attacking indicator of this Unit.
+	 * Check whether this Unit is attacking another Unit.
 	 */
 	@Basic @Raw
 	public boolean isAttacking() 
@@ -3420,27 +3418,26 @@ public class Unit {
 	}
 	
 	/**
-	 * Set the isAttacking indicator of this Unit to the given isAttacking indicator.
+	 * Set the attacking state of this Unit to the given attacking state.
 	 * 
 	 * @param  	isAttacking
-	 *         	The new isAttacking indicator for this Unit.
-	 *         
-	 * @post   	The attacking indicator of this new Unit is equal to the given attacking indicator.
+	 *         	The new attacking state for this Unit.
+	 * @post   	The attacking state of this new Unit is equal to the given attacking state.
 	 *       	| new.getIsAttacking() == isAttacking
 	 */
-	@Raw
-	public void setIsAttacking(boolean isAttacking)
+	@Raw @Model
+	private void setIsAttacking(boolean isAttacking)
 	{
 		this.isAttacking = isAttacking;
 	}
 	
 	/**
-	 * Variable registering the attacking indicator of this Unit.
+	 * Variable registering the attacking state of this Unit.
 	 */
 	private boolean isAttacking;
 	
 	/**
-	 * Return the defending indicator of this Unit.
+	 * Check whether this Unit is defending itself.
 	 */
 	@Basic @Raw
 	public boolean isDefending() 
@@ -3449,12 +3446,11 @@ public class Unit {
 	}
 	
 	/**
-	 * Set the isDefending indicator of this Unit to the given isDefending indicator.
+	 * Set the defending state of this Unit to the given defending state.
 	 * 
 	 * @param  	isDefending
-	 *         	The new defending indicator for this Unit.
-	 *         
-	 * @post   	The isDefending indicator of this new Unit is equal to the given isDefending indicator.
+	 *         	The new defending state for this Unit.
+	 * @post   	The defending state of this new Unit is equal to the given defending state.
 	 *       	| new.getIsDefending() == isDefending
 	 */
 	@Raw
@@ -3464,14 +3460,14 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the defending indicator of this Unit.
+	 * Variable registering the defending state of this Unit.
 	 */
 	private boolean isDefending;
 	
 	/**
 	 * Return the fighting duration of this Unit.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private double getFightingDuration() 
 	{
 		return this.fightingDuration;
@@ -3481,68 +3477,38 @@ public class Unit {
 	 * Check whether the given fighting duration is a valid fighting duration for any Unit.
 	 *  
 	 * @param  	fightingDuration
-	 *         	The fightingDuration to check.
-	 * @return 	True if and only if the given fightingDuration is between 0 and 1.2.
+	 *         	The fighting duration to check.
+	 * @return 	True if and only if the given fightingDuration is positive.
 	 *       	| result == ((fightingDuration >= 0) && (fightingDuration < 1.2))
-	 *       
-	 * @note	Fighting lasts for 1 second. AdvanceTime can only accept durations between 0 and 0.2, thus it is possible that the 
-     * 			fightingDuration can be just less than 1.2 (e.g. 0.99 + 0.19, than a check which shows it is above 1)
 	 */
 	private static boolean isValidFightingDuration(double fightingDuration) 
 	{
-		return ((fightingDuration >= 0) && (fightingDuration < 1.2));
+		return (fightingDuration >= 0);
 	}
 	
 	/**
-	 * Set the fightingDuration of this Unit to the given fightingDuration.
+	 * Set the fighting furation of this Unit to the given duration.
 	 * 
-	 * @param  	fightingDuration
-	 *         	The new fightingDuration for this Unit.
-	 *         
-	 * @post   	The fightingDuration of this new Unit is equal to the given fightingDuration.
-	 *       	| new.getFightingDuration() == fightingDuration
-	 *       
+	 * @param  	duration
+	 *         	The new fighting duration for this Unit.
+	 * @post   	The fighting duration of this new Unit is equal to the given duration.
+	 *       	| new.getFightingDuration() == duration
 	 * @throws 	IllegalArgumentException
 	 *         	The given fightingDuration is not a valid fightingDuration for any Unit.
 	 *       	| ! isValidFightingDuration(getFightingDuration())
 	 */
 	@Raw
-	private void setFightingDuration(double fightingDuration) throws IllegalArgumentException 
+	private void setFightingDuration(double duration) throws IllegalArgumentException 
 	{
-		if (! isValidFightingDuration(fightingDuration))
+		if (! isValidFightingDuration(duration))
 			throw new IllegalArgumentException("The given fightingDuration is too large.");
-		this.fightingDuration = fightingDuration;
+		this.fightingDuration = duration;
 	}
 	
 	/**
 	 * Variable registering the fighting duration of this Unit.
 	 */
 	private double fightingDuration;
-
-	
-	/**
-	 * Check whether both Units are adjacent to each other.
-	 * 
-	 * @param 	other
-	 * 			The other Unit to check positions with.
-	 * @return	True if and only if each cube coordinate of this Unit is equal, plus one or minus one to each cube coordinate
-	 * 			of the other Unit .
-	 * 			| for (int i = 0; i < getUnitPosition().length; i++)
-	 * 			| 	if (!(getCubeCoordinates()[i] == other.getCubeCoordinates()[i] || getCubeCoordinates()[i] == other.getCubeCoordinates()[i] - 1
-	 *			|		|| getCubeCoordinates()[i] == other.getCubeCoordinates()[i] + 1))
-	 *			| 		then result == false
-	 *			| result == true
-	 */
-	private boolean checkPositions(Unit other)
-	{
-		for (int i = 0; i < getPosition().length; i++)
-		{
-			if (!(getCubeCoordinates()[i] == other.getCubeCoordinates()[i] || getCubeCoordinates()[i] == other.getCubeCoordinates()[i] - 1
-					|| getCubeCoordinates()[i] == other.getCubeCoordinates()[i] + 1))
-				return false;
-		}
-		return true;
-	}
 	
 	/**
 	 * Attack another Unit.
@@ -3553,44 +3519,42 @@ public class Unit {
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 			Both Units aren't next to each other or they are in the same faction, thus they can't attack each other.
-	 * 			| if (!checkPositions(defender) && defender.getFaction() == getFaction())
-	 * 
+	 * 			| if (!World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() == getFaction())
 	 * @effect	The isWorking indicator of this Unit is disabled, only if both Units are next to each other, if they are from different Factions
 	 * 			and if the given Unit doesn't equal this Unit and if the isWorking indicator is enabled.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction() && defender != this && isWorking())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) 
+	 * 			|		&& defender.getFaction() != getFaction() && defender != this && isWorking())
 	 * 			| 	then this.setIsWorking(false)
-	 * 
 	 * @effect	The isResting indicator of this Unit is disabled, only if both Units are next to each other, if they are from different Factions
 	 * 			and if the given Unit doesn't equal this Unit and if the isResting indicator is enabled.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction() && defender != this && isResting())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction() 
+	 * 			|		&& defender != this && isResting())
 	 * 			| 	then this.setIsResting(false)
-	 * 
 	 * @effect	The orientation of this Unit is set to the arctangent of the difference
 	 * 			of the y-component of the other Unit and the y-component of this Unit
 	 * 			and the difference of the x-component of the other Unit and the x-component
 	 * 			of this Unit, only if both Units are next to each other and if they are from different Factions.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction())
 	 * 			| 	then this.setOrientation(Math.atan2(defender.getUnitPosition()[1] - getUnitPosition()[1],
 	 * 			| 		defender.getUnitPosition()[0] - getUnitPosition()[0]))
-	 * 
 	 * @effect	The isAttacking indicator of this Unit is enabled, only if both Units are
 	 * 			next to each other and if they are from different Factions.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction())
 	 * 			| 	then this.setIsAttacking(true)
-	 * 
 	 * @effect	The isMoving indicator of this Unit is disabled, only if both Units are next to each other and if they are from
 	 * 			different Factions and if this Unit is currently moving.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction() && isMoving())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction() 
+	 * 			|		&& isMoving())
 	 * 			| 	then this.setIsMoving(false)
-	 * 
 	 * @effect	The wasMoving indicator of this Unit is enabled, only if both Units are next to each other and if they are from  
 	 * 			different Factions and if this Unit is currently moving.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction() && isMoving())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction() 
+	 * 			|		&& isMoving())
 	 * 			| 	then this.setWasMoving(true)
 	 */
 	public void attack(Unit defender) throws IllegalArgumentException
 	{
-		if (checkPositions(defender) && defender.getFaction() != getFaction())
+		if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction())
 		{
 				if (isWorking())
 					setWorking(false);
@@ -3601,11 +3565,9 @@ public class Unit {
 					setMovingState(false);
 					setWasMoving(true);
 				}
-				
 				double arg0 = defender.getPosition()[1] - getPosition()[1];
 				double arg1 = defender.getPosition()[0] - getPosition()[0];
 				setOrientation(Math.atan2(arg0, arg1));
-				
 				setIsAttacking(true);
 		}
 		else
@@ -3621,55 +3583,53 @@ public class Unit {
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an eeror was thrown.
 	 * 			Both Units aren't next to each other or are from the same Faction, thus they can't attack each other.
-	 * 			| if (!checkPositions(attacker) && attacker.getFaction() != getFaction())
-	 * 
+	 * 			| if (!World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction())
 	 * @effect	The isWorking indicator of this Unit is disabled, only if both Units are
 	 * 			next to each other, if they are from different Factions and if the isWorking indicator is enabled.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && isWorking())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction() 
+	 * 			|		&& isWorking())
 	 * 			| 	then this.setIsWorking(false)
-	 * 
 	 * @effect	The isResting indicator of this Unit is disabled, only if both Units are
 	 * 			next to each other, if they are from different Factions and if the isResting indicator is enabled.
-	 * 			| if (checkPositions(defender) && attacker.getFaction() != getFaction() && isResting())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction() 
+	 * 			|		&& isResting())
 	 * 			| 	then this.setIsResting(false)
-	 * 
 	 * @effect	The isDefending indicator of this Unit is enabled, only if both Units are
 	 * 			next to each other and if they are from different Factions.
-	 * 			| if (checkPositions(defender) && attacker.getFaction() != getFaction())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction())
 	 * 			| 	then this.setIsDefending(true)
-	 * 
 	 * @effect	The orientation of this Unit is set to the arctangent of the difference
 	 * 			of the y-component of the other Unit and the y-component of this Unit
 	 * 			and the difference of the x-component of the other Unit and the x-component
 	 * 			of this Unit, only if both Units are next to each other and if they are from different Factions.
-	 * 			| if (checkPositions(defender) && attacker.getFaction() != getFaction())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction())
 	 * 			| 	then this.setOrientation(Math.atan2(attacker.getUnitPosition()[1] - getUnitPosition()[1],
 	 * 			| 		attacker.getUnitPosition()[0] - getUnitPosition()[0]))
-	 * 
 	 * @effect	The current hitpoints of this Unit is set to the difference between its current hitpoints
 	 * 			and the other Unit's strength divided by 10, only if both Units are next to each other,
 	 * 			if they are from differen Factions and if this Unit didn't block or dodge the attack.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && !Dodged(attacker) && !Blocked(attacker))
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction() 
+	 * 			|		&& !Dodged(attacker) && !Blocked(attacker))
 	 * 			| 	then this.setCurrentHitpoints(getCurrentHitpoints() - (attacker.getStrength() / 10.0))
-	 * 
 	 * @effect	The isMoving indicator of this Unit is disabled, only if both Units are next to each other, if they are from 
 	 * 			differen Factions and if this Unit is currently moving.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && isMoving())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction() 
+	 * 			|		&& isMoving())
 	 * 			| 	then this.setIsMoving(false)
-	 * 
 	 * @effect	The wasMoving indicator of this Unit is enabled, only if both Units are next to each other, if they are from
 	 * 			different Factions and if this Unit is currently moving.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && isMoving())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction()
+	 * 			|		 && isMoving())
 	 * 			| 	then this.setWasMoving(true)
-	 * 
 	 * @effect	The experience of this Unit is set to the sum of the current experience and 20, only if both Units are next to each
 	 * 			other, if they are from different Factions and if this Unit has either dogded or blocked the incoming attack.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && (hasDogded() || hasBlocked()))
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction()
+	 * 			|		&& (hasDogded() || hasBlocked()))
 	 * 			|	then this.setExperience(getExperience() + 20)
 	 */
 	public void defend(Unit attacker) throws IllegalArgumentException
 	{
-		if (checkPositions(attacker) && attacker.getFaction() != getFaction())
+		if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction())
 		{
 				if (isWorking())
 					setWorking(false);
@@ -3680,7 +3640,6 @@ public class Unit {
 					setMovingState(false);
 					setWasMoving(true);
 				}
-				
 				setIsDefending(true);
 				boolean hasEarnedExp = false;
 				double arg0 = attacker.getPosition()[1] - getPosition()[1];
@@ -3697,19 +3656,16 @@ public class Unit {
 					moveToAdjacent(dx, dy, dz);
 					hasEarnedExp = true;
 				}
-				
 				else if (hasBlocked(attacker))
 				{
 					hasEarnedExp = true;
 					System.out.println("Blocked the attack.");
 				}
-				
 				else
 				{
 					double damage = attacker.getStrength() / 10.0;
 					setCurrentHitpoints(getCurrentHitpoints() - (int)damage);
 				}
-				
 				if (hasEarnedExp)
 					setExperience(getExperience() + 20);
 		}
@@ -3741,8 +3697,8 @@ public class Unit {
 	 * 			The Unit attacking this Unit.
 	 * @return	True if and only if the new random double is lower or equal than 0.25 times the sum of this Unit's strength
 	 * 			and agility divided by the sum of the attackers strength and agility.
-	 * 			| result == new Random().nextDouble() <= 0.25*((getStrength() + getAgility()) / 
-	 * 			| (attacker.getStrength() + attacker.getAgility()))
+	 * 			| result == new Random().nextDouble() <= 0.25*( (getStrength() + getAgility()) / 
+	 * 			| ( attacker.getStrength() + attacker.getAgility() ) )
 	 */
 	private boolean hasBlocked(Unit attacker)
 	{
