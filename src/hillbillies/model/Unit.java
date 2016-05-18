@@ -595,52 +595,19 @@ public class Unit {
 			// Default behaviour:
 			else if (isDefaultBehaviourEnabled())
 			{
-				int choice = new Random().nextInt(4);
-				int x, y, z;
-				switch (choice)
+				if (getTask() != null)
 				{
-				// Move to random position:
-				case 0:
-					x = new Random().nextInt(getWorld().getNbCubesX());
-					y = new Random().nextInt(getWorld().getNbCubesY());
-					z = new Random().nextInt(getWorld().getNbCubesZ());
-					boolean choiceSprint = new Random().nextBoolean();
-					int[] cube = {x, y, z};
-					moveTo(cube);
-					if (choiceSprint)
-						startSprinting();
-					break;
-				// Work:	
-				case 1:
-					while (true)
+					
+				}
+				else
+				{
+					Task newTask = getFaction().getScheduler().getTaskWithHighestPriority();
+					if (newTask != null)
 					{
-						int i = new Random().nextInt(3) - 1;
-						int j = new Random().nextInt(3) - 1;
-						int k = new Random().nextInt(3) - 1;
-						x = getCubeCoordinates()[0] + i;
-						y = getCubeCoordinates()[1] + j;
-						z = getCubeCoordinates()[2] + k;
-						if (getWorld().isBetweenBoundaries(x, y, z))
-							break;
+						
 					}
-					workAt(x, y, z);
-					break;
-				// Rest:	
-				case 2:
-					rest();
-					break;
-				// Fight potential enemies:
-				case 3:
-					Unit potentialEnemy = isNeighbouringUnitPresent();
-					if (potentialEnemy != null)
-					{
-						attack(potentialEnemy);
-						potentialEnemy.defend(this);
-					}
-					break;
-				// Error catching:
-				default:
-					throw new IllegalArgumentException("Error with default behaviour choice.");					
+					else
+						SelectBehaviour();
 				}
 			}
 		}
@@ -1260,6 +1227,62 @@ public class Unit {
 			}
 		}
 		return null;
+	}
+	
+	private void SelectBehaviour() throws IllegalStateException
+	{
+		int choice = new Random().nextInt(4);
+		int x, y, z;
+		switch (choice)
+		{
+		// Move to random position:
+		case 0:
+			x = new Random().nextInt(getWorld().getNbCubesX());
+			y = new Random().nextInt(getWorld().getNbCubesY());
+			z = new Random().nextInt(getWorld().getNbCubesZ());
+			boolean choiceSprint = new Random().nextBoolean();
+			int[] cube = {x, y, z};
+			moveTo(cube);
+			if (choiceSprint)
+				startSprinting();
+			break;
+		// Work:	
+		case 1:
+			int i = new Random().nextInt(3) - 1;
+			int j = new Random().nextInt(3) - 1;
+			int k = new Random().nextInt(3) - 1;
+			
+			x = getCubeCoordinates()[0] + i;
+			y = getCubeCoordinates()[1] + j;
+			z = getCubeCoordinates()[2] + k;
+			
+			workAt(x, y, z);
+			
+			break;
+		// Rest:	
+		case 2:
+			rest();
+			break;
+		// Fight potential enemies:
+		case 3:
+			Unit potentialEnemy = isNeighbouringUnitPresent();
+			if (potentialEnemy != null)
+			{
+				attack(potentialEnemy);
+				potentialEnemy.defend(this);
+			}
+			break;
+		// Error catching:
+		default:
+			throw new IllegalStateException("Error with default behaviour choice.");					
+		}
+	}
+	
+	
+	private void executeTask(Task task, double duration)
+	{
+		setTask(task);
+		
 	}
 	
 	/**

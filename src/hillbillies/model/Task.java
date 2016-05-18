@@ -1,9 +1,14 @@
 package hillbillies.model;
 
+import java.util.Map;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import be.kuleuven.cs.som.annotate.*;
+import hillbillies.model.expressions.Expression;
+import hillbillies.model.statements.Statement;
 import ogp.framework.util.ModelException;
 
 /**
@@ -18,17 +23,20 @@ import ogp.framework.util.ModelException;
  * 			| canHaveAsUnit(getUnit())
  */
 public class Task {
+	
 	public Task(String name, int priority)
 	{
 		this.name = name;
 		setPriority(priority);
+		this.selectedCube = null;
 	}
 	
-	public Task(String name, int priority, Statement activity)
+	public Task(String name, int priority, Statement activity, int[] selectedCube)
 	{
 		this.name = name;
 		setPriority(priority);
 		this.acitivity = activity;
+		this.selectedCube = Arrays.copyOf(selectedCube, selectedCube.length);
 	}
 	
 	/**
@@ -97,7 +105,7 @@ public class Task {
 	{
 		if (unit == null)
 			return true;
-		return unit.getTask() == this;
+		return unit.getTask() == null;
 	}
 	
 	/**
@@ -112,10 +120,10 @@ public class Task {
 	 * 			| new.getUnit() == unit
 	 */
 	@Raw
-	public void setUnit(@Raw Unit unit) throws ModelException
+	public void setUnit(@Raw Unit unit) throws IllegalArgumentException
 	{
 		if (!canHaveAsUnit(unit))
-			throw new ModelException("This Task cannot be assigned to the given Unit.");
+			throw new IllegalArgumentException("This Task cannot be assigned to the given Unit.");
 		this.unit = unit;
 	}
 	
@@ -170,10 +178,10 @@ public class Task {
 	 * 			This Task cannot have the given Scheduler as one of its Schedulers.
 	 * 			| !canHaveAsScheduler(scheduler)
 	 */
-	public void addScheduler(Scheduler scheduler) throws ModelException
+	public void addScheduler(Scheduler scheduler) throws IllegalArgumentException
 	{
 		if (!canHaveAsScheduler(scheduler))
-			throw new ModelException("This Task cannot have the given Scheduler as one of its Schedulers.");
+			throw new IllegalArgumentException("This Task cannot have the given Scheduler as one of its Schedulers.");
 		schedulers.add(scheduler);
 	}
 	
@@ -201,10 +209,10 @@ public class Task {
 	 * 			The given Scheduler cannot be removed from the list of Schedulers.
 	 * 			| !canRemoveAsScheduler(scheduler)
 	 */
-	public void removeScheduler(Scheduler scheduler) throws ModelException
+	public void removeScheduler(Scheduler scheduler) throws IllegalArgumentException
 	{
 		if (!canRemoveAsScheduler(scheduler))
-			throw new ModelException("This Task cannot remove the given Scheduler from the list of Schedulers.");
+			throw new IllegalArgumentException("This Task cannot remove the given Scheduler from the list of Schedulers.");
 		schedulers.remove(scheduler);
 	}
 	
@@ -257,5 +265,99 @@ public class Task {
 	 * Variable referencing the activities linked to this Task. This will most likely be a sequence of statements.
 	 */
 	private Statement acitivity;
+	
+	/**
+	 * Check whether the given variable is in the map of variables.
+	 * 
+	 * @param 	variableName
+	 * 			The name of the variable to check.
+	 * @return	True if and only if the given variable name is in the map of variables as a key.
+	 * 			| result == variables.containsKey(variableName)
+	 */
+	public boolean hasAsVariable(String variableName)
+	{
+		return variables.containsKey(variableName);
+	}
+	
+	/**
+	 * Add the given variable to the list of variables, along with its value.
+	 * 
+	 * @param 	variableName
+	 * 			The name of the variable.
+	 * @param 	value
+	 * 			The value of the variable.
+	 * @post	The given variable name is added to the set of keys of the variables map.
+	 * 			| new.variables.keySet().contains(variableName)
+	 * @post	The value of the given variable name is equal to the given value.
+	 * 			| new.getVariableValue(variableName) == value
+	 */
+	public void addVariable(String variableName, Expression value)
+	{
+		variables.put(variableName, value);
+	}
+	
+	/**
+	 * Replace the value of the already existing variable with the new given variable.
+	 * 
+	 * @param 	variableName
+	 * 			The name of the variable to replace the value of.
+	 * @param 	value
+	 * 			The value to replace.
+	 * @post	The given variable name has the new given value as its value.
+	 * 			| new.getVariableValue(variableName) == value
+	 */
+	public void replaceValue(String variableName, Expression value)
+	{
+		variables.replace(variableName, value);
+	}
+	
+	/**
+	 * Check whether the given variable is in the list of variables.
+	 * 
+	 * @param	variableName
+	 * 			The variable name to check.
+	 * @return	True if and only if the given variable is in the list of variables.
+	 * 			| result == variables.containsKey(variableName)
+	 */
+	public boolean hasVariable(String variableName)
+	{
+		return variables.containsKey(variableName);
+	}
+	
+	/**
+	 * Get the value which is mapped to the given variable name in the list of variables.
+	 * 
+	 * @param 	variableName
+	 * 			The variable name that is linked to the value to return.
+	 */
+	public Expression getVariableValue(String variableName)
+	{
+		return variables.get(variableName);
+	}
+	
+	/**
+	 * A variable referencing to a map which stores the used variables in this Task with their values.
+	 * 
+	 * @invar	The referenced map is effective.
+	 * 			| variables != null
+	 * @invar	The referenced map doesn't contain the same key twice.
+	 * 			| for each key in variables.keySet():
+	 * 			|	... (?)
+	 */
+	private Map<String, Expression> variables = new HashMap<String, Expression>();
+	
+	/**
+	 * Get the selected cube of this Task.
+	 */
+	@Basic @Raw @Immutable
+	public int[] getSelected()
+	{
+		return this.selectedCube;
+	}
+	
+	/**
+	 * Variable referencing the selected cube of this Task.
+	 */
+	private final int[] selectedCube;
 	
 }

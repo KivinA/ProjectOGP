@@ -1,4 +1,4 @@
- package hillbillies.part3.programs;
+package hillbillies.part3.programs;
 
 import java.util.List;
 
@@ -305,6 +305,13 @@ public interface ITaskFactory<E, S, T> {
 	 * 
 	 */
 	public E createNextToPosition(E position, SourceLocation sourceLocation);
+
+	/**
+	 * Create an expression that evaluates to the position of the given unit.
+	 * 
+	 * @param unit
+	 */
+	public E createPositionOf(E unit, SourceLocation sourceLocation);
 
 	/**
 	 * Create an expression that evaluates to a static position with a given

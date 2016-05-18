@@ -1,7 +1,9 @@
 package hillbillies.model;
 
+import java.util.ArrayList;
 import java.util.List;
-
+import hillbillies.model.expressions.*;
+import hillbillies.model.statements.*;
 import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
 
@@ -10,207 +12,190 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public List<Task> createTasks(String name, int priority, Statement activity, List<int[]> selectedCubes) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Task> tasks = new ArrayList<Task>();
+		for (int[] selected : selectedCubes)
+		{
+			Task task = new Task(name, priority, activity, selected);
+			tasks.add(task);
+		}
+		return tasks;
 	}
 
 	@Override
 	public Statement createAssignment(String variableName, Expression value, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Assignment(variableName, value);
 	}
 
 	@Override
 	public Statement createWhile(Expression condition, Statement body, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new While(condition, body, sourceLocation);
 	}
 
 	@Override
 	public Statement createIf(Expression condition, Statement ifBody, Statement elseBody,
 			SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new If(condition, ifBody, elseBody, sourceLocation);
 	}
 
 	@Override
 	public Statement createBreak(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Break(sourceLocation);
 	}
 
 	@Override
 	public Statement createPrint(Expression value, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Print(value, sourceLocation);
 	}
 
 	@Override
 	public Statement createSequence(List<Statement> Statement, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Sequence(Statement);
 	}
 
 	@Override
 	public Statement createMoveTo(Expression position, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		if (!(position instanceof PositionExpression))
+			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new MoveTo(position);
 	}
 
 	@Override
 	public Statement createWork(Expression position, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Work(position, sourceLocation);
 	}
 
 	@Override
 	public Statement createFollow(Expression unit, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Follow(unit, sourceLocation);
 	}
 
 	@Override
 	public Statement createAttack(Expression unit, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Attack(unit, sourceLocation);
 	}
 
 	@Override
 	public Expression createReadVariable(String variableName, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ReadVariable(variableName);
 	}
 
 	@Override
 	public Expression createIsSolid(Expression position, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new IsSolid(position, sourceLocation);
 	}
 
 	@Override
 	public Expression createIsPassable(Expression position, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new IsPassable(position, sourceLocation);
 	}
 
 	@Override
 	public Expression createIsFriend(Expression unit, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		if (!(unit instanceof UnitExpression))
+			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new IsFriend<UnitExpression>((UnitExpression) unit);
 	}
 
 	@Override
 	public Expression createIsEnemy(Expression unit, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new IsEnemy((UnitExpression) unit);
 	}
 
 	@Override
 	public Expression createIsAlive(Expression unit, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new IsAlive((UnitExpression) unit);
 	}
 
 	@Override
 	public Expression createCarriesItem(Expression unit, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new CarriesItem((UnitExpression) unit);
 	}
 
 	@Override
 	public Expression createNot(Expression expression, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Negation(expression, sourceLocation);
 	}
 
 	@Override
 	public Expression createAnd(Expression left, Expression right, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Conjunction((BooleanExpression) left, (BooleanExpression) right);
 	}
 
 	@Override
 	public Expression createOr(Expression left, Expression right, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Disjunction((BooleanExpression) left, (BooleanExpression) right);
 	}
 
 	@Override
 	public Expression createHerePosition(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionHere(sourceLocation);
 	}
 
 	@Override
 	public Expression createLogPosition(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionLog();
 	}
 
 	@Override
 	public Expression createBoulderPosition(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionBoulder();
 	}
 
 	@Override
 	public Expression createWorkshopPosition(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionWorkshop();
 	}
 
 	@Override
 	public Expression createSelectedPosition(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionSelected();
 	}
 
 	@Override
 	public Expression createNextToPosition(Expression position, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionNextTo(position);
 	}
 
 	@Override
 	public Expression createLiteralPosition(int x, int y, int z, SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PositionXYZ(x, y, z, sourceLocation);
 	}
 
 	@Override
 	public Expression createThis(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnitThis(sourceLocation);
 	}
 
 	@Override
 	public Expression createFriend(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnitFriend();
 	}
 
 	@Override
 	public Expression createEnemy(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnitEnemy();
 	}
 
 	@Override
 	public Expression createAny(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new UnitAny();
 	}
 
 	@Override
 	public Expression createTrue(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new BooleanTrue();
 	}
 
 	@Override
 	public Expression createFalse(SourceLocation sourceLocation) {
-		// TODO Auto-generated method stub
-		return null;
+		return new BooleanFalse();
+	}
+
+	@Override
+	public Expression createPositionOf(Expression unit, SourceLocation sourceLocation) {
+		return new PositionPositionOf(unit, sourceLocation);
 	}
 	
 }
