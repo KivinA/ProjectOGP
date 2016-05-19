@@ -4,27 +4,15 @@ import java.util.*;
 import be.kuleuven.cs.som.annotate.*;
 
 /* 
- * QUESTIONS PART 3:
- *		1.	Is an abstract checker method an invariant? Or can we simply state the invariant at the level of the subclass, where
- *			we implement the method? (see canHaveAsWorld for Boulder and Log)
- *		2.	Can invariant methods be private? (e.g. basespeed, walking speed, sprinting speed).
- *
- * STUFF TODO:
  * 		1. Check all TODO's.
- * 		2. Check which methods can be private.
- * 		3. Initialize default values in the constructor.
- * 		4. Check bidirectional associations (see coding rule 93 and book p420-441)
  * 		5. Add @Raw annotation to associations with objects that doesn't have to be in proper state (basically almost every association)
- * 		6. Change Faction to allow it to remove itself if there are no Units left. To do this, we must create an association with World.
- * 		7. There is an error with isFalling, which happens in rare occurences. Please fix.
- * 		8. Don't forget to add @Model tags to all private methods that are used in a specification of another method.
  */
 
 /** 
  * A class of Units which can have a name, agility, strength, weight, toughness, maximum hitpoints, maximum staminapoints, current hitpoints, 
  * current staminapoints, orientation, cube coordinates, position, default behaviour.
  * 
- * @version 0.7
+ * @version 1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
  * 
  * @invar  	The name of each Unit must be a valid name for any Unit.
@@ -154,8 +142,9 @@ import be.kuleuven.cs.som.annotate.*;
  */
 
 public class Unit {
+	
 	/**
-	 * Create a new Unit with a given name, strength, agility, toughness, weight, initialPosition and enableDefaultBehaviour.
+	 * Create a new Unit with a given name, strength, agility, toughness, weight, initial position, default behaviour and {@link World}.
 	 * 
 	 * @param  	name
 	 *         	The name for this new Unit.
@@ -171,79 +160,53 @@ public class Unit {
 	 * 			The initial position for this new Unit.
 	 * @param	enableDefaultBehaviour
 	 * 			The enableDefaultBehaviour for this new Unit.
+	 * @param	world
+	 * 			The {@link World} in which this Unit lives.
 	 * 
 	 * @throws 	IllegalArgumentException 
 	 *       	A condition was violated or an error was thrown.
 	 *       
 	 * @effect	The world of this new Unit is set to the given world.
  	 * 			| this.setWorld(world)
- 	 * 
 	 * @effect 	The name of this new Unit is set to the given name.
 	 *       	| this.setName(name)
-	 * 
-	 * @effect	The orientation of this new Unit is set to the default orientation.
-	 * 			| this.setOrientation(DEFAULT_ORIENTATION)
-	 *       
- 	 * @effect 	The cubeCoordinates of this new Unit is set to the given initialPosition.
+	 * @effect	If the given strength is a valid initial property value for any Unit, the strength of this new Unit is set to the given strength.
+	 * 			Otherwise, the strength of this new Unit is set to the default property value.
+	 * 			| if (isValidInitialValue(strength))
+	 * 			|	then this.setStrength(strength)
+	 * 			| else this.setStrength(DEFAULT_PROPERTY_VALUE)
+	 * @effect 	If the given agility is a valid initial property value for any Unit, the agility of this new Unit is set to the given agility.
+	 * 			Otherwise, the agility of this new Unit is set to the default property value.
+	 * 			| if (isValidInitialValue(agility))
+	 * 			|	then this.setAgility(agility)
+	 * 			| else this.setAgility(DEFAULT_PROPERTY_VALUE)
+	 * @effect	If the given toughness is a valid initial property value for any Unit, the toughness of this new Unit 
+	 * 			is set to the given toughness.
+	 * 			Otherwise, the toughness of this new Unit is set to the default property value.
+	 * 			| if (isValidInitialValue(toughness))
+	 * 			|	then this.setToughness(toughness)
+	 * 			| else this.setToughness(DEFAULT_PROPERTY_VALUE)
+	 * @effect	If the given weight is a valid initial property value for any Unit, the weight of this new Unit is set to the given weight.
+	 * 			Otherwise, the weight of this new Unit is set to the default weight.
+	 * 			| if (isValidInitialValue(weight))
+	 * 			| 	then this.setWeight(weight)
+	 * 			| else this.setWeight(getDefaultWeight())
+	 * @effect	Set the current hitpoints of this new Unit to the maximum hitpoints.
+	 * 			| this.setCurrentHitpoints(getMaxHitpoints())
+	 * @effect	Set the current staminapoints of this new Unit to the maximum staminapoints.
+	 * 			| this.setCurrentStaminapoints(getMaxStaminapoints())
+ 	 * @effect 	The cubeCoordinates of this new Unit is set to the given initial position.
  	 *       	| this.setCubeCoordinates(initialPosition)
- 	 *       
- 	 * @effect	The Unit position of this new Unit is set to the current cube coordinates.
- 	 * 			| this.setUnitPosition(getCubeCoordinates())
- 	 * 
  	 * @effect	The isDefaultBehaviour of this new Unit is set to the given enableDefaultBehaviour.
  	 * 			| this.setIsDefaultBehaviour(enableDefaultBehaviour)
- 	 * 
- 	 * @effect	The hasRestedOnePoint of this new Unit is set to true.
- 	 * 			| this.setHasRestedOnePoint(true)
- 	 * 
- 	 * @effect	The experience of this new Unit is set to 0.
- 	 * 			| this.setExperience(0)
- 	 * 
-	 * @post   	If the given strength is a valid strength for any Unit,
-	 *         	the strength of this new Unit is equal to the given
-	 *        	strength. Otherwise, the strength of this new Unit is equal
-	 *         	to DEFAULT_STRENGTH.
-	 *       	| if (isValidInitialValue(strength))
-	 *       	|   then new.getStrength() == strength
-	 *       	|   else new.getStrength() == DEFAULT_STRENGTH
-	 *       
-	 * @post   	If the given agility is a valid agility for any Unit,
-	 *         	the agility of this new Unit is equal to the given
-	 *         	agility. Otherwise, the agility of this new Unit is equal
-	 *         	to DEFAULT_AGILITY.
-	 *       	| if (isValidInitialValue(agility))
-	 *       	|   then new.getAgility() == agility
-	 *       	|   else new.getAgility() == DEFAULT_AGILITY
-	 *       
-	 * @post   	If the given toughness is a valid initial toughness for any Unit,
-	 *         	the toughness of this new Unit is equal to the given
-	 *         	toughness. Otherwise, the toughness of this new Unit is equal
-	 *         	to DEFAULT_TOUGHNESS.
-	 *       	| if (isValidInitialValue(toughness))
-	 *       	|   then new.getToughness() == toughness
-	 *       	|   else new.getToughness() == DEFAULT_TOUGHNESS
-	 *       
-	 * @post   	If the given weight is a valid initial weight for any Unit,
-	 *         	the weight of this new Unit is equal to the given
-	 *         	weight. Otherwise, the weight of this new Unit is equal
-	 *         	to DEFAULT_WEIGHT.
-	 *       	| if (isValidInitialValue(weight))
-	 *       	|   then new.getWeight() == weight
-	 *       	|   else new.getWeight() == DEFAULT_WEIGHT
-	 *       
+ 	 * @effect	Set the experience of this new Unit to zero.
+ 	 * 			| this.setExperience(0)       
 	 * @post	The maxHitpoints of this new Unit is equal to a rounded integer which is 200 times a 100th of its weight 
 	 * 			times a 100th of its toughness.
 	 * 			| new.getMaxHitpoints() == (int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100))
-	 * 
 	 * @post	The maxStaminapoints of this new Unit is equal to a rounded integer which is 200 times a 100th of its weight
 	 * 			times a 100th of its toughness.
 	 * 			| new.getMaxStaminaPoints() == (int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100))
-	 * 
-	 * @post	The currentHitpoints of this new Unit is equal to the maxHitpoints of this Unit.
-	 * 			| new.getCurrentHitpoints() == getMaxHitpoints()
-	 * 
-	 * @post	The currentStaminapoints of this new Unit is equal to the currentStaminapoints of this Unit.
-	 * 			| new.getCurrentStaminapoints() == getMaxStaminapoints()
 	 */
 	public Unit(String name, int strength, int agility, int toughness, int weight, int[] initialPosition, boolean enableDefaultBehaviour
 			, World world) throws IllegalArgumentException
@@ -260,25 +223,18 @@ public class Unit {
 			if (! isValidInitialValue(toughness))
 				toughness = DEFAULT_PROPERTY_VALUE;
 			setToughness(toughness);
-			setDefaultWeight();
 			if (! isValidInitialValue(weight))
 				weight = getDefaultWeight();	
 			setWeight(weight);
 			
 			this.maxHitpoints = ((int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100)));
-			// this.maxHitpoints = 10; // This value is simply for testing.
 			setCurrentHitpoints(getMaxHitpoints());
 			
 			this.maxStaminaPoints = ((int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100)));
 			setCurrentStaminapoints(getMaxStaminapoints());
 			
 			setCubeCoordinates(initialPosition);
-			
-			// Default behaviour of this Unit: We will only change the behaviour to true if true is given. Otherwise the checker is invalid!
-			if (enableDefaultBehaviour)
-				setDefaultBehaviour(enableDefaultBehaviour);
-			setDefaultBehaviour(false);
-			// Set the experience to 0:
+			setDefaultBehaviour(enableDefaultBehaviour);
 			setExperience(0);
 	}
 	
@@ -300,17 +256,16 @@ public class Unit {
 	 * 			The initialPosition for this new Unit.
 	 * @param 	enableDefaultBehaviour
 	 * 			The enableDefaultBehaviour for this new Unit.
-	 * @throws 	IllegalArgumentException
-	 * 			A condition was violated or an error was thrown.
+	 * @throws 	UnsupportedOperationException
+	 * 			This method is deprecated, because a Unit needs a World for all of its calculations. 
+	 * @note	We didn't delete this method because the Facade class still uses this method (and we aren't allowed to change that).
 	 * 
-	 * @effect	This new Unit is initialized with the given name, strength, agility, toughness, weight, initialPosition, enableDefaultBeahviour and
-	 * 			no world.
-	 * 			| this(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, null);
 	 */
+	@Deprecated
 	public Unit(String name, int strength, int agility, int toughness, int weight, int[] initialPosition, boolean enableDefaultBehaviour) 
-			throws IllegalArgumentException
+			throws UnsupportedOperationException
 	{
-		this(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, null);
+		throw new UnsupportedOperationException("Please use the other constructor, which provides a World for the Unit to live in.");
 	}
 	
 	/**
@@ -319,7 +274,7 @@ public class Unit {
 	 * @param 	duration
 	 * 			The amount of time that has been passed.
 	 * @throws 	IllegalArgumentException
-	 * 			An exception or error was thrown or the duration was too large (> 0.2).
+	 * 			A condition was violated or an error was thrown.
 	 */
 	public void advanceTime(double duration) throws IllegalArgumentException
 	{
@@ -553,7 +508,6 @@ public class Unit {
 						if (getToughness() < MAX_PROPERTY_VALUE)
 						{
 							setToughness(getToughness() + 1);
-							setDefaultWeight();
 							setWeight(getWeight());
 						}
 					}
@@ -1123,8 +1077,6 @@ public class Unit {
 				break;
 			}
 		}
-		
-		setDefaultWeight();
 		setWeight(getWeight());
 	}
 	
@@ -1580,30 +1532,13 @@ public class Unit {
 	private int weight;
 
 	/**
-	 * Return the default weight of this Unit.
+	 * Return the default weight of this Unit, which is the sum of its strength and agility divided by 2.
 	 */
 	@Basic @Raw @Model
 	private int getDefaultWeight() 
 	{
-		return this.defaultWeight;
+		return ( (getStrength() + getAgility()) / 2 );
 	}
-	
-	/**
-	 * Set the default weight of this Unit equal to the sum of its strength and agility divided by 2.
-	 * 
-	 * @post	The default weight of this new Unit is equal to the sum of its strength and agility divided by 2.
-	 * 			| new.getDefaultWeight == (getStrength() + getAgility()) / 2
-	 */
-	@Model @Raw
-	private void setDefaultWeight()
-	{
-		this.defaultWeight = (getStrength() + getAgility()) / 2;
-	}
-	
-	/**
-	 * Variable registering the default weight of this Unit.
-	 */
-	private int defaultWeight;
 	
 	/**
 	 * Return the maximum hitpoints of this Unit.
