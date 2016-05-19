@@ -364,7 +364,7 @@ public class Unit {
 					{
 						if (getCurrentStaminapoints() == getMaxStaminapoints()) // Check if staminapoints are full.
 						{
-							setIsResting(false);
+							setResting(false);
 							if (wasMoving())
 							{
 								setMovingState(true);
@@ -374,12 +374,12 @@ public class Unit {
 						else
 						{
 							// Count down the initial period of 1 hitpoint recovery:
-							if (!hasRestedOnePoint())
+							if (!hasRestedInitialRecoveryPeriod())
 							{
 								setTempHitpoint(getTempHitpoint() + (getToughness() / 200.0)); // Count the temp hitpoint.
 								
 								if (getTempHitpoint() >= 1)
-										setHasRestedOnePoint(true);
+										setRecoveryState(true);
 							}
 								
 							setTempStaminapoint(getTempStaminapoint() + (getToughness() / 100.0)); // Temporary staminapoint. Once this is 1, we add one staminapoint.
@@ -398,8 +398,8 @@ public class Unit {
 						if (getTempHitpoint() >= 1)
 						{
 							// Initial period of 1 hitpoint recovery: 
-							if (!hasRestedOnePoint())
-								setHasRestedOnePoint(true);
+							if (!hasRestedInitialRecoveryPeriod())
+								setRecoveryState(true);
 							setCurrentHitpoints(getCurrentHitpoints() + 1);
 							setTempHitpoint(0);
 						}
@@ -713,14 +713,14 @@ public class Unit {
 		if (!isAlive())
 			throw new IllegalStateException("Unit cannot move while its dead!");
 		// This method will only work if the Unit isn't currently already moving and if the destination cube isn't the same cube.
-		if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint())
+		if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedInitialRecoveryPeriod())
 		{
 			try {
 				// Disable behaviours and enable isMoving if it isn't already: 
 				if (!isMoving())
 					setMovingState(true);
 				if (isResting())
-					setIsResting(false);
+					setResting(false);
 				if (isWorking())
 					setWorking(false);
 				setIsMovingToAdjacent(true);
@@ -819,14 +819,14 @@ public class Unit {
 	{
 		if (!isAlive())
 			throw new IllegalStateException("Cannot move to a cube, Unit is dead!");
-		if (hasRestedOnePoint() && (!Arrays.equals(cube, getCubeCoordinates())))
+		if (hasRestedInitialRecoveryPeriod() && (!Arrays.equals(cube, getCubeCoordinates())))
 		{
 			try
 			{
 				if (!isMoving())
 					setMovingState(true);
 				if (isResting())
-					setIsResting(false);
+					setResting(false);
 				if (isWorking())
 					setWorking(false);
 				
@@ -1305,7 +1305,7 @@ public class Unit {
 		setWorking(false);
 		setIsAttacking(false);
 		setIsDefending(false);
-		setIsResting(false);
+		setResting(false);
 		setIsDefaultBehaviour(false);
 		
 		// Kill the Unit:
@@ -2914,10 +2914,10 @@ public class Unit {
 	@Raw
 	public void work() throws IllegalArgumentException
 	{
-		if (!(isMoving() || isAttacking()) && !isWorking() && hasRestedOnePoint())
+		if (!(isMoving() || isAttacking()) && !isWorking() && hasRestedInitialRecoveryPeriod())
 		{
 			if (isResting())
-				setIsResting(false);
+				setResting(false);
 			
 			setWorking(true);
 			setWorkingDuration(500/getStrength());
@@ -2930,7 +2930,7 @@ public class Unit {
 				System.err.println("Unit is still attacking, thus no work can be done!");
 			if (isWorking())
 				System.err.println("Unit is already working, wait till Unit has finished working!");
-			if (!hasRestedOnePoint())
+			if (!hasRestedInitialRecoveryPeriod())
 				System.err.println("Unit hasn't rested its initial recovery period!");
 			throw new IllegalArgumentException("Unable to work right now!");
 		}
@@ -3559,7 +3559,7 @@ public class Unit {
 				if (isWorking())
 					setWorking(false);
 				if (isResting())
-					setIsResting(false);
+					setResting(false);
 				if (isMoving())
 				{
 					setMovingState(false);
@@ -3634,7 +3634,7 @@ public class Unit {
 				if (isWorking())
 					setWorking(false);
 				if (isResting())
-					setIsResting(false);
+					setResting(false);
 				if (isMoving())
 				{
 					setMovingState(false);
@@ -3708,7 +3708,7 @@ public class Unit {
 	}
 	
 	/**
-	 * Return the resting indicator of this Unit.
+	 * Check whether this Unit is resting.
 	 */
 	@Basic @Raw
 	public boolean isResting()
@@ -3717,34 +3717,32 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isResting indicator as its inResting indicator.
+	 * Check whether this Unit can have the given resting state as its resting state.
 	 * 
 	 * @param  	isResting
-	 *         	The resting indicator to check.
+	 *         	The resting state to check.
 	 * @return 	True if and only if the given isResting indicator is enabled and this Unit isn't currently attacking or defending or if
 	 * 			the given isResting indicator is false.
-	 *       	| result == (isResting && (!isAttacking() || !isDefending()) || !isResting)
+	 *       	| result == ( (isResting && (!isAttacking() || !isDefending())) || !isResting )
 	 */
 	public boolean canHaveAsIsResting(boolean isResting)
 	{
-		return (isResting && (!isAttacking() || !isDefending()) || !isResting);
+		return ( (isResting && (!isAttacking() || !isDefending()) ) || !isResting);
 	}
 	
 	/**
-	 * Set the resting indicator of this Unit to the given resting indicator.
+	 * Set the resting state of this Unit to the given resting state.
 	 * 
 	 * @param  	isResting
-	 *         	The new resting indicator for this Unit.
-	 *         
-	 * @post   	The resting indicator of this new Unit is equal to the given resting indicator.
+	 *         	The new resting state for this Unit.
+	 * @post   	The resting state of this new Unit is equal to the given resting state.
 	 *       	| new.getIsResting() == isResting
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isResting indicator as its isResting indicator.
+	 *         	This Unit cannot have the given resting state as its resting state.
 	 *       	| ! canHaveAsIsResting(getIsResting())
 	 */
-	@Raw
-	public void setIsResting(boolean isResting) throws IllegalArgumentException 
+	@Raw @Model
+	private void setResting(boolean isResting) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsResting(isResting))
 			throw new IllegalArgumentException("The given value isResting is invalid for this Unit.");
@@ -3756,49 +3754,42 @@ public class Unit {
 	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
 	 * @effect	The isWorking indicator of this Unit is disabled, only if this Unit isn't attacking and if this Unit's current hitpoints
 	 * 			are lower than the max hitpoints and if this Unit's current staminapoints is lower than the max staminapoints and if the
 	 * 			Unit isn't already Resting and if the Unit is working.
 	 * 			| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints()) 
 	 * 			| 	&& !isResting() && isWorking())
 	 * 			| 	then this.setIsWorking(false)
-	 * 
 	 * @effect	The isResting indicator of this Unit is enabled, only if this Unit isn't attacking and if this Unit's current hitpoints 
 	 * 			are lower than the max hitpoints or if this Unit's current stamina points is lower than the max staminapoints and if the 
 	 * 			Unit isn't already resting.
 	 * 			| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 * 			| 	&& !isResting())
 	 * 			| 	then this.setIsResting(true)
-	 * 
 	 * @effect	The restingDuration of this Unit is set to 0, only if this Unit isn't attacking and if this Unit's current hitpoints
 	 * 			are lower than the max hitpoints or if this Unit's current stamina points is lower than the max staminapoints and if the
 	 * 			Unit isn't already resting.
 	 *  		| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 *  		| 	&& !isResting())
 	 * 			| 	then this.setRestingDuration(0)
-	 * 
 	 * @effect	The tempHitpoint of this Unit is set to 0, only if this Unit isn't attacking and if this Unit's current hitpoints
 	 * 			are lower than the max hitpoints or if this Unit's current stamina points is lower than the max staminapoints and if the
 	 * 			Unit isn't already resting.
 	 * 			| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 * 			| 	&& !isResting())
 	 * 			| 	then this.setTempHitpoint(0)
-	 * 
 	 * @effect	The tempStaminapoint of this Unit is set to 0, only if this Unit isn't attacking and if this Unit's current hitpoints 
 	 * 			are lower than the max hitpoints or if this Unit's current stamina points is lower than the max staminapoints and if the
 	 * 			Unit isn't already resting.
 	 * 	 		| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 * 			|	&& !isResting())
 	 * 			| 	then this.setTempStaminapoint(0)
-	 * 
 	 * @effect	The isMoving indicator is disabled, only if this Unit isn't attacking and if this Unit's current hitpoits are lower
 	 * 			than the max hitpoints or if this Unit's current staminapoints are lower than the max staminapoints and if the Unit isn't
 	 * 			already resting and if the Unit is currently moving.
 	 * 			| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 * 			| 	&& !isResting() && isMoving())
 	 * 			| 	then this.setIsMoving(false)
-	 * 
 	 * @effect	The wasMoving indicator is enabled, only if this Unit isn't attacking and if this Unit's current hitpoints are kiwer 
 	 * 			than the max hitpoints or if this Unit's current staminapoints are lower than the max staminapoints and if the Unit isn't
 	 * 			already resting and if the Unit is currently moving.
@@ -3817,26 +3808,26 @@ public class Unit {
 				setMovingState(false);
 				setWasMoving(true);
 			}
-			if (hasRestedOnePoint())
-				setHasRestedOnePoint(false);
-			setIsResting(true);
+			if (hasRestedInitialRecoveryPeriod())
+				setRecoveryState(false);
+			setResting(true);
 			setRestingDuration(0);
 			setTempHitpoint(0);
 			setTempStaminapoint(0);
 		}
 		/*else
-			throw new ModelException("Unable to rest right now.");*/
+			throw new IllegalStateException("Unable to rest right now.");*/
 	}
 	
 	/**
-	 * Variable registering the resting indicator of this Unit.
+	 * Variable registering the resting state of this Unit.
 	 */
 	private boolean isResting;
 
 	/**
-	 * Return the resting period of this Unit.
+	 * Return the period for which this Unit hasn't been resting.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private double getCurrentRestingPeriod() 
 	{
 		return this.currentRestingPeriod;
@@ -3848,8 +3839,7 @@ public class Unit {
 	 * @param  	resting period
 	 *         	The resting period to check.
 	 * @return 	True if and only if the given restingPeriod is between 0 and RESTING_PERIOD + 0.2 (inclusive).
-	 *       	| result == ((currentRestingPeriod >= 0) && (currentRestingPeriod <= RESTING_PERIOD + 0.2))
-	 *       
+	 *       	| result == ( (currentRestingPeriod >= 0) && (currentRestingPeriod <= RESTING_PERIOD + 0.2) )
 	 * @note	The resting period can only be between 0 and the resting period + 0.2, because the advanceTime can have 0.2 
 	 * 			as its max value to work.
 	 */
@@ -3863,15 +3853,13 @@ public class Unit {
 	 * 
 	 * @param  	restingPeriod
 	 *         	The new resting period for this Unit.
-	 *         
 	 * @post  	The resting period of this new Unit is equal to the given resting period.
 	 *       	| new.getRestingPeriod() == restingPeriod
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	The given resting period is not a valid resting period for any Unit.
 	 *       	| ! isValidRestingPeriod(getRestingPeriod())
 	 */
-	@Raw
+	@Raw @Model
 	private void setCurrentRestingPeriod(double currentRestingPeriod) throws IllegalArgumentException 
 	{
 		if (! isValidRestingPeriod(currentRestingPeriod))
@@ -3880,19 +3868,19 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the resting period of this Unit.
+	 * Variable registering the period of time the Unit hasn't been resting. After 180 seconds, the Unit must rest.
 	 */
 	private double currentRestingPeriod;
 	
 	/**
-	 * Constant registering the period whenever a unit must rest.
+	 * Constant registering the period whenever a Unit must rest, which is after 180 seconds.
 	 */
 	private final static int RESTING_PERIOD = 180;
 
 	/**
-	 * Return the resting duration of this Unit.
+	 * Return the duration this Unit has been resting for.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private double getRestingDuration() 
 	{
 		return this.restingDuration;
@@ -3903,15 +3891,12 @@ public class Unit {
 	 *  
 	 * @param  	resting duration
 	 *         	The resting duration to check.
-	 * @return	True if and only if the given restingDuration is between 0 (inclusive) and 0.4 (exclusive)
-	 *       	| result == ((restingDuration >= 0) && (restingDuration < 0.4))
-	 *       
-	 * @note	Normally, the Unit rests each 0.2 seconds, but each advanceTime can have a 0.2 value maximum. Thus, we extend this 
-	 * 			invariant with 0.2, creating the boundary of 0.4.
+	 * @return	True if and only if the given restingDuration is positive or equal to zero.
+	 *       	| result == (restingDuration >= 0)
 	 */
 	private static boolean isValidRestingDuration(double restingDuration) 
 	{
-		return ((restingDuration >= 0) && (restingDuration < 0.4));
+		return (restingDuration >= 0);
 	}
 	
 	/**
@@ -3919,15 +3904,13 @@ public class Unit {
 	 * 
 	 * @param  	restingDuration
 	 *         	The new resting duration for this Unit.
-	 *         
 	 * @post   	The resting duration of this new Unit is equal to the given resting duration.
 	 *       	| new.getRestingDuration() == restingDuration
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	The given resting duration is not a valid resting duration for any Unit.
 	 *       	| ! isValidRestingDuration(getRestingDuration())
 	 */
-	@Raw
+	@Raw @Model
 	private void setRestingDuration(double restingDuration) throws IllegalArgumentException 
 	{
 		if (! isValidRestingDuration(restingDuration))
@@ -3941,33 +3924,32 @@ public class Unit {
 	private double restingDuration;
 
 	/**
-	 * Return the hasRestedOnePoint of this Unit.
+	 * Check wheter this Unit has rested its initial recovery period.
 	 */
 	@Basic @Raw
-	private boolean hasRestedOnePoint() 
+	private boolean hasRestedInitialRecoveryPeriod() 
 	{
-		return this.hasRestedOnePoint;
+		return this.hasRestedInitialRecoveryPeriod;
 	}
 	
 	/**
-	 * Set the hasRestedOnePoint of this Unit to the given hasRestedOnePoint.
+	 * Set the recovery state of this Unit to the given recovery state.
 	 * 
-	 * @param  	hasRestedOnePoint
-	 *         	The new hasRestedOnePoint for this Unit.
-	 *         
-	 * @post   	The hasRestedOnePoint of this new Unit is equal to the given hasRestedOnePoint.
-	 *       	| new.getHasRestedOnePoint() == hasRestedOnePoint
+	 * @param  	recoveryState
+	 *         	The new recovery state for this Unit.
+	 * @post   	The recovery state of this new Unit is equal to the given recovery state.
+	 *       	| new.getHasRestedOnePoint() == recoveryState
 	 */
-	@Raw
-	private void setHasRestedOnePoint(boolean hasRestedOnePoint) 
+	@Raw @Model
+	private void setRecoveryState(boolean recoveryState) 
 	{
-		this.hasRestedOnePoint = hasRestedOnePoint;
+		this.hasRestedInitialRecoveryPeriod = recoveryState;
 	}
 	
 	/**
-	 * Variable registering the hasRestedOnePoint of this Unit.
+	 * Variable registering whether this Unit has rested its Initial recovery period.
 	 */
-	private boolean hasRestedOnePoint = true;
+	private boolean hasRestedInitialRecoveryPeriod = true;
 	
 	/**
 	 * Return the default behaviour indicator of this Unit.
