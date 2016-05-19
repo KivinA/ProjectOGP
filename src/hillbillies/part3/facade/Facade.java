@@ -296,7 +296,7 @@ public class Facade implements IFacade{
 
 	@Override
 	public void setDefaultBehaviorEnabled(Unit unit, boolean value) throws ModelException {
-		unit.setIsDefaultBehaviour(value);
+		unit.setDefaultBehaviour(value);
 	}
 
 	@Override
@@ -312,7 +312,7 @@ public class Facade implements IFacade{
 	@Override
 	public boolean isWellFormed(Task task) throws ModelException {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override

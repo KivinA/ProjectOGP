@@ -276,8 +276,8 @@ public class Unit {
 			
 			// Default behaviour of this Unit: We will only change the behaviour to true if true is given. Otherwise the checker is invalid!
 			if (enableDefaultBehaviour)
-				setIsDefaultBehaviour(enableDefaultBehaviour);
-			setIsDefaultBehaviour(false);
+				setDefaultBehaviour(enableDefaultBehaviour);
+			setDefaultBehaviour(false);
 			// Set the experience to 0:
 			setExperience(0);
 	}
@@ -1306,7 +1306,7 @@ public class Unit {
 		setIsAttacking(false);
 		setIsDefending(false);
 		setResting(false);
-		setIsDefaultBehaviour(false);
+		setDefaultBehaviour(false);
 		
 		// Kill the Unit:
 		this.isAlive = false;
@@ -3952,7 +3952,7 @@ public class Unit {
 	private boolean hasRestedInitialRecoveryPeriod = true;
 	
 	/**
-	 * Return the default behaviour indicator of this Unit.
+	 * Check whether this Unit has its default behaviour enabled.
 	 */
 	@Basic @Raw
 	public boolean isDefaultBehaviourEnabled() 
@@ -3968,26 +3968,25 @@ public class Unit {
 	 * @return 	True if and only if the Unit isn't currently attacking or defending.
 	 *       	| result == ((!isAttacking() || !isDefending())
 	 */
+	@Raw
 	public boolean canHaveAsIsDefaultBehaviour(boolean isDefaultBehaviourEnabled) 
 	{
 		return (!isAttacking() || !isDefending());
 	}
 	
 	/**
-	 * Set the default behaviour indicator of this Unit to the given default behaviour indicator.
+	 * Set the default behaviour state of this Unit to the given default behaviour state.
 	 * 
 	 * @param  	isDefaultBehaviourEnabled
-	 *         	The new default behaviour indicator for this Unit.
-	 *         
-	 * @post   	The default behaviour indicator of this new Unit is equal to the given default behaviour indicator.
+	 *         	The new default behaviour state for this Unit.
+	 * @post   	The default behaviour state of this new Unit is equal to the given default behaviour state.
 	 *       	| new.getIsDefaulBehaviour() == isDefaultBehaviourEnabled
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isDefaultBehaviour indicator as its isDefaultBehaviour indicator.
+	 *         	This Unit cannot have the given default behaviour state as its default behaviour state.
 	 *       	| ! canHaveAsIsDefaulBehaviour(getIsDefaulBehaviour())
 	 */
 	@Raw
-	public void setIsDefaultBehaviour(boolean isDefaultBehaviourEnabled) throws IllegalArgumentException 
+	public void setDefaultBehaviour(boolean isDefaultBehaviourEnabled) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsDefaultBehaviour(isDefaultBehaviourEnabled))
 			throw new IllegalArgumentException("The given value isDefaultBehaviourEnabled is invalid for this Unit.");
@@ -3995,12 +3994,12 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the default behaviour indicator of this Unit.
+	 * Variable registering the default behaviour stater of this Unit.
 	 */
 	private boolean isDefaultBehaviourEnabled;
 
 	/**
-	 * Return the faction of this unit.
+	 * Return the {@link Faction} to which this Unit belongs.
 	 */
 	@Basic @Raw
 	public Faction getFaction() 
@@ -4009,25 +4008,25 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given Faction as one of its Factions.
+	 * Check whether this Unit can have the given {@link Faction} as the {@link Faction} to which this Unit can be attached to.
 	 *  
 	 * @param  	faction
-	 *         	The Faction to check.
-	 * @return 	True if and only if the given Faction is either one of the Factions of this Unit's World or if it is ineffective.
-	 *       	| if (faction == null)
-	 *       	|	then result == true
-	 *       	| while (getWorld().getAllFactions().iterator().hasNext())
-	 *       	| 	if (getWorld().getAllFactions().iterator().next() == faction)
-	 *       	|		then result == true
-	*/
+	 *         	The {@link Faction} to check.
+	 * @return 	If this Unit is dead, true if and only if the given Faction is ineffective.
+	 * 			Otherwise, true if and only if the given Faction is part of this Unit's World and if that Faction can have this Unit as
+	 * 			one of its Units.
+	 * 			| if (!isAlive())
+	 * 			|	result == (faction == null)
+	 * 			| else
+	 * 			|	result == ( getWorld().hasAsFaction(faction) && faction.canHaveAsUnit(this) )
+	 */
+	@Raw
 	public boolean canHaveAsFaction(Faction faction)
 	{
 		if (!isAlive())
 			return faction == null;
 		else
-		{
 			return getWorld().hasAsFaction(faction) && faction.canHaveAsUnit(this);
-		}
 	}
 	
 	/**
@@ -4056,7 +4055,18 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the faction of this unit.
+	 * Check whether this Unit has a proper {@link Faction} attached to it.
+	 * 
+	 * @return	True if and only if this Unit can have its Faction as its Faction and if this Faction has this Unit as its Unit.
+	 * 			| result == ( (getFaction() == null) || (canHaveAsFaction(getFaction()) && getFaction().hasAsUnit(this)) )
+	 */
+	public boolean hasProperFaction()
+	{
+		return (getFaction() == null) || (canHaveAsFaction(getFaction()) && getFaction().hasAsUnit(this));
+	}
+	
+	/**
+	 * Variable registering the {@link Faction} of this unit.
 	 */
 	private Faction faction;
 	
@@ -4093,8 +4103,8 @@ public class Unit {
 	 *         	The given experience is not a valid experience for any Unit.
 	 *       	| ! isValidExperience(getExperience())
 	 */
-	@Raw
-	public void setExperience(int experience) throws IllegalArgumentException 
+	@Raw @Model
+	private void setExperience(int experience) throws IllegalArgumentException 
 	{
 		if (! isValidExperience(experience))
 			throw new IllegalArgumentException("The given experience is invalid for any Unit.");
@@ -4107,7 +4117,7 @@ public class Unit {
 	private int experience;
 	
 	/**
-	 * Return the alive indicator of this Unit.
+	 * Check whether this Unit is alive.
 	 */
 	@Basic @Raw
 	public boolean isAlive() 
@@ -4188,16 +4198,8 @@ public class Unit {
 	 */
 	private World world;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |        TASK		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the Task assigned to this Unit.
+	 * Return the {@link Task} that is assigned to this Unit.
 	 */
 	@Basic @Raw
 	public Task getTask()
@@ -4206,7 +4208,7 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given Task as its Task.
+	 * Check whether this Unit can have the given {@link Task} as its assigned {@link Task}.
 	 * 
 	 * @param 	task
 	 * 			The Task to check.
@@ -4217,6 +4219,7 @@ public class Unit {
 	 * 			| else
 	 * 			|	result == getFaction().getScheduler().hasAsTask(task)
 	 */
+	@Raw
 	public boolean canHaveAsTask(Task task)
 	{
 		if (task == null)
@@ -4235,6 +4238,7 @@ public class Unit {
 	 * 			This Unit cannot have the given Task as its assigned Task
 	 * 			| !canHaveAsTask(task)
 	 */
+	@Raw
 	public void setTask(Task task) throws IllegalArgumentException
 	{
 		if (!canHaveAsTask(task))
@@ -4243,7 +4247,31 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable referencing the Task assigned to this Unit.
+	 * Check whether this Unit has a proper {@link Task} assigned to it.
+	 * 
+	 * @return	True if and only if this Unit can have its Task as its Task, if this Unit is alive and if the Task has this Unit as its Unit or
+	 * 			if this Unit is dead.
+	 * 			| if (canHaveAsTask(getTask())
+	 * 			|	then
+	 * 			|		if (isAlive())
+	 * 			|			then result == ( getTask().getUnit() == this )
+	 * 			|		else
+	 * 			|			result == true
+	 * 			| else
+	 * 			|	result == false
+	 */
+	public boolean hasProperTask()
+	{
+		if (canHaveAsTask(getTask()))
+			if (isAlive())
+				return getTask().getUnit() == this;
+			else
+				return true;
+		return false;
+	}
+	
+	/**
+	 * Variable referencing the {@link Task} assigned to this Unit.
 	 */
 	private Task task;
 }
