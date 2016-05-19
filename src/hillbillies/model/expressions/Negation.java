@@ -22,5 +22,4 @@ public class Negation extends BooleanExpression {
 		boolean expressionBoolean = (boolean) expression.evaluate(task);
 		return !expressionBoolean;
 	}
-
 }
