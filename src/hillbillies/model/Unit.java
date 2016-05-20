@@ -140,7 +140,6 @@ import be.kuleuven.cs.som.annotate.*;
  * @invar	Each Unit must have a proper World to which it is attached.
  * 			| hasProperWorld(getWorld())
  */
-
 public class Unit {
 	
 	/**
@@ -357,11 +356,13 @@ public class Unit {
 	 * @throws	IllegalStateException
 	 * 			This Unit cannot move when it's dead.
 	 * 			| !isAlive()
-	 * @throws	IllegalArgumentException
+	 * @throws	IllegalStateException
 	 * 			If this Unit is already moving to an adjacent cube, or if the function is called upon with all of its parameters equal to 0, 
 	 * 			or if this Unit hasn't rested its initial recovery period, an exception will be thrown.
 	 * 			| if ( isMovingToAdjacent() && (dx == 0 && dy == 0 && dz == 0) && !hasRestedInitialRecoveryPeriod() )
-	 *  
+	 * @throws	IllegalArgumentException
+	 * 			A condition was violated or an error was thrown.
+	 * 
 	 * @effect	The resting state of this Unit is disabled, if it was enabled.
 	 * 			| if (isResting())
 	 * 			|	then this.setResting(false)
@@ -433,6 +434,12 @@ public class Unit {
 	 *			|			if (isSprinting())
 	 *			|				then this.setCurrentSpeed(getSprintingSpeed())
 	 *			|			else this.setCurrentSpeed(getWalkingSpeed())
+	 * @effect	Disable the moving to adjacent state if a condition was violated or an error was thrown.
+	 * 			| catch (Exception e)
+	 * 			|	then this.setMovingToAdjacent(false)
+	 * @effect	Disabled the moving state of this Unit is a condition was violated or an error was thrown.
+	 * 			| catch (Exception e)
+	 * 			|	then this.setMoving(false)
 	 * @post	The velocity of this Unit is set to {0, 0, -3}, if this Unit is falling and if it can have the newly calculated coordinates
 	 * 			as its cube coordinates.
 	 * 			| let
@@ -445,6 +452,7 @@ public class Unit {
 	 *			|				then new.getVelocity()[i] == -3
 	 *			|			else new.getVelocity()[i] == 0
 	 */
+	@Raw
 	public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException
 	{
 		if (!isAlive())
@@ -492,13 +500,21 @@ public class Unit {
 				else 
 					throw new IllegalArgumentException("Can't move towards this cube.");
 			}
-			catch (IllegalArgumentException e)
+			catch (Exception e)
 			{
 				setMovingToAdjacent(false);
 				setMoving(false);
 				//throw e;
 			}
 		}
+		else
+		{
+//			System.err.println("Already moving to adjacent: " + isMovingToAdjacent());
+//			System.err.println("Wrong adjacent cube given: " + (dx == 0 && dy == 0 && dz == 0));
+//			System.err.println("Has rested initial recovery period: " + hasRestedInitialRecoveryPeriod());
+			throw new IllegalStateException("Cannot move to adjacent cube!");
+		}
+			
 	}
 	
 	/**
@@ -510,29 +526,33 @@ public class Unit {
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @throws	IllegalStateException
-	 * 			This Unit is dead.
+	 * 			This Unit hasn't rested its initial recovery period or the specified cube is the same as the current cube.
+	 * 			| (!hasRestedInitialRecoveryPeriod() && (!Arrays.equals(cube, getCubeCoordinates())))
+	 * @throws	IllegalStateException
+	 * 			This Unit cannot move to a cube if it  isn't alive.
 	 * 			| !isAlive()
 	 * 
-	 * @effect	The isMovingTo indicator of this Unit is enabled, if the Unit has finished the initial resting period.
-	 * 			| if (hasRestedOnePoint())
-	 * 			| then this.setIsMovingTo(true)
-	 * 
-	 * @effect	The isMoving indicator of this Unit is enabled, only if it was disabled and if the Unit has finised the initial resting period.
-	 * 			| if (!isMoving() && hasRestedOnePoint())
-	 * 			| then this.setIsMoving(true)
-	 * 
-	 * @effect	The isResting indicator of this Unit is disabled, only if it was enabled and if the Unit has finised the initial resting period.
-	 * 			| if (isResting() && hasRestedOnePoint())
-	 * 			| then this.setIsResting(false)
-	 * 
-	 * @effect	The isWorking indicator of this Unit is disabled, only if it was enabled and if the Unit has finised the initial resting period.
-	 * 			| if (isWorking() && hasRestedOnePoint())
-	 * 			| then this.setIsWorking(false)
-	 * 
-	 * @effect	The destinationCube of this Unit is set to the given cube, if the Unit has finised the initial resting period.
-	 * 			| if (hasRestedOnePoint())
-	 * 			| then this.setDestinationCube(cube)
+	 * @effect	The resting state of this Unit is disabled, if it was already enabled.
+	 * 			| if (isResting())
+	 * 			|	then this.setResting(false)
+	 * @effect	The working state of this Unit is disabled, if it was already enabled.
+	 * 			| if (isWorking())
+	 * 			|	then this.setWorking(false)
+	 * @effect	The moving state of this Unit is enabled, if it was disabled.
+	 * 			| if (!isMoving())
+	 * 			|	then this.setMoving(true)
+	 * @effect	The moving to state of this Unit is enabled.
+	 * 			| this.szetMovingTo(true)
+	 * @effect	The destination cube of this Unit is set to the given cube.
+	 * 			| this.setDestinationCube(cube)
+	 * @effect	The moving to state  of this Unit is disabled, if a condition was violated or an error was thrown.
+	 * 			| catch (Exception e)
+	 * 			|	then this.setMovingTo(false)
+	 * @effect	The moving state of this Unit is disabled, if a condition was violated or an error was thrown.
+	 * 			| catch (Exception e)
+	 * 			| 	then this.setMoving(false)
 	 */
+	@Raw
 	public void moveTo(int[] cube) throws IllegalArgumentException
 	{
 		if (!isAlive())
@@ -541,22 +561,28 @@ public class Unit {
 		{
 			try
 			{
-				if (!isMoving())
-					setMoving(true);
 				if (isResting())
 					setResting(false);
 				if (isWorking())
 					setWorking(false);
+				if (!isMoving())
+					setMoving(true);
 				
 				setMovingTo(true);
 				setDestinationCube(cube);
 			}
-			catch (IllegalArgumentException e)
+			catch (Exception e)
 			{
 				setMovingTo(false);
 				setMoving(false);
 				//throw e;
 			}
+		}
+		else
+		{
+//			System.err.println("Has rested initial recovery period: " + hasRestedInitialRecoveryPeriod());
+//			System.err.println("Different cube than current cube: " + (!Arrays.equals(cube, getCubeCoordinates())));
+			throw new IllegalStateException("Cannot move to specified cube.");
 		}
 		
 	}
