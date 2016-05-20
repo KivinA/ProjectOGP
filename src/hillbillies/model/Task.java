@@ -36,7 +36,10 @@ public class Task {
 		this.name = name;
 		setPriority(priority);
 		this.acitivity = activity;
-		this.selectedCube = Arrays.copyOf(selectedCube, selectedCube.length);
+		if (selectedCube != null)
+			this.selectedCube = Arrays.copyOf(selectedCube, selectedCube.length);
+		else
+			this.selectedCube = null;
 	}
 	
 	/**

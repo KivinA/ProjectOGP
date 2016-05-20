@@ -3,7 +3,6 @@ package hillbillies.model.statements;
 import hillbillies.model.expressions.BooleanExpression;
 import hillbillies.model.expressions.Expression;
 import hillbillies.model.Task;
-import hillbillies.part3.programs.SourceLocation;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt

@@ -41,7 +41,7 @@ public class PositionNextToTest {
 	public void PositionNextTo_SingleCase() {
 		Integer[] original = {1, 1, 0};
 		PositionXYZ testLiteral = new PositionXYZ(original[0], original[1], original[2]);
-		PositionNextTo test = new PositionNextTo(testLiteral);
+		PositionNextTo<PositionXYZ> test = new PositionNextTo<PositionXYZ>(testLiteral);
 		Integer[] result = test.evaluate(task);
 		assertTrue(isNeighbour(result, original));
 		System.out.println("The calculated position is: (" + result[0] + ", " + result[1] + ", " + result[2] + ").");
