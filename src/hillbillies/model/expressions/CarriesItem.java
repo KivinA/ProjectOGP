@@ -7,13 +7,14 @@ import hillbillies.model.*;
  * @version 0.1
  *
  */
-public class CarriesItem extends BooleanExpression {
+public class CarriesItem<T extends UnitExpression> extends BooleanExpression {
 
-	public CarriesItem(UnitExpression unit) {
+	public CarriesItem(T unit) {
 		this.unitE = unit;
 	}
 	
-	private UnitExpression unitE;
+	T unitE;
+	
 	@Override
 	public Boolean evaluate(Task task) {
 		Unit unit = unitE.evaluate(task);

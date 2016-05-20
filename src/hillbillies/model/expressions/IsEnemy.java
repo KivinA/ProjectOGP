@@ -7,13 +7,13 @@ import hillbillies.model.*;
  * @version 0.1
  *
  */
-public class IsEnemy extends BooleanExpression {
+public class IsEnemy<T extends UnitExpression> extends BooleanExpression {
 
-	public IsEnemy(UnitExpression unitE) {
+	public IsEnemy(T unitE) {
 		this.unitE = unitE;
 	}
 	
-	private UnitExpression unitE;
+	T unitE;
 	
 	@Override
 	public Boolean evaluate(Task task) {

@@ -1,7 +1,6 @@
 package hillbillies.model.statements;
 
 import hillbillies.model.Task;
-import hillbillies.model.expressions.Expression;
 import hillbillies.model.expressions.PositionExpression;
 
 /**
@@ -9,16 +8,16 @@ import hillbillies.model.expressions.PositionExpression;
  * @version 0.1
  *
  */
-public class MoveTo extends Action {
-	private PositionExpression position;
-	
-	public MoveTo(Expression position) {
-		this.position = (PositionExpression) position;
+public class MoveTo<T extends PositionExpression> extends Action {	
+	public MoveTo(T positionE) {
+		this.positionE = positionE;
 	}
+	
+	T positionE;
 	
 	@Override
 	public void execute(Task task) {
-		Integer[] pos = position.evaluate(task);
+		Integer[] pos = positionE.evaluate(task);
 		int[] cube = {pos[0], pos[1], pos[2]};
 		task.getUnit().moveTo(cube);
 	}

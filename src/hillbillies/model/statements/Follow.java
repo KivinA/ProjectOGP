@@ -1,29 +1,24 @@
 package hillbillies.model.statements;
 
 import hillbillies.model.Task;
-import hillbillies.model.expressions.Expression;
 import hillbillies.model.expressions.UnitExpression;
-import hillbillies.part3.programs.SourceLocation;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
  * @version 0.1
  *
  */
-public class Follow extends Action {
+public class Follow<T extends UnitExpression> extends Action {
 
-	private UnitExpression unit;
-	private SourceLocation sourceLocation;
-
-	public Follow(Expression unit, SourceLocation sourceLocation) {
-		this.unit = (UnitExpression) unit;
-		this.sourceLocation = sourceLocation;
+	public Follow(T unitE) {
+		this.unitE = unitE;
 	}
+	
+	T unitE;
 
 	@Override
 	public void execute(Task task) {
-		//Unit unitToFollow = unit.evaluate(task);
-		int[] location = unit.evaluate(task).getCubeCoordinates();
+		int[] location = unitE.evaluate(task).getCubeCoordinates();
 		task.getUnit().moveTo(location);
 		
 	}

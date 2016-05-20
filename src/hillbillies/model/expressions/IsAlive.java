@@ -8,13 +8,13 @@ import hillbillies.model.Unit;
  * @version 0.1
  *
  */
-public class IsAlive extends BooleanExpression {
+public class IsAlive<T extends UnitExpression> extends BooleanExpression {
 	
-	public IsAlive(UnitExpression unitE) {
+	public IsAlive(T unitE) {
 		this.unitE = unitE;
 	}
 	
-	private UnitExpression unitE;
+	T unitE;
 	
 	@Override
 	public Boolean evaluate(Task task) {

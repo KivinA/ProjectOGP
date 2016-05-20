@@ -55,24 +55,33 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 	@Override
 	public Statement createMoveTo(Expression position, SourceLocation sourceLocation) {
 		if (!(position instanceof PositionExpression))
-			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			throw new IllegalArgumentException("Wrong expression, a Position expression is expected at line" + sourceLocation.getLine()
 			+ "and column " + sourceLocation.getColumn()+ "!");
-		return new MoveTo(position);
+		return new MoveTo<PositionExpression>((PositionExpression) position);
 	}
 
 	@Override
 	public Statement createWork(Expression position, SourceLocation sourceLocation) {
-		return new Work(position, sourceLocation);
+		if (!(position instanceof PositionExpression))
+			throw new IllegalArgumentException("Wrong expression, a Position expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new Work<PositionExpression>((PositionExpression) position);
 	}
 
 	@Override
 	public Statement createFollow(Expression unit, SourceLocation sourceLocation) {
-		return new Follow(unit, sourceLocation);
+		if (!(unit instanceof UnitExpression))
+			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new Follow<UnitExpression>((UnitExpression) unit);
 	}
 
 	@Override
 	public Statement createAttack(Expression unit, SourceLocation sourceLocation) {
-		return new Attack(unit, sourceLocation);
+		if (!(unit instanceof UnitExpression))
+			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new Attack<UnitExpression>((UnitExpression) unit);
 	}
 
 	@Override
@@ -82,7 +91,10 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createIsSolid(Expression position, SourceLocation sourceLocation) {
-		return new IsSolid(position, sourceLocation);
+		if (!(position instanceof PositionExpression))
+			throw new IllegalArgumentException("Wrong expression, a Position expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new IsSolid<PositionExpression>((PositionExpression) position);
 	}
 
 	@Override
@@ -100,17 +112,26 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createIsEnemy(Expression unit, SourceLocation sourceLocation) {
-		return new IsEnemy((UnitExpression) unit);
+		if(!(unit instanceof UnitExpression))
+			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new IsEnemy<UnitExpression>((UnitExpression) unit);
 	}
 
 	@Override
 	public Expression createIsAlive(Expression unit, SourceLocation sourceLocation) {
-		return new IsAlive((UnitExpression) unit);
+		if(!(unit instanceof UnitExpression))
+			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new IsAlive<UnitExpression>((UnitExpression) unit);
 	}
 
 	@Override
 	public Expression createCarriesItem(Expression unit, SourceLocation sourceLocation) {
-		return new CarriesItem((UnitExpression) unit);
+		if(!(unit instanceof UnitExpression))
+			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new CarriesItem<UnitExpression>((UnitExpression) unit);
 	}
 
 	@Override
@@ -195,7 +216,10 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createPositionOf(Expression unit, SourceLocation sourceLocation) {
-		return new PositionPositionOf(unit, sourceLocation);
+		if(!(unit instanceof UnitExpression))
+			throw new IllegalArgumentException("Wrong expression, a Unit expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new PositionPositionOf<UnitExpression>((UnitExpression) unit);
 	}
 	
 }

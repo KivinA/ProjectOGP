@@ -10,18 +10,17 @@ import hillbillies.part3.programs.SourceLocation;
  * @version 0.1
  *
  */
-public class Attack extends Action {
-	private UnitExpression unit;
-	private SourceLocation sourceLocation;
-	
-	public Attack(Expression unit, SourceLocation sourceLocation) {
-		this.unit = (UnitExpression) unit;
-		this.sourceLocation = sourceLocation;
+public class Attack<T extends UnitExpression> extends Action {
+
+	public Attack(T unitE) {
+		this.unitE = unitE;
 	}
+	
+	T unitE;
 	
 	@Override
 	public void execute(Task task) {
-		task.getUnit().attack(unit.evaluate(task));
+		task.getUnit().attack(unitE.evaluate(task));
 	}
 
 }
