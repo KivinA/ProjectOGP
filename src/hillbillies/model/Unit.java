@@ -1,162 +1,80 @@
 package hillbillies.model;
 
 import java.util.*;
-
 import be.kuleuven.cs.som.annotate.*;
 
 /* 
- * QUESTIONS PART 3:
- *		1.	Is an abstract checker method an invariant? Or can we simply state the invariant at the level of the subclass, where
- *			we implement the method? (see canHaveAsWorld for Boulder and Log)
- *		2.	Can invariant methods be private? (e.g. basespeed, walking speed, sprinting speed).
- *
- * STUFF TODO:
  * 		1. Check all TODO's.
- * 		2. Check which methods can be private.
- * 		3. Initialize default values in the constructor.
- * 		4. Check bidirectional associations (see coding rule 93 and book p420-441)
  * 		5. Add @Raw annotation to associations with objects that doesn't have to be in proper state (basically almost every association)
- * 		6. Change Faction to allow it to remove itself if there are no Units left. To do this, we must create an association with World.
- * 		7. There is an error with isFalling, which happens in rare occurences. Please fix.
- * 		8. Don't forget to add @Model tags to all private methods that are used in a specification of another method.
  */
 
 /** 
  * A class of Units which can have a name, agility, strength, weight, toughness, maximum hitpoints, maximum staminapoints, current hitpoints, 
- * current staminapoints, orientation, cube coordinates, position, default behaviour.
+ * current staminapoints, orientation, cube coordinates, position, default behaviour, a {@link Faction}, a {@link Task} and several speeds. 
+ * This Unit lives in a given {@link World}.
  * 
- * @version 0.7
+ * @version 1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
+ * 			1ba Informatica
+ * @note	Repository link: https://github.com/KivinA/ProjectOGP
  * 
  * @invar  	The name of each Unit must be a valid name for any Unit.
  *       	| isValidName(getName())
- * 
- * @invar  	The strength of each Unit must be a valid strength for any Unit.
- *       	| isValidStrength(getStrength())
- * 
- * @invar  	The agility of each Unit must be a valid agility for any Unit.
- *       	| isValidAgility(getAgility())
- * 
- * @invar  	The toughness of each Unit must be a valid toughness for any Unit.
- *       	| isValidToughness(getToughness())
- *      
+ * @invar  	The strength of each Unit must be a valid property value for any Unit.
+ *       	| isValidPropertyValue(getStrength())
+ * @invar  	The agility of each Unit must be a valid property value for any Unit.
+ *       	| isValidPropertyValue(getAgility())
+ * @invar  	The toughness of each Unit must be a valid property value for any Unit.
+ *       	| isValidPropertyValue(getToughness())
  * @invar  	Each Unit can have its weight as its weight.
  *       	| canHaveAsWeight(getWeight())
- *       
- * @invar  	The maxHitpoints of each Unit must be a valid maxHitpoints for any Unit.
- *       	| isValidMaxHitpoints(this.getMaxHitpoints())
- *       
- * @invar  	Each Unit can have its currentHitpoints as its currentHitpoints.
+ * @invar	The maximum hitpoints of each Unit must be valid points for any Unit.
+ * 			| isValidPoints(getMaxHitpoint())
+ * @invar  	Each Unit can have its current hitpoints as its current hitpoints.
  *       	| canHaveAsCurrentHitpoints(getCurrentHitpoints())
- *       
- * @invar  	Each Unit can have its tempHitpoint as its tempHitpoint.
- *       	| canHaveAsTempHitpoint(getTempHitpoint())
- *       
- * @invar  	The maxStaminapoints of each Unit must be a valid maxStaminapoints for any Unit.
- *       	| isValidMaxStaminaPoints(this.getMaxStaminaPoints())
- *       
- * @invar   Each Unit can have its currentStaminaPoints as its currentStaminapoints.
- *       	| canHaveAsCurrentStaminapoints(getCurrentStaminapoints())
- *       
- * @invar  	Each Unit can have its tempStaminapoint as its tempStaminapoint.
- *       	| canHaveAsTempStaminapoint(getTempStaminapoint())
- *       
+ * @invar  	The maximum staminapoints of each Unit must be a valid points for any Unit.
+ *       	| isValidPoints(getMaxStaminaPoints())	
+ * @invar   Each Unit can have its current staminapoints as its current staminapoints.
+ *       	| canHaveAsCurrentStaminapoints(getCurrentStaminapoints())  
  * @invar  	The orientation of each Unit must be a valid orientation for any Unit.
  *       	| isValidOrientation(getOrientation())
- *       
- * @invar  	Each Unit can have its cubeCoordinates as its cubeCoordinates
+ * @invar  	Each Unit can have its cube coordinates as its cube coordinates
  *       	| canHaveAsCubeCoordinates(getCubeCoordinates())
- *       	
- * @invar  	Each Unit can have its isFalling indicator as its isFalling indicator.
- *       	| canHaveAsIsFalling(getisFalling())
- *       
- * @invar  	Each Unit can have its nextCubeCoordinates as its nextCubeCoordinates.
- *       	| canHaveAsNextCubeCoordinates(getNextCubeCoordinates())
- *       
- * @invar  	The deltaNewPositions of each Unit must be a valid deltaNewPositions for any Unit.
- *       	| isValidDeltaNewPositions(getDeltaNewPositions())
-
- * @invar  	Each Unit can have its walkingSpeed as its walkingSpeed.
- *       	| canHaveAsWalkingSpeed(getWalkingSpeed())
- *       
- * @invar  	Each Unit can have its sprintSpeed as its sprintSpeed.
- *       	| canHaveAsSprintSpeed(getSprintSpeed())
- *    		
- * @invar  	Each Unit can have its current speed as its currentSpeed.
+ * @invar  	Each Unit can have its falling state as its falling state.
+ *       	| canHaveAsFalling(isFalling())
+ * @invar  	Each Unit can have its current speed as its current speed.
  *       	| canHaveAsCurrentSpeed(getCurrentSpeed())
- *       
- * @invar  	Each Unit can have its isSprinting indicator as its isSprinting indicator.
+ * @invar  	Each Unit can have its sprinting state as its sprinting state.
  *       	| canHaveAsIsSprinting(getIsSprinting())
- *       
- * @invar  	The moving indicator of each Unit must be a valid moving indicator for any Unit.
- *       	| canHaveIsMoving(getIsMoving())
- *       
- * @invar  	The sprinting duration of each Unit must be a valid sprinting duration for any Unit.
- *       	| isValidSprintingDuration(getSprintingDuration())
- *       
- * @invar  	Each Unit can have its wasMoving indicator as its wasMoving indicator.
- *       	| canHaveAsWasMoving(getWasMoving())
- *       
- * @invar  	Each Unit can have its isMovingTo indicator as its isMovingTo indicator.
- *       	| canHaveAsIsMovingTo(getIsMovingTo())
- *       
- * @invar  	Each Unit can have its isMovingToAdjacent indicator as its isMovingToAdjacent indicator.
- *       	| canHaveAsIsMovingToAdjacent(getIsMovingToAdjacent())
- *       
- * @invar  	Each Unit can have its isWorking indicator as its isWorking indicator.
- *       	| canHaveAsIsWorking(getIsWorking())
- *       	
- * @invar  	The targetCube of each Unit must be a valid targetCube for any Unit.
- *       	| isValidTargetCube(getTargetCube())
- *       
- * @invar  	Each Unit can have its workingDuration as its workingDuration.
- *       	| canHaveAsWorkingDuration(getWorkingDuration()) 
- *       
- * @invar  	This Unit can have its isCarrying indicator as isCarrying indicator.
+ * @invar  	Each Unit can have its moving state as its moving state.
+ *       	| canHaveIsMoving(isMoving())
+ * @invar  	Each Unit can have its working state as its working state.
+ *       	| canHaveAsIsWorking(isWorking())
+ * @invar  	This Unit can have its carrying log state as carrying log state.
  *       	| canHaveAsIsCarryingLog(getIsCarryingLog())
- *       
- * @invar  	This Unit can have its log as log.
- *       	| canHaveAsLog(getLog())
- *       
- * @invar  	This Unit can have its isCarryingBoulder indicator as isCarryingBoulder indicator.
- *       	| canHaveAsIsCarryingBoulder(getIsCarryingBoulder())
- *       
- * @invar  	This Unit can have its boulder as boulder.
- *       	| canHaveAsBoulder(getBoulder())
- *       
- * @invar  	The fighting duration of each Unit must be a valid fighting duration for any Unit.
- *       	| isValidFightingDuration(getFightingDuration())
- *       
- * @invar  	Each Unit can have its isResting indicator as its isResting indicator.
- *       	| canHaveAsIsResting(getIsResting())
- *       
- * @invar  	The resting period of each Unit must be a valid resting period for any Unit.
- *       	| isValidRestingPeriod(getRestingPeriod())
- *       
- * @invar  	The resting duration of each Unit must be a valid resting duration for any Unit.
- *       	| isValidRestingDuration(getRestingDuration())
- *       
- * @invar  	Each Unit can have its hasRestedOnePoint indicator as its hasRestedOnePoint indicator.
- *       	| canHaveAsHasRestedOnePoint(getHasRestedOnePoint())
- *       
- * @invar  	Each Unit can have its isDefaultBehaviour indicator as its isDefaultBehaviour indicator.
- *       	| canHaveAsIsDefaultBehaviour(getIsDefaultBehaviour())
- *       
- * @invar  	The faction of each unit must be a valid faction for any unit.
- *       	| isValidFaction(getFaction())
- *       
+ * @invar	Each Unit must have a proper Log attached to it.
+ * 			| hasProperLog()
+ * @invar  	This Unit can have its carrying boulder state as carrying boulder state.
+ *       	| canHaveAsIsCarryingBoulder(isCarryingBoulder())
+ * @invar	Each Unit must have a proper Boulder attached to it.
+ * 			| hasProperBoulder()
+ * @invar  	Each Unit can have its resting state as its resting state.
+ *       	| canHaveAsIsResting(isResting())
+ * @invar  	Each Unit can have its default behaviour state as its default behaviour state.
+ *       	| canHaveAsIsDefaultBehaviour(isDefaultBehaviourEnabled())
+ * @invar	Each Unit must have a proper Faction to which it is attached.
+ * 			| hasProperFaction()
  * @invar  	The experience of each Unit must be a valid experience for any Unit.
  *       	| isValidExperience(getExperience())
- *       
- * @invar  	Each Unit can have its isAlive indicator as its isAlive indicator.
- *       	| canHaveAsIsAlive(getIsAlive())
  * @invar	Each Unit must have a proper World to which it is attached.
- * 			| hasProperWorld(getWorld())
+ * 			| hasProperWorld()
+ * @invar	Each Unit must have a proper Task to which it is attached.
+ * 			| hasProperTask()
  */
-
 public class Unit {
+	
 	/**
-	 * Create a new Unit with a given name, strength, agility, toughness, weight, initialPosition and enableDefaultBehaviour.
+	 * Create a new Unit with a given name, strength, agility, toughness, weight, initial position, default behaviour and {@link World}.
 	 * 
 	 * @param  	name
 	 *         	The name for this new Unit.
@@ -172,79 +90,53 @@ public class Unit {
 	 * 			The initial position for this new Unit.
 	 * @param	enableDefaultBehaviour
 	 * 			The enableDefaultBehaviour for this new Unit.
+	 * @param	world
+	 * 			The {@link World} in which this Unit lives.
 	 * 
 	 * @throws 	IllegalArgumentException 
 	 *       	A condition was violated or an error was thrown.
 	 *       
 	 * @effect	The world of this new Unit is set to the given world.
  	 * 			| this.setWorld(world)
- 	 * 
 	 * @effect 	The name of this new Unit is set to the given name.
 	 *       	| this.setName(name)
-	 * 
-	 * @effect	The orientation of this new Unit is set to the default orientation.
-	 * 			| this.setOrientation(DEFAULT_ORIENTATION)
-	 *       
- 	 * @effect 	The cubeCoordinates of this new Unit is set to the given initialPosition.
+	 * @effect	If the given strength is a valid initial property value for any Unit, the strength of this new Unit is set to the given strength.
+	 * 			Otherwise, the strength of this new Unit is set to the default property value.
+	 * 			| if (isValidInitialValue(strength))
+	 * 			|	then this.setStrength(strength)
+	 * 			| else this.setStrength(DEFAULT_PROPERTY_VALUE)
+	 * @effect 	If the given agility is a valid initial property value for any Unit, the agility of this new Unit is set to the given agility.
+	 * 			Otherwise, the agility of this new Unit is set to the default property value.
+	 * 			| if (isValidInitialValue(agility))
+	 * 			|	then this.setAgility(agility)
+	 * 			| else this.setAgility(DEFAULT_PROPERTY_VALUE)
+	 * @effect	If the given toughness is a valid initial property value for any Unit, the toughness of this new Unit 
+	 * 			is set to the given toughness.
+	 * 			Otherwise, the toughness of this new Unit is set to the default property value.
+	 * 			| if (isValidInitialValue(toughness))
+	 * 			|	then this.setToughness(toughness)
+	 * 			| else this.setToughness(DEFAULT_PROPERTY_VALUE)
+	 * @effect	If the given weight is a valid initial property value for any Unit, the weight of this new Unit is set to the given weight.
+	 * 			Otherwise, the weight of this new Unit is set to the default weight.
+	 * 			| if (isValidInitialValue(weight))
+	 * 			| 	then this.setWeight(weight)
+	 * 			| else this.setWeight(getDefaultWeight())
+	 * @effect	Set the current hitpoints of this new Unit to the maximum hitpoints.
+	 * 			| this.setCurrentHitpoints(getMaxHitpoints())
+	 * @effect	Set the current staminapoints of this new Unit to the maximum staminapoints.
+	 * 			| this.setCurrentStaminapoints(getMaxStaminapoints())
+ 	 * @effect 	The cubeCoordinates of this new Unit is set to the given initial position.
  	 *       	| this.setCubeCoordinates(initialPosition)
- 	 *       
- 	 * @effect	The Unit position of this new Unit is set to the current cube coordinates.
- 	 * 			| this.setUnitPosition(getCubeCoordinates())
- 	 * 
  	 * @effect	The isDefaultBehaviour of this new Unit is set to the given enableDefaultBehaviour.
  	 * 			| this.setIsDefaultBehaviour(enableDefaultBehaviour)
- 	 * 
- 	 * @effect	The hasRestedOnePoint of this new Unit is set to true.
- 	 * 			| this.setHasRestedOnePoint(true)
- 	 * 
- 	 * @effect	The experience of this new Unit is set to 0.
- 	 * 			| this.setExperience(0)
- 	 * 
-	 * @post   	If the given strength is a valid strength for any Unit,
-	 *         	the strength of this new Unit is equal to the given
-	 *        	strength. Otherwise, the strength of this new Unit is equal
-	 *         	to DEFAULT_STRENGTH.
-	 *       	| if (isValidInitialValue(strength))
-	 *       	|   then new.getStrength() == strength
-	 *       	|   else new.getStrength() == DEFAULT_STRENGTH
-	 *       
-	 * @post   	If the given agility is a valid agility for any Unit,
-	 *         	the agility of this new Unit is equal to the given
-	 *         	agility. Otherwise, the agility of this new Unit is equal
-	 *         	to DEFAULT_AGILITY.
-	 *       	| if (isValidInitialValue(agility))
-	 *       	|   then new.getAgility() == agility
-	 *       	|   else new.getAgility() == DEFAULT_AGILITY
-	 *       
-	 * @post   	If the given toughness is a valid initial toughness for any Unit,
-	 *         	the toughness of this new Unit is equal to the given
-	 *         	toughness. Otherwise, the toughness of this new Unit is equal
-	 *         	to DEFAULT_TOUGHNESS.
-	 *       	| if (isValidInitialValue(toughness))
-	 *       	|   then new.getToughness() == toughness
-	 *       	|   else new.getToughness() == DEFAULT_TOUGHNESS
-	 *       
-	 * @post   	If the given weight is a valid initial weight for any Unit,
-	 *         	the weight of this new Unit is equal to the given
-	 *         	weight. Otherwise, the weight of this new Unit is equal
-	 *         	to DEFAULT_WEIGHT.
-	 *       	| if (isValidInitialValue(weight))
-	 *       	|   then new.getWeight() == weight
-	 *       	|   else new.getWeight() == DEFAULT_WEIGHT
-	 *       
+ 	 * @effect	Set the experience of this new Unit to zero.
+ 	 * 			| this.setExperience(0)       
 	 * @post	The maxHitpoints of this new Unit is equal to a rounded integer which is 200 times a 100th of its weight 
 	 * 			times a 100th of its toughness.
 	 * 			| new.getMaxHitpoints() == (int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100))
-	 * 
 	 * @post	The maxStaminapoints of this new Unit is equal to a rounded integer which is 200 times a 100th of its weight
 	 * 			times a 100th of its toughness.
 	 * 			| new.getMaxStaminaPoints() == (int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100))
-	 * 
-	 * @post	The currentHitpoints of this new Unit is equal to the maxHitpoints of this Unit.
-	 * 			| new.getCurrentHitpoints() == getMaxHitpoints()
-	 * 
-	 * @post	The currentStaminapoints of this new Unit is equal to the currentStaminapoints of this Unit.
-	 * 			| new.getCurrentStaminapoints() == getMaxStaminapoints()
 	 */
 	public Unit(String name, int strength, int agility, int toughness, int weight, int[] initialPosition, boolean enableDefaultBehaviour
 			, World world) throws IllegalArgumentException
@@ -261,25 +153,18 @@ public class Unit {
 			if (! isValidInitialValue(toughness))
 				toughness = DEFAULT_PROPERTY_VALUE;
 			setToughness(toughness);
-			setDefaultWeight();
 			if (! isValidInitialValue(weight))
 				weight = getDefaultWeight();	
 			setWeight(weight);
 			
 			this.maxHitpoints = ((int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100)));
-			// this.maxHitpoints = 10; // This value is simply for testing.
 			setCurrentHitpoints(getMaxHitpoints());
 			
 			this.maxStaminaPoints = ((int)Math.round(200*((double)this.weight/100)*((double)this.toughness/100)));
 			setCurrentStaminapoints(getMaxStaminapoints());
 			
 			setCubeCoordinates(initialPosition);
-			
-			// Default behaviour of this Unit: We will only change the behaviour to true if true is given. Otherwise the checker is invalid!
-			if (enableDefaultBehaviour)
-				setIsDefaultBehaviour(enableDefaultBehaviour);
-			setIsDefaultBehaviour(false);
-			// Set the experience to 0:
+			setDefaultBehaviour(enableDefaultBehaviour);
 			setExperience(0);
 	}
 	
@@ -301,17 +186,16 @@ public class Unit {
 	 * 			The initialPosition for this new Unit.
 	 * @param 	enableDefaultBehaviour
 	 * 			The enableDefaultBehaviour for this new Unit.
-	 * @throws 	IllegalArgumentException
-	 * 			A condition was violated or an error was thrown.
+	 * @throws 	UnsupportedOperationException
+	 * 			This method is deprecated, because a Unit needs a World for all of its calculations. 
+	 * @note	We didn't delete this method because the Facade class still uses this method (and we aren't allowed to change that).
 	 * 
-	 * @effect	This new Unit is initialized with the given name, strength, agility, toughness, weight, initialPosition, enableDefaultBeahviour and
-	 * 			no world.
-	 * 			| this(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, null);
 	 */
+	@Deprecated
 	public Unit(String name, int strength, int agility, int toughness, int weight, int[] initialPosition, boolean enableDefaultBehaviour) 
-			throws IllegalArgumentException
+			throws UnsupportedOperationException
 	{
-		this(name, strength, agility, toughness, weight, initialPosition, enableDefaultBehaviour, null);
+		throw new UnsupportedOperationException("Please use the other constructor, which provides a World for the Unit to live in.");
 	}
 	
 	/**
@@ -320,30 +204,29 @@ public class Unit {
 	 * @param 	duration
 	 * 			The amount of time that has been passed.
 	 * @throws 	IllegalArgumentException
-	 * 			An exception or error was thrown or the duration was too large (> 0.2).
+	 * 			A condition was violated or an error was thrown.
 	 */
 	public void advanceTime(double duration) throws IllegalArgumentException
 	{
-		if (duration <= 0.2 && duration >= 0) // [FIXME] NORMALLY THIS SHOULD BE BETWEEN 0.2 (EXCLUSIVE) AND 0 (INCLUSIVE).
+		if ((duration <= 0.2 && duration >= 0) && isAlive()) // [FIXME] NORMALLY THIS SHOULD BE BETWEEN 0.2 (EXCLUSIVE) AND 0 (INCLUSIVE), BUT DUE TO IMPLEMENTATION, 0.2 ALSO COUNTS.
 		{
-			setCurrentRestingPeriod(getCurrentRestingPeriod() + duration); // Add time to the counter.
+			setCurrentRestingPeriod(getCurrentRestingPeriod() + duration);
 			
-			// Resting every 180 seconds:
 			if (getCurrentRestingPeriod() >= RESTING_PERIOD)
 			{
 				setCurrentRestingPeriod(0);
 				rest();
 			}
 			
-			// Checking experience:
 			if (getExperience() >= 10)
 			{
 				setExperience(getExperience() - 10);
 				if (getStrength() < MAX_PROPERTY_VALUE || getAgility() < MAX_PROPERTY_VALUE || getToughness() < MAX_PROPERTY_VALUE)
 					increaseSkills();
+				else
+					System.out.println("Reached max level in all skills.");
 			}
 			
-			// Falling:
 			if (mustUnitFall(getCubeCoordinates()))
 				setFallingState(true);
 			
@@ -352,267 +235,43 @@ public class Unit {
 				if (!isMoving())
 					moveToAdjacent(0, 0, -1);
 			}
-			// Resting:
 			if (isResting())
 			{
-				setRestingDuration(getRestingDuration() + duration);
-				
-				if (getRestingDuration() >= 0.2) // Every 0.2 seconds we add a few points.
-				{
-					setRestingDuration(getRestingDuration() - 0.2);
-					
-					if (getCurrentHitpoints() == getMaxHitpoints()) // Check if hitpoints are full.
-					{
-						if (getCurrentStaminapoints() == getMaxStaminapoints()) // Check if staminapoints are full.
-						{
-							setIsResting(false);
-							if (wasMoving())
-							{
-								setMovingState(true);
-								setWasMoving(false);
-							}
-						}
-						else
-						{
-							// Count down the initial period of 1 hitpoint recovery:
-							if (!hasRestedOnePoint())
-							{
-								setTempHitpoint(getTempHitpoint() + (getToughness() / 200.0)); // Count the temp hitpoint.
-								
-								if (getTempHitpoint() >= 1)
-										setHasRestedOnePoint(true);
-							}
-								
-							setTempStaminapoint(getTempStaminapoint() + (getToughness() / 100.0)); // Temporary staminapoint. Once this is 1, we add one staminapoint.
-							if (getTempStaminapoint() >= 1)
-							{
-								setCurrentStaminapoints(getCurrentStaminapoints() + 1);
-								setTempStaminapoint(0);
-							}
-						}
-						
-					}
-					else
-					{
-						setTempHitpoint(getTempHitpoint() + (getToughness() / 200.0)); // Temporary hitpoint. Once this is 1, we add one hitpoint.
-						
-						if (getTempHitpoint() >= 1)
-						{
-							// Initial period of 1 hitpoint recovery: 
-							if (!hasRestedOnePoint())
-								setHasRestedOnePoint(true);
-							setCurrentHitpoints(getCurrentHitpoints() + 1);
-							setTempHitpoint(0);
-						}
-					}
-				}
+				resting(duration);
 			}
-			
-			// Attacking: 
 			else if (isAttacking() || isDefending())
 			{
-				if (getFightingDuration() >= 1) // The fighting takes place for one second.
-				{
-					if (isAttacking())
-						setIsAttacking(false);
-					else
-						setIsDefending(false);
-					setFightingDuration(0);
-					if (wasMoving())
-					{
-						setMovingState(true);
-						setWasMoving(false);
-						// Reset the orientation: 
-						setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
-					}
-					
-					setExperience(getExperience() + 20);
-				}
-				else
-					setFightingDuration(getFightingDuration() + duration);
+				fighting(duration);
 			}
-			
-			// Moving: 
 			else if (isMoving())
 			{
-				// Moving to a cube: calculate the next cube in a path if we are moving to a cube further than an adjacent one and while we aren't 
-				// currently moving to an adjacent cube.
-				if (isMovingTo() && !isMovingToAdjacent()) 
-				{
-					findPath();
-				}
-				
-				// Moving to adjacent cube: 
-				for(int i = 0; i < getPosition().length; i++)
-				{
-					setPositionAt(i, getPosition()[i] + (getVelocity()[i]*duration));
-				}
-				
-				// Sprinting: 
-				if (isSprinting())
-				{
-					if (getCurrentStaminapoints() > 0)
-					{
-						if (getSprintingDuration() >= 0.1)
-						{
-							setCurrentStaminapoints(getCurrentStaminapoints() - 1);
-							setSprintingDuration(0);
-						}
-						else
-							setSprintingDuration(getSprintingDuration() + duration);
-					}
-					else
-						stopSprinting();
-				}
-				
-				// Check whether destination is reached: 
-				if (destinationReached())
-				{	
-					if (isMovingToAdjacent())
-					{
-						setIsMovingToAdjacent(false); // Done moving to an adjacent cube.
-						
-						// Add experience points
-						if (!isFalling())
-							setExperience(getExperience() + 1);
-					}
-					
-					// If the path is finished, we can exit the moving action:
-					if (!isMovingTo())
-					{
-						setMovingState(false);
-						//System.out.println("Stop with sprinting...");
-						if (isSprinting())
-							setSprintingState(false);
-					}	
-					
-					setCubeCoordinates(getNextCoordinates()); // Correct the current cube coordinates.
-				}
+				moving(duration);
 			}
-			
-			// Working:
 			else if (isWorking())
 			{
-				//System.out.println("Working duration of this Unit: " + getWorkingDuration());
-				if (getWorkingDuration() > 0)
-					setWorkingDuration(getWorkingDuration() - duration);
-				else
-				{
-					//System.out.println("Calculating result of work task...");
-					// Several cases:
-					double x = getTargetCube()[0] + (World.getCubeLength() / 2.0);
-					double y = getTargetCube()[1] + (World.getCubeLength() / 2.0);
-					double z = getTargetCube()[2] + (World.getCubeLength() / 2.0);
-					double[] target = {x, y, z};
-					Log log = logPresentAtCube(target);
-					Boulder boulder = boulderPresentAtCube(target);
-					boolean hasCompletedWork = true;
-					
-					// Target cube is wood:
-					if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 2)
-					{
-						//System.out.println("Target will now spawn a log...");
-						getWorld().spawnLog(target);
-					}
-					
-					// Target cube is rock:
-					else if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 1)
-					{
-						//System.out.println("Target will now spawn a boulder...");
-						getWorld().spawnBoulder(target);
-					}
-					
-					// Unit is currently carrying a Boulder:
-					else if (isCarryingBoulder())
-					{
-						//System.out.println("Drop current boulder at target...");
-						dropBoulder(target);
-					}
-					
-					// Unit is currently carrying a Log:
-					else if (isCarryingLog())
-					{
-						//System.out.println("Drop current log at target...");
-						dropLog(target);
-					}
-					
-					// The target cube is a workshop and a Log and a Boulder is available on this cube:
-					else if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 3 && log != null 
-							&& boulder != null)
-					{
-						//System.out.println("Work at the workshop...");
-						
-						// Remove Boulder:
-						boulder.setWorld(null);
-						getWorld().removeBoulder(boulder);
-						
-						// Remove Log:
-						log.setWorld(null);
-						getWorld().removeLog(log);
-						
-						// Increase toughness, if possible:
-						if (getToughness() < MAX_PROPERTY_VALUE)
-						{
-							setToughness(getToughness() + 1);
-							setDefaultWeight();
-							setWeight(getWeight());
-						}
-					}
-					
-					// A boulder is present on the target cube:
-					else if (boulder != null)
-					{
-						//System.out.println("Pick up the boulder at target...");
-						setBoulder(boulder);
-						setIsCarryingBoulder(true);
-						boulder.setPosition(null);
-					}
-					
-					// A log is present on the target cube:
-					else if (log != null)
-					{
-						//System.out.println("Pick up the log at target...");
-						setLog(log);
-						setIsCarryingLog(true);
-						log.setPosition(null);
-					}
-					
-					else 
-					{
-						//System.out.println("No useful task was completed, thus no exp was gained...");
-						hasCompletedWork = false;
-					}
-						
-					
-					if (hasCompletedWork)
-						setExperience(getExperience() + 10);
-					
-					setWorking(false);
-					
-				}
+				working(duration);
 			}
-			
-			// Default behaviour:
 			else if (isDefaultBehaviourEnabled())
 			{
 				if (getTask() != null)
 				{
-					
+					executeTask(getTask(), duration);
 				}
 				else
 				{
 					Task newTask = getFaction().getScheduler().getTaskWithHighestPriority();
 					if (newTask != null)
 					{
-						
+						getFaction().getScheduler().markTask(newTask, this);
+						executeTask(getTask(), duration);
 					}
 					else
 						SelectBehaviour();
 				}
 			}
 		}
-		else
-			throw new IllegalArgumentException("The duration of advanceTime was too large: " + duration);
+//		else
+//			throw new IllegalArgumentException("The duration of advanceTime was too large: " + duration);
 	}
 	
 	/**
@@ -625,129 +284,131 @@ public class Unit {
 	 * @param 	dz
 	 * 			The difference between the z-component of the current cube and the z-component of the destination cube.
 	 * 
+	 * @throws	IllegalStateException
+	 * 			This Unit cannot move when it's dead.
+	 * 			| !isAlive()
+	 * @throws	IllegalStateException
+	 * 			If this Unit is already moving to an adjacent cube, or if the function is called upon with all of its parameters equal to 0, 
+	 * 			or if this Unit hasn't rested its initial recovery period, an exception will be thrown.
+	 * 			| if ( isMovingToAdjacent() && (dx == 0 && dy == 0 && dz == 0) && !hasRestedInitialRecoveryPeriod() )
 	 * @throws	IllegalArgumentException
-	 * 			A condition was violated or an error was thrown. 
-	 * 			If this Unit is already moving to an adjacent cube and if the function is called upon with all of its parameters equal to 0, 
-	 * 			an exception will be thrown.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0))
+	 * 			A condition was violated or an error was thrown.
 	 * 
-	 * @effect	The isMoving indicator of this Unit is enabled if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy
-	 * 			and dz are equal to zero and if the Unit has finished the initial resting period and if the Unit isn't currently moving already.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && !isMoving())
-	 * 			| then this.setIsMoving(true)
-	 * 
-	 * @effect	The isResting indicator of this Unit is disabled if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy
-	 * 			and dz are equal to zero and if the Unit has finished the initial resting period and if the Unit is currently resting.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isResting())
-	 * 			| then this.setIsResting(false)
-	 * 
-	 * @effect	The isWorking indicator of this Unit is disabled if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy
-	 * 			and dz are equal to zero and if the Unit has finished the initial resting period and if the Unit is currently working.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isWorking())
-	 * 			| then this.setIsWorking(false)
-	 * 
-	 * @effect	The isMovingToAdjacent indicator of this Unit is enabled if the Unit's isMovingToAdjacent indicator is disabled, 
-	 * 			and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint())
-	 * 			| then this.setIsMovingToAdjacent(true)
-	 * 
-	 * @effect 	The deltaNewPositions of this Unit is set to the given dx, dy, dz collected in the array dCoordinates, 
-	 * 			if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero 
-	 * 			and if the Unit has finished the initial resting period and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 *       	| then this.setDeltaNewPositions(dCoordinates)
-	 *       
-	 * @effect	The nextCubeCoordinates of this Unit is set to the calculated newCoordinates, if the Unit's isMovingToAdjacent indicator 
-	 * 			is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
-	 * 			and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then this.setNextCubeCoordinates(newCoordinates)
-	 *       
-	 * @effect 	The base speed of this Unit is set to the calculated base speed newBaseSpeed, if the Unit's isMovingToAdjacent indicator 
-	 * 			is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
-	 * 			and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 *       	| this.setBaseSpeed(newBaseSpeed)
-	 *      	
-	 * @effect	The walking speed of this Unit is set to either 1/2 times the base speed, 1.2 times the base speed, or the base speed itself
-	 * 			depending whether the difference between the current z coordinate and the new z coordinate is either -1, 0 or 1 and
-	 * 			if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero and 
-	 * 			if the Unit has finished the initial resting period and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then
-	 * 			| 	if (getCubeCoordinates()[2] - newCoordinates[2] == -1)
-	 * 			| 	then this.setWalkingSpeed(getBaseSpeed() / 2)
-	 * 			| 	else if (getCubeCoordinates()[2] - newCoordinates[2] == 1)
-	 * 			| 	then this.setWalkingSpeed(getBaseSpeed() * 1.2)
-	 * 			| 	else this.setwalkingSpeed(getBaseSpeed())
-	 * 
-	 * @effect	The sprintSpeed of this Unit is set to 2 times its walking speed if the Unit's isMovingToAdjacent indicator 
-	 * 			is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
-	 * 			and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then this.setSprintSpeed(getWalkingSpeed() * 2)
-	 * 
-	 * @effect 	The velocity of this Unit is set to the calculated velocity using the new coordinates of the Unit if the Unit's isMovingToAdjacent
-	 * 			indicator is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
-	 * 			and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then this.setVelocity(newCoordinates)
-	 * 
-	 * @effect	The orientation of this Unit is set to the arctagent of the x- and y-component of the Unit's velocity if the Unit's 
-	 * 			isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has 
-	 * 			finished the initial resting period and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| this.setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]))
-	 * 
-	 * @effect	The current speed of this Unit is either set to its walking speed or its sprinting speed depending on whether the Unit is sprinting
-	 * 			if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero 
-	 * 			and if the Unit has finished the initial resting period and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then 
-	 * 			| 	if (isSprinting())
-	 * 			| 	then this.setCurrentSpeed(getSprintSpeed())
-	 * 			| 	else this.setCurrentSpeed(getWalkingSpeed())
+	 * @effect	The resting state of this Unit is disabled, if it was enabled.
+	 * 			| if (isResting())
+	 * 			|	then this.setResting(false)
+	 * @effect	The working state of this Unit is disabled, if it was enabled.
+	 * 			| if (isWorking())
+	 * 			|	then this.setWorking(false)
+	 * @effect	The moving state of this Unit is enabled if it wasn't enabled already.
+	 * 			| if (!isMoving())
+	 * 			|	then this.setMoving(true) 
+	 * @effect	The moving to adjacent state is enabled.
+	 * 			| this.setMovingToAdjacent(true)
+	 * @effect	The difference between the current and next position is set to the collection of the given dx, dy and dz value, if this Unit
+	 * 			can have the newly calculated cube coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	dCoordinates = {dx, dy, dz},
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)
+	 * 			| in
+	 * 			| 	if (canHaveAsCubeCoordinates(newCoordinates))
+	 * 			|		then this.setDeltaNewPositions(dCoordinates)
+	 * @effect 	Set the next cube coordinates to the newly calculated coordinates, if this Unit can have these coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates))
+	 *			|		then this.setNextCoordinates(newCoordinates)
+	 * @effect	Set the walking speed of this Unit with the given difference on the z coordinate, if this Unit can have the newly calculated 
+	 * 			coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates))
+	 *			|		then this.setWalkingSpeed(dz)
+	 * @effect	Calculate the velocity of this Unit using the new coordinates, if this Unit isn't falling and if this Unit can have the newly
+	 * 			calculated coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates) && !isFalling())
+	 *			|		then this.setVelocity(newCoordinates)
+	 * @effect	Withdraw 10 hitpoints from this Unit, if this Unit is falling and if it can have the newly calculated coordinates
+	 * 			as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates) && isFalling())
+	 *			|		then this.setCurrentHitpoints(getCurrentHitpoints() - 10)
+	 * @effect	The orientation of this Unit is set according to the velocity of this Unit, if this Unit can have the newly calculated
+	 * 			coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates))
+	 *			|		then this.setOrientation(getVelocity()[0], getVelocity()[1])
+	 * @effect	If this Unit is currently sprinting set the current speed to the sprinting speed.
+	 * 			Otherwise set the current speed equal to the walking speed of this Unit.
+	 * 			This can only be done if this Unit can have the newly calculated coordiantes as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates))
+	 *			|		then 
+	 *			|			if (isSprinting())
+	 *			|				then this.setCurrentSpeed(getSprintingSpeed())
+	 *			|			else this.setCurrentSpeed(getWalkingSpeed())
+	 * @effect	Disable the moving to adjacent state if a condition was violated or an error was thrown.
+	 * 			| catch (Exception e)
+	 * 			|	then this.setMovingToAdjacent(false)
+	 * @effect	Disabled the moving state of this Unit is a condition was violated or an error was thrown.
+	 * 			| catch (Exception e)
+	 * 			|	then this.setMoving(false)
+	 * @post	The velocity of this Unit is set to {0, 0, -3}, if this Unit is falling and if it can have the newly calculated coordinates
+	 * 			as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates) && isFalling())
+	 *			|		then for each i in 0..velocity.length:
+	 *			|			if (i == 2)
+	 *			|				then new.getVelocity()[i] == -3
+	 *			|			else new.getVelocity()[i] == 0
 	 */
+	@Raw
 	public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException
 	{
-		// REVISION:
 		if (!isAlive())
 			throw new IllegalStateException("Unit cannot move while its dead!");
-		// This method will only work if the Unit isn't currently already moving and if the destination cube isn't the same cube.
-		if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint())
+		if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedInitialRecoveryPeriod())
 		{
 			try {
-				// Disable behaviours and enable isMoving if it isn't already: 
-				if (!isMoving())
-					setMovingState(true);
 				if (isResting())
-					setIsResting(false);
+					setResting(false);
 				if (isWorking())
 					setWorking(false);
-				setIsMovingToAdjacent(true);
+				if (!isMoving())
+					setMoving(true);
+				setMovingToAdjacent(true);
 				
-				// Calculate new coordinates:
 				int[] dCoordinates = {dx, dy, dz};
-	
-				int newXPos = getCubeCoordinates()[0] + dCoordinates[0];
-				int newYPos = getCubeCoordinates()[1] + dCoordinates[1];
-				int newZPos = getCubeCoordinates()[2] + dCoordinates[2];
-				
-				int[] newCoordinates = {newXPos, newYPos, newZPos};
+				int[] coordinates = getCubeCoordinates();	
+				int[] newCoordinates = {(coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)};
 				
 				// Check whether the new cube coordinates are valid. If so, calculate the speeds and orientation:
 				if (canHaveAsCubeCoordinates(newCoordinates))
 				{
-					// Set the delta coordinates:
 					setDeltaNewPositions(dCoordinates);
-					
-					// Set the next cube coordinates to the new coordinates:
 					setNextCoordinates(newCoordinates);
-					
-					// Set walking speed:
 					setWalkingSpeed(dz);
-					
-					// Set the velocity:
 					if (!isFalling())
 						setVelocity(newCoordinates);
 					else
@@ -761,11 +422,7 @@ public class Unit {
 						}
 						setCurrentHitpoints(getCurrentHitpoints() - 10); // If the Unit is falling, subtract 10 hitpoints
 					}
-						
-					// Set the orientation: 
 					setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
-					
-					// Set the current speed:
 					if (isSprinting())
 						setCurrentSpeed(getSprintSpeed());
 					else
@@ -774,14 +431,21 @@ public class Unit {
 				else 
 					throw new IllegalArgumentException("Can't move towards this cube.");
 			}
-			catch (IllegalArgumentException e)
+			catch (Exception e)
 			{
-				// Disable movement:
-				setIsMovingToAdjacent(false);
-				setMovingState(false);
+				setMovingToAdjacent(false);
+				setMoving(false);
 				//throw e;
 			}
 		}
+		else
+		{
+//			System.err.println("Already moving to adjacent: " + isMovingToAdjacent());
+//			System.err.println("Wrong adjacent cube given: " + (dx == 0 && dy == 0 && dz == 0));
+//			System.err.println("Has rested initial recovery period: " + hasRestedInitialRecoveryPeriod());
+			throw new IllegalStateException("Cannot move to adjacent cube!");
+		}
+			
 	}
 	
 	/**
@@ -793,63 +457,73 @@ public class Unit {
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @throws	IllegalStateException
-	 * 			This Unit is dead.
+	 * 			This Unit hasn't rested its initial recovery period or the specified cube is the same as the current cube.
+	 * 			| (!hasRestedInitialRecoveryPeriod() && (!Arrays.equals(cube, getCubeCoordinates())))
+	 * @throws	IllegalStateException
+	 * 			This Unit cannot move to a cube if it  isn't alive.
 	 * 			| !isAlive()
 	 * 
-	 * @effect	The isMovingTo indicator of this Unit is enabled, if the Unit has finished the initial resting period.
-	 * 			| if (hasRestedOnePoint())
-	 * 			| then this.setIsMovingTo(true)
-	 * 
-	 * @effect	The isMoving indicator of this Unit is enabled, only if it was disabled and if the Unit has finised the initial resting period.
-	 * 			| if (!isMoving() && hasRestedOnePoint())
-	 * 			| then this.setIsMoving(true)
-	 * 
-	 * @effect	The isResting indicator of this Unit is disabled, only if it was enabled and if the Unit has finised the initial resting period.
-	 * 			| if (isResting() && hasRestedOnePoint())
-	 * 			| then this.setIsResting(false)
-	 * 
-	 * @effect	The isWorking indicator of this Unit is disabled, only if it was enabled and if the Unit has finised the initial resting period.
-	 * 			| if (isWorking() && hasRestedOnePoint())
-	 * 			| then this.setIsWorking(false)
-	 * 
-	 * @effect	The destinationCube of this Unit is set to the given cube, if the Unit has finised the initial resting period.
-	 * 			| if (hasRestedOnePoint())
-	 * 			| then this.setDestinationCube(cube)
+	 * @effect	The resting state of this Unit is disabled, if it was already enabled.
+	 * 			| if (isResting())
+	 * 			|	then this.setResting(false)
+	 * @effect	The working state of this Unit is disabled, if it was already enabled.
+	 * 			| if (isWorking())
+	 * 			|	then this.setWorking(false)
+	 * @effect	The moving state of this Unit is enabled, if it was disabled.
+	 * 			| if (!isMoving())
+	 * 			|	then this.setMoving(true)
+	 * @effect	The moving to state of this Unit is enabled.
+	 * 			| this.szetMovingTo(true)
+	 * @effect	The destination cube of this Unit is set to the given cube.
+	 * 			| this.setDestinationCube(cube)
+	 * @effect	The moving to state  of this Unit is disabled, if a condition was violated or an error was thrown.
+	 * 			| catch (Exception e)
+	 * 			|	then this.setMovingTo(false)
+	 * @effect	The moving state of this Unit is disabled, if a condition was violated or an error was thrown.
+	 * 			| catch (Exception e)
+	 * 			| 	then this.setMoving(false)
 	 */
+	@Raw
 	public void moveTo(int[] cube) throws IllegalArgumentException
 	{
 		if (!isAlive())
 			throw new IllegalStateException("Cannot move to a cube, Unit is dead!");
-		if (hasRestedOnePoint() && (!Arrays.equals(cube, getCubeCoordinates())))
+		if (hasRestedInitialRecoveryPeriod() && (!Arrays.equals(cube, getCubeCoordinates())))
 		{
 			try
 			{
-				if (!isMoving())
-					setMovingState(true);
 				if (isResting())
-					setIsResting(false);
+					setResting(false);
 				if (isWorking())
 					setWorking(false);
+				if (!isMoving())
+					setMoving(true);
 				
 				setMovingTo(true);
 				setDestinationCube(cube);
 			}
-			catch (IllegalArgumentException e)
+			catch (Exception e)
 			{
 				setMovingTo(false);
-				setMovingState(false);
+				setMoving(false);
 				//throw e;
 			}
+		}
+		else
+		{
+//			System.err.println("Has rested initial recovery period: " + hasRestedInitialRecoveryPeriod());
+//			System.err.println("Different cube than current cube: " + (!Arrays.equals(cube, getCubeCoordinates())));
+			throw new IllegalStateException("Cannot move to specified cube.");
 		}
 		
 	}
 	
 	/**
-	 * [TODO] Complete this function.
-	 * [FIXME] Add a checker to check values as well in (c,n| n <= n0).
-	 * @param position
-	 * @param n
+	 * Calculate the path to follow towards the destination cube.
+	 *
+	 * @note	This is part of the advanceTime method (through findPath()), thus we don't specify documentation for this method.
 	 */
+	@Raw
 	private ArrayList<Tuple<int[], Integer>> search(Tuple<int[], Integer> startTuple, ArrayList<Tuple<int[], Integer>> tempPaths)
 	{
 		// let l be a List of cube positions.
@@ -896,13 +570,13 @@ public class Unit {
 	}
 
 	/**
-	 * [TODO]
-	 * @throws IllegalArgumentException
+	 * Find the path towards the destination cube.
+	 * 
+	 * @note	This is a method from advance time (through moving()), thus no documentation is specified.
 	 */
+	@Raw
 	private void findPath() throws IllegalArgumentException
 	{
-		// Calculate the Path: 
-		//System.out.println("Destination cube is: " + "[" + getDestinationCube()[0] + ", " + getDestinationCube()[1] + ", " + getDestinationCube()[2] + "]");
 		pathQueue = new ArrayList<Tuple<int[], Integer>>();
 		Tuple<int[], Integer> destination = new Tuple<int[], Integer>(getDestinationCube(), 0);
 		pathQueue.add(destination);
@@ -924,20 +598,17 @@ public class Unit {
 			else
 				pathQueue.addAll(searchedDestinations);
 		}
-
-		//System.out.println("Size of possible paths: " + pathQueue.size());
 		
 		// Check is we can still move...
 		if (hasTupleWithGivenCoordinates(getCubeCoordinates(), pathQueue))
 		{
-			//System.out.println("This Unit can move to its destination.");
 			Tuple<int[], Integer> next = findNextCube(getCubeCoordinates());
 			// If the returned tuple from the queue is null, pathing is terminated.
 			if (next.getFirstValue() == null)
 			{
-				//System.out.println("Pathing will now end, because there isn't a next cube.");
 				setMovingTo(false);
-				throw new IllegalArgumentException("Pathing will here.");
+				setMoving(false);
+				throw new IllegalArgumentException("Pathing will end here.");
 			}
 			
 			else
@@ -979,10 +650,8 @@ public class Unit {
 		else
 		{
 			setMovingTo(false);
-			setMovingState(false);
-			//System.out.println("Location is impossible to reach! Terminating movement...");
+			setMoving(false);
 		}
-			
 	}
 	
 	/**
@@ -997,7 +666,10 @@ public class Unit {
 	 * 			| 	if (Tuple.getFirstValue()[0] == coordinates[0] && currentTuple.getFirstValue()[1] == coordinates[1] 
 	 * 			|			&& currentTuple.getFirstValue()[2] == coordinates[2]) 
 	 * 			| 		result == true)
+	 * @note	Although this method is part of advance time (through findPath()), we still specified some documentation because this method was
+	 * 			rather short.
 	 */
+	@Raw
 	private boolean hasTupleWithGivenCoordinates(int[] coordinates, ArrayList<Tuple<int[], Integer>> list)
 	{
 		Iterator<Tuple<int[], Integer>> iter = list.iterator();
@@ -1026,7 +698,10 @@ public class Unit {
 	 * 			|			if (Tuple.getSecondValue() < result.getSecondValue())
 	 * 			|				resultTuple = Tuple)
 	 * 			| result == resultTuple
+	 * @note	Although this method is part of advance time (through findPath()), we still specified some documentation because this method was
+	 * 			rather short.
 	 */
+	@Raw
 	private Tuple<int[], Integer> findNextCube(int[] coordinates)
 	{
 		Iterator<Tuple<int[], Integer>> iter = pathQueue.iterator();
@@ -1034,7 +709,7 @@ public class Unit {
 		while (iter.hasNext())
 		{
 			Tuple<int[], Integer> next = iter.next();
-			if (isNeighbouringCube(next.getFirstValue()))
+			if (World.isNeighbouringCube(getCubeCoordinates(), next.getFirstValue()))
 			{
 				if (next.getSecondValue() < result.getSecondValue())
 					result = next;
@@ -1050,15 +725,10 @@ public class Unit {
 	
 	/**
 	 * Check whether the Unit has reached its destination.
-	 * TODO Finish the Return statement (or change method)
-	 * @return	True if and only if the current Unit position components are greater or lower (depends on direction) or equal to
-	 * 			the cube coordinates + the cube length divided by 2.
-	 * 			| result == hasReached
-	 * 			| for 
-	 * 			| if ...
-	 * 			| then hasReached = true 
-	 * 			| else .. 
+	 *
+	 * @note	This method is part of advance time (through moving()), thus no documentation is specified.
 	 */
+	@Raw
 	private boolean destinationReached()
 	{
 		boolean hasReached = false;
@@ -1096,8 +766,9 @@ public class Unit {
 	/**
 	 * Increase one of the following skills of this Unit: strength, agility or toughness.
 	 * 
-	 * [TODO]	effects, posts, etc.
+	 * @note	This method is part of advance time, thus no documentation is specified.
 	 */
+	@Raw @Model
 	private void increaseSkills()
 	{	
 		int oldStrength = getStrength();
@@ -1123,8 +794,6 @@ public class Unit {
 				break;
 			}
 		}
-		
-		setDefaultWeight();
 		setWeight(getWeight());
 	}
 	
@@ -1139,14 +808,16 @@ public class Unit {
 	 * 			| while (getWorld().getAllLogs().iterator().hasNext())
 	 * 			| 	if (Arrays.equals(getWorld().getAllLogs().iterator().next().getPosition(), targetCube)
 	 * 			|		then result == getWorld().getAllLogs().iterator().next()
-	 * 
 	 * @return	A Log that is ineffective if there isn't a Boulder with the given position that is a part of this Unit's World collection
 	 * 			of Log.
 	 * 			| while (getWorld().getAllLogs().iterator().hasNext())
 	 * 			| 	if (Arrays.equals(getWorld().getAllLogs().iterator().next().getPosition(), targetCube)
 	 * 			|		then result == getWorld().getAllLogs().iterator().next()
 	 * 			| result == null
+	 * @note	Although this method is part of advance time (through findPath()), we still specified some documentation because this method was
+	 * 			rather short.
 	 */
+	@Raw
 	private Log logPresentAtCube(double[] targetCube)
 	{
 		Iterator<Log> iterator = getWorld().getAllLogs().iterator(); 
@@ -1178,7 +849,10 @@ public class Unit {
 	 * 			| 	if (Arrays.equals(getWorld().getAllBoulders().iterator().next().getPosition(), targetCube)
 	 * 			|		then result == getWorld().getAllBoulders().iterator().next()
 	 * 			| result == null
+	 * @note	Although this method is part of advance time (through findPath()), we still specified some documentation because this method was
+	 * 			rather short.
 	 */
+	@Raw
 	private Boulder boulderPresentAtCube(double[] targetCube)
 	{
 		Iterator<Boulder> iterator = getWorld().getAllBoulders().iterator();
@@ -1195,9 +869,7 @@ public class Unit {
 	/**
 	 * Check whether there is a Unit of this Unit's World available in the neighbouring cubes.
 	 * 
-	 * @return	A Unit that is effective if and only if there is a Unit in the neighbouring cubes and if that Unit is from a different Faction.
-	 * 
-	 * [TODO] Formal specifications
+	 * @note	This method is part of advance time (through selectBehaviour()), thus no documentation is specified.
 	 */
 	private Unit isNeighbouringUnitPresent()
 	{
@@ -1228,6 +900,12 @@ public class Unit {
 		return null;
 	}
 	
+	/**
+	 * Select the behaviour for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
+	@Raw @Model
 	private void SelectBehaviour() throws IllegalStateException
 	{
 		int choice = new Random().nextInt(4);
@@ -1277,11 +955,220 @@ public class Unit {
 		}
 	}
 	
+	/**
+	 * Calculate the resting consequences for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
+	@Raw @Model
+	private void resting(double duration)
+	{
+		setRestingDuration(getRestingDuration() + duration);
+		
+		if (getRestingDuration() >= 0.2) // Every 0.2 seconds we add a few points.
+		{
+			setRestingDuration(getRestingDuration() - 0.2);
+			
+			if (getCurrentHitpoints() == getMaxHitpoints()) // Check if hitpoints are full.
+			{
+				if (getCurrentStaminapoints() == getMaxStaminapoints()) // Check if staminapoints are full.
+				{
+					setResting(false);
+					setRecoveryState(true);
+					if (wasMoving())
+					{
+						setMoving(true);
+						setWasMoving(false);
+					}
+				}
+				else
+				{
+					// Count down the initial period of 1 hitpoint recovery:
+					if (!hasRestedInitialRecoveryPeriod())
+					{
+						setTempHitpoint(getTempHitpoint() + (getToughness() / 200.0));
+						
+						if (getTempHitpoint() >= 1)
+						{
+							setRecoveryState(true);
+							setTempHitpoint(0);
+						}
+					}
+					setTempStaminapoint(getTempStaminapoint() + (getToughness() / 100.0));
+					if (getTempStaminapoint() >= 1)
+					{
+						setCurrentStaminapoints(getCurrentStaminapoints() + 1);
+						setTempStaminapoint(0);
+					}
+				}
+				
+			}
+			else
+			{
+				setTempHitpoint(getTempHitpoint() + (getToughness() / 200.0));
+				if (getTempHitpoint() >= 1)
+				{
+					if (!hasRestedInitialRecoveryPeriod())
+						setRecoveryState(true);
+					setCurrentHitpoints(getCurrentHitpoints() + 1);
+					setTempHitpoint(0);
+				}
+			}
+		}
+	}
 	
+	/**
+	 * Calculate the fighting consequences for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
+	@Raw @Model
+	private void fighting(double duration)
+	{
+		if (getFightingDuration() >= 1)
+		{
+			if (isAttacking())
+				setAttacking(false);
+			else
+				setDefending(false);
+			setFightingDuration(0);
+			if (wasMoving())
+			{
+				setMoving(true);
+				setWasMoving(false);
+				setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
+			}
+			
+			setExperience(getExperience() + 20);
+		}
+		else
+			setFightingDuration(getFightingDuration() + duration);
+	}
+	
+	/**
+	 * Calculate the moving consequences for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
+	@Raw @Model
+	private void moving(double duration)
+	{
+		if (isMovingTo() && !isMovingToAdjacent()) 
+		{
+			findPath();
+		}
+
+		for(int i = 0; i < getPosition().length; i++)
+		{
+			setPositionAt(i, getPosition()[i] + (getVelocity()[i]*duration));
+		}
+		
+		if (isSprinting())
+		{
+			if (getCurrentStaminapoints() > 0)
+			{
+				if (getSprintingDuration() >= 0.1)
+				{
+					setCurrentStaminapoints(getCurrentStaminapoints() - 1);
+					setSprintingDuration(0);
+				}
+				else
+					setSprintingDuration(getSprintingDuration() + duration);
+			}
+			else
+				stopSprinting();
+		}
+		
+		if (destinationReached())
+		{	
+			if (isMovingToAdjacent())
+			{
+				setMovingToAdjacent(false);
+				if (!isFalling())
+					setExperience(getExperience() + 1);
+			}
+			if (!isMovingTo())
+			{
+				setMoving(false);
+				if (isSprinting())
+					setSprintingState(false);
+			}
+			setCubeCoordinates(getNextCoordinates()); 
+		}
+	}
+	
+	/**
+	 * Calculate the working consequences for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
+	@Raw @Model
+	private void working(double duration)
+	{
+		if (getWorkingDuration() > 0)
+			setWorkingDuration(getWorkingDuration() - duration);
+		else
+		{
+			double[] target = World.getPreciseCoordinates(getTargetCube());
+			Log log = logPresentAtCube(target);
+			Boulder boulder = boulderPresentAtCube(target);
+			boolean hasCompletedWork = true;
+			
+			if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 2)
+				getWorld().spawnLog(target);
+			else if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 1)
+				getWorld().spawnBoulder(target);
+			else if (isCarryingBoulder())
+				dropBoulder(target);
+			else if (isCarryingLog())
+				dropLog(target);
+			else if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 3 && log != null && boulder != null)
+			{
+				// Remove Boulder:
+				boulder.terminate();
+				getWorld().removeBoulder(boulder);
+				
+				// Remove Log:
+				log.terminate();
+				getWorld().removeLog(log);
+				
+				// Increase toughness, if possible:
+				if (getToughness() < MAX_PROPERTY_VALUE)
+				{
+					setToughness(getToughness() + 1);
+					setWeight(getWeight());
+				}
+			}
+			else if (boulder != null)
+			{
+				setBoulder(boulder);
+				setIsCarryingBoulder(true);
+				boulder.setPosition(null);
+			}
+			else if (log != null)
+			{
+				setLog(log);
+				setIsCarryingLog(true);
+				log.setPosition(null);
+			}
+			else 
+				hasCompletedWork = false;
+			
+			if (hasCompletedWork)
+				setExperience(getExperience() + 10);
+			setWorking(false);
+		}
+	}
+	
+	/**
+	 * Execute the specified {@link Task}.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
+	@Raw @Model
 	private void executeTask(Task task, double duration)
 	{
-		setTask(task);
-		
+		// TODO IMPLEMENT THIS SHIT
 	}
 	
 	/**
@@ -1290,27 +1177,50 @@ public class Unit {
 	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
-	 * [TODO]	Effects, post conditions, etc.
-	 * [FIXME] 	Add checker to see if hitpoints is zero.
+	 * @effect	Drop the carried Log, if this Unit is carrying a Log.
+	 * 			| if (isCarryingLog())
+	 * 			|	dropLog(getPosition())
+	 * @effect	Drop the carried Boulder, if this Unit is carrying a Boulder.
+	 * 			| if (isCarryingBoulder())
+	 * 			|	dropBoulder(getPosition())
+	 * @effect	Disable the moving state.
+	 * 			| this.setMoving(false)
+	 * @effect	Disable the working state.
+	 * 			| this.setWorking(false)
+	 * @effect	Disable the attacking state.
+	 * 			| this.setAttacking(false)
+	 * @effect	Disable the defending state.
+	 * 			| this.setDefending(false)
+	 * @effect	Disable the resting state.
+	 * 			| this.setResting(false)
+	 * @effect	Disable the default behaviour.
+	 * 			| this.setDefaultBehaviour(false)
+	 * @effect	Set Faction of this Unit ineffective.
+	 * 			| this.setFaction(null)
+	 * @effect	Set the World of this Unit ineffective.
+	 * 			| this.setWorld(null)
+	 * @post	The new alive state is false.
+	 * 			| new.isAlive() == false
 	 */
+	@Raw
 	public void die() throws IllegalArgumentException
 	{
+		// Kill the Unit:
+		this.isAlive = false;
+		
 		if (isCarryingLog())
 			dropLog(getPosition());
 		else if (isCarryingBoulder())
 			dropBoulder(getPosition());
 		
 		// Disable all behaviour:
-		setMovingState(false);
+		setMoving(false);
 		setWorking(false);
-		setIsAttacking(false);
-		setIsDefending(false);
-		setIsResting(false);
-		setIsDefaultBehaviour(false);
-		
-		// Kill the Unit:
-		this.isAlive = false;
-		
+		setAttacking(false);
+		setDefending(false);
+		setResting(false);
+		setDefaultBehaviour(false);
+
 		// Delete the Unit:
 		setFaction(null);
 		setWorld(null);
@@ -1522,14 +1432,6 @@ public class Unit {
 	 */
 	private int toughness;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  WEIGHT		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the weight of this Unit.
 	 */
@@ -1547,7 +1449,8 @@ public class Unit {
 	 * @return 	True if and only if the given weight is a valid property value for any Unit and if the given weight 
 	 * 			is higher or equal than the default weight.
 	 *       	| result == ( isValidProperyValue(weight) && (weight >= getDefaultWeight()) )
-	*/
+	 */
+	@Raw
 	public boolean canHaveAsWeight(int weight) 
 	{
 		return isValidPropertyValue(weight) && (weight >= getDefaultWeight());
@@ -1580,30 +1483,13 @@ public class Unit {
 	private int weight;
 
 	/**
-	 * Return the default weight of this Unit.
+	 * Return the default weight of this Unit, which is the sum of its strength and agility divided by 2.
 	 */
 	@Basic @Raw @Model
 	private int getDefaultWeight() 
 	{
-		return this.defaultWeight;
+		return ( (getStrength() + getAgility()) / 2 );
 	}
-	
-	/**
-	 * Set the default weight of this Unit equal to the sum of its strength and agility divided by 2.
-	 * 
-	 * @post	The default weight of this new Unit is equal to the sum of its strength and agility divided by 2.
-	 * 			| new.getDefaultWeight == (getStrength() + getAgility()) / 2
-	 */
-	@Model @Raw
-	private void setDefaultWeight()
-	{
-		this.defaultWeight = (getStrength() + getAgility()) / 2;
-	}
-	
-	/**
-	 * Variable registering the default weight of this Unit.
-	 */
-	private int defaultWeight;
 	
 	/**
 	 * Return the maximum hitpoints of this Unit.
@@ -1699,7 +1585,7 @@ public class Unit {
 	/**
 	 * Return the temporary hitpoint of this Unit.
 	 */
-	@Basic @Raw @Model
+	@Basic @Raw
 	private double getTempHitpoint() 
 	{
 		return this.tempHitpoint;
@@ -1713,7 +1599,7 @@ public class Unit {
 	 * @return 	True if and only if the temporary hitpoint is between zero and the sum of one and this unit's toughness divided by 200.
 	 *       	| result == ( (tempHitpoint >= 0) && (tempHitpoint < 1 + (getToughness() / 200.0)) )
 	 */
-	@Raw @Model
+	@Raw
 	private boolean canHaveAsTempHitpoint(double tempHitpoint) 
 	{
 		return ((tempHitpoint >= 0) && (tempHitpoint < (1 + (getToughness() / 200.0))));
@@ -1776,7 +1662,8 @@ public class Unit {
 	 *       	| result == ( (currentStaminapoints >= 0) && (currentStaminapoints <= getMaxHitpoints()) )
 	 * @note	As opposed to current hitpoints, we do implement equal to zero in this checker, because the current staminapoints should
 	 * 			be able to reach zero, at which point a Unit can't sprint anymore.
-	*/
+	 */
+	@Raw
 	public boolean canHaveAsCurrentStaminapoints(int currentStaminapoints) 
 	{
 		return ((currentStaminapoints >= 0) && (currentStaminapoints <= getMaxStaminapoints()));
@@ -1808,7 +1695,7 @@ public class Unit {
 	/**
 	 * Return the temporary staminapoint of this Unit.
 	 */
-	@Basic @Raw @Model
+	@Basic @Raw
 	private double getTempStaminapoint() 
 	{
 		return this.tempStaminapoint;
@@ -1823,7 +1710,7 @@ public class Unit {
 	 * 			the sum of one and this Unit's toughness divided by 100.
 	 *       	| result == ( (tempStaminapoint >= 0) && (tempStaminapoint <= 1 + (getToughness() / 100)) )
 	 */
-	@Raw @Model
+	@Raw 
 	private boolean canHaveAsTempStaminapoint(double tempStaminapoint) 
 	{
 		return ((tempStaminapoint >= 0) && (tempStaminapoint <= (1 + (getToughness() / 100.0))));
@@ -1993,7 +1880,7 @@ public class Unit {
 	 * 			|					|| (!isFalling && getWorld().hasSolidNeighbouringCube((coordinates[0], coordinates[1], coordinates[2]))) )
 	 */
 	@Raw
-	public boolean canHaveAsFallingState(boolean isFalling) 
+	public boolean canHaveAsFalling(boolean isFalling) 
 	{
 		if (!isAlive())
 			return !isFalling;
@@ -2018,7 +1905,7 @@ public class Unit {
 	@Raw
 	public void setFallingState(boolean isFalling) throws IllegalArgumentException 
 	{
-		if (!canHaveAsFallingState(isFalling))
+		if (!canHaveAsFalling(isFalling))
 			throw new IllegalArgumentException("Cannot have falling state!");
 		this.isFalling = isFalling;
 	}
@@ -2051,16 +1938,9 @@ public class Unit {
 	/**
 	 * Return the coordinates of the cube to which this Unit will move to next.
 	 */
-//	 * @return	The length of the resulting array is equal to the length of this Unit's next cube coordinates array.
-//	 * 			| result.length == this.nextCoordinates.length()
-//	 * @return	Each element of the resulting array corresponds with the element of this Unit's next cube coordinates array
-//	 * 			at the corresponding index.
-//	 * 			| for each i in 0..result.length:
-//	 * 			|	result[i] == this.nextCoordinates[i]
-	@Basic @Raw
+	@Basic @Raw @Model
 	private int[] getNextCoordinates() 
 	{
-		//return Arrays.copyOf(nextCoordinates, nextCoordinates.length);
 		return this.nextCoordinates;
 	}
 	
@@ -2099,7 +1979,7 @@ public class Unit {
 	 * 			The Unit isn't currently falling and there isn't a solid cube neighbouring the next cube coordinates.
 	 *       	| !isFalling() && !getWorld().hasSolidNeighbouringCube(nextCoordinates[0], nextCoordinates[1], nextCoordinates[2])
 	 */
-	@Raw
+	@Raw @Model
 	private void setNextCoordinates(int[] nextCoordinates) throws IllegalArgumentException 
 	{
 		if (! canHaveAsNextCoordinates(nextCoordinates))
@@ -2187,6 +2067,7 @@ public class Unit {
 	 * 			| else
 	 * 			|	result == false
 	 */
+	@Raw
 	public boolean canHaveAsPositionAt(int index, double value)
 	{
 		/* 
@@ -2225,6 +2106,7 @@ public class Unit {
 	 * @post	The value of the element of the position with the given index is equal to the given value.
 	 * 			| new.getPosition()[index] == value
 	 */
+	@Raw
 	public void setPositionAt(int index, double value) throws IllegalArgumentException, IllegalStateException
 	{
 		if (!isAlive())
@@ -2239,14 +2121,10 @@ public class Unit {
 	 */
 	private double[] position;
 	
-	/*
-	 * FIXME	Not happy about name of this property, please reconsider.
-	 */
-	
 	/**
 	 * Return the difference between current and next positions of this Unit.
 	 */
-	@Basic @Raw @Model
+	@Basic @Raw
 	private int[] getDeltaNewPositions() 
 	{
 		return this.deltaNewPositions;
@@ -2264,7 +2142,7 @@ public class Unit {
 	 *       	|		then result == false
 	 *       	| result == true
 	 */
-	@Raw @Model
+	@Raw
 	private static boolean isValidDeltaNewPositions(int[] deltaNewPositions) 
 	{
 		for (int i = 0; i < deltaNewPositions.length; i++)
@@ -2364,7 +2242,7 @@ public class Unit {
 	/**
 	 * Return the sprinting speed of this Unit.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private double getSprintSpeed() 
 	{
 		return (2 * getWalkingSpeed());
@@ -2550,6 +2428,7 @@ public class Unit {
 	 * 			| if ( (getCurrentStaminapoints() > 0) && isMoving() && !isFalling() && !isDefaultBehaviourEnabled() )
 	 * 			| 	then this.setVelocity(getNextCubeCoordinates())
 	 */
+	@Raw
 	public void startSprinting() throws IllegalArgumentException
 	{
 		if ((getCurrentStaminapoints() > 0) && isMoving() && !isFalling())
@@ -2576,6 +2455,7 @@ public class Unit {
 	 * 			| if (isMoving())
 	 * 			| 	then this.setCurrentSpeed(getWalkingSpeed())
 	 */
+	@Raw
 	public void stopSprinting() throws IllegalArgumentException
 	{
 		if (isMoving())
@@ -2678,7 +2558,7 @@ public class Unit {
 	 *       	| ! canHaveAsIsMoving(getIsMoving())
 	 */
 	@Raw @Model
-	private void setMovingState(boolean isMoving) throws IllegalArgumentException 
+	private void setMoving(boolean isMoving) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsMoving(isMoving))
 			throw new IllegalArgumentException("The given value isMoving is invalid for this Unit.");
@@ -2693,7 +2573,7 @@ public class Unit {
 	/**
 	 * Check whether this Unit was moving.
 	 */
-	@Basic @Raw @Model
+	@Basic @Raw
 	private boolean wasMoving() 
 	{
 		return this.wasMoving;
@@ -2708,7 +2588,7 @@ public class Unit {
 	 * 			state is false.
 	 *       	| result == ( (wasMoving && !isMoving()) || (!wasMoving && isMoving()) )
 	 */
-	@Raw @Model
+	@Raw
 	private boolean canHaveAsWasMoving(boolean wasMoving) 
 	{
 		return ((wasMoving && !isMoving()) || (!wasMoving && isMoving()));
@@ -2741,7 +2621,7 @@ public class Unit {
 	/**
 	 * Check whether this Unit is currently moving to a cube in the {@link World}.
 	 */
-	@Basic @Raw @Model
+	@Basic @Raw
 	private boolean isMovingTo() 
 	{
 		return this.isMovingTo;
@@ -2757,7 +2637,7 @@ public class Unit {
 	 * @note	The moving to state must be enabled after the moving state is enabled and it must be disabled before the moving
 	 * 			state is disabled. This means at all times the moving state must be true.
 	 */
-	@Raw @Model
+	@Raw
 	private boolean canHaveAsMovingTo(boolean isMovingTo) 
 	{
 		return isMoving();
@@ -2810,7 +2690,7 @@ public class Unit {
 	 * 			this state to check if its moving to an adjacent cube.
 	 */
 	@Raw @Model
-	private void setIsMovingToAdjacent(boolean isMovingToAdjacent) throws IllegalArgumentException 
+	private void setMovingToAdjacent(boolean isMovingToAdjacent) throws IllegalArgumentException 
 	{
 		if (!canHaveAsMovingTo(isMovingToAdjacent))
 			throw new IllegalArgumentException("Cannot have the given is moving to adjacent cube state!");
@@ -2825,7 +2705,7 @@ public class Unit {
 	/**
 	 * Return the destination cube of this Unit.
 	 */
-	@Basic @Raw @Model
+	@Basic @Raw
 	private int[] getDestinationCube() {
 		return this.destinationCube;
 	}
@@ -2841,7 +2721,7 @@ public class Unit {
 	 *         	This Unit cannot have the given destinationCube as its cubeCoordinates.
 	 *       	| ! canHaveAsCubeCoordinates(destinationCube)
 	 */
-	@Raw @Model
+	@Raw 
 	private void setDestinationCube(int[] destinationCube) throws IllegalArgumentException 
 	{
 		if (! canHaveAsCubeCoordinates(destinationCube))
@@ -2897,6 +2777,9 @@ public class Unit {
 	/**
 	 * Make this Unit work.
 	 * 
+	 * @throws	IllegalArgumentException
+	 * 			This Unit is moving, attacking, already working or didn't rest its initial recovery period yet.
+	 * 			| !(isMoving() || isAttacking()) && !isWorking() && hasRestedOnePoint()
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The resting indicator of this Unit is disabled, only if the Unit isn't moving, attacking or already working and if the Unit
@@ -2915,16 +2798,27 @@ public class Unit {
 	@Raw
 	public void work() throws IllegalArgumentException
 	{
-		if (!(isMoving() || isAttacking()) && !isWorking() && hasRestedOnePoint())
+		if (!(isMoving() || isAttacking()) && !isWorking() && hasRestedInitialRecoveryPeriod())
 		{
 			if (isResting())
-				setIsResting(false);
+				setResting(false);
 			
 			setWorking(true);
 			setWorkingDuration(500/getStrength());
 		}
 		else
-			throw new IllegalArgumentException("Unable to work right now.");
+		{
+			if (isMoving())
+				System.err.println("Unit is still moving, thus no work can be done!");
+			if (isAttacking())
+				System.err.println("Unit is still attacking, thus no work can be done!");
+			if (isWorking())
+				System.err.println("Unit is already working, wait till Unit has finished working!");
+			if (!hasRestedInitialRecoveryPeriod())
+				System.err.println("Unit hasn't rested its initial recovery period!");
+			throw new IllegalArgumentException("Unable to work right now!");
+		}
+			
 	}
 	
 	/**
@@ -2958,7 +2852,6 @@ public class Unit {
 		{
 			try
 			{
-				// Target cube:
 				int[] targetCube = {x, y, z};
 				setTargetCube(targetCube);
 				
@@ -2966,8 +2859,7 @@ public class Unit {
 				double arg0 = y - getCubeCoordinates()[1];
 				double arg1 = x - getCubeCoordinates()[0];
 				setOrientation(Math.atan2(arg0, arg1));
-				
-				// Start working:
+
 				work();
 			}
 			catch (IllegalArgumentException e)
@@ -2986,7 +2878,7 @@ public class Unit {
 	/**
 	 * Return the target cube of this Unit.
 	 */
-	@Basic @Raw @Model
+	@Basic @Raw 
 	private int[] getTargetCube() 
 	{
 		return this.targetCube;
@@ -2999,31 +2891,12 @@ public class Unit {
 	 *         	The target cube to check.
 	 * @return 	True if and only if the target cube coordinates are between this World's boundaries
 	 * 			and the target cube is a neighbouring cube of the current Unit's cube or the current cube itself.
-	 *       	| result == getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && isTargetCube(targetCube)
+	 *       	| result == getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && World.isNeighbouringCube(getCubeCoordinates(), targetCube)
 	 */
-	@Raw @Model
-	public boolean canHaveAsTargetCube(int[] targetCube) 
+	@Raw
+	private boolean canHaveAsTargetCube(int[] targetCube) 
 	{
-		return getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && isNeighbouringCube(targetCube);
-	}
-	
-	/**
-	 * Check whether the given cube is a neighbouring cube of this Unit's cube.
-	 * 
-	 * @param 	cube
-	 * 			The cube to check.
-	 * @return	True if and only if the cube is a neighbouring cube. This means the coordinates components are either the Unit's cubeCoordinates
-	 * 			components +1, -1 or if the cube components are equal to the Unit's cubeCoordinates components.
-	 * 			| result ==  ((getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
-	 *			| && (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
-	 *			| && (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]))
-	 */
-	@Raw @Model
-	private boolean isNeighbouringCube(int [] cube)
-	{
-		return ((getCubeCoordinates()[0] == cube[0] || getCubeCoordinates()[0] + 1 == cube[0] || getCubeCoordinates()[0] - 1 == cube[0]) 
-				&& (getCubeCoordinates()[1] == cube[1] || getCubeCoordinates()[1] + 1 == cube[1] || getCubeCoordinates()[1] - 1 == cube[1])
-				&& (getCubeCoordinates()[2] == cube[2] || getCubeCoordinates()[2] + 1 == cube[2] || getCubeCoordinates()[2] - 1 == cube[2]));
+		return getWorld().isBetweenBoundaries(targetCube[0], targetCube[1], targetCube[2]) && World.isNeighbouringCube(getCubeCoordinates(), targetCube);
 	}
 	
 	/**
@@ -3041,7 +2914,7 @@ public class Unit {
 	private void setTargetCube(int[] targetCube) throws IllegalArgumentException 
 	{
 		if (! canHaveAsTargetCube(targetCube))
-			throw new IllegalArgumentException("The given targetCube to work at is invalid.");
+			throw new IllegalArgumentException("The target cube is either out of boundaries or not neighbouring this Unit.");
 		this.targetCube = targetCube;
 	}
 	
@@ -3053,7 +2926,7 @@ public class Unit {
 	/**
 	 * Return the working duration of this Unit.
 	 */
-	@Basic @Raw @Model
+	@Basic @Raw
 	private double getWorkingDuration() 
 	{
 		return this.workingDuration;
@@ -3064,15 +2937,14 @@ public class Unit {
 	 *  
 	 * @param  	workingDuration
 	 *         	The working duration to check.
-	 * @return 	True if and only if the given working duration is between -0.2 and (500/getStrength())
-	 *       	| result == ( (workingDuration >= -0.2) && ( workingDuration <= (500 / getStrength()) ) )
-	 * @note	We use the value -0.2 because we need to account for the fact that an advanceTime call could have 0.2 as duration,
-	 * 			which could make the variable -0.2 (if it was already close to 0). This is rather rare, but still.
+	 * @return 	True if and only if the given working duration is lower than (500/getStrength())
+	 *       	| result == ( workingDuration <= (500 / getStrength() )
+	 * @note	If the working duration goes beneath zero, we will immediately set it to 0.
 	 */
-	@Raw @Model
+	@Raw
 	private boolean canHaveAsWorkingDuration(double workingDuration)
 	{
-		return (workingDuration >= -0.2) && (workingDuration <= (500 / getStrength()));
+		return (workingDuration <= (500 / getStrength()));
 	}
 	
 	/**
@@ -3080,8 +2952,12 @@ public class Unit {
 	 * 
 	 * @param  	workingDuration
 	 *         	The new working duration for this Unit.
-	 * @post   	The working duration of this new Unit is equal to the given working duration.
-	 *       	| new.getWorkingDuration() == workingDuration
+	 * @post   	The working duration of this new Unit is equal to the given working duration, if the given duration is positive.
+	 * 			Otherwise, the working duration of this new Unit is equal to zero.
+	 * 			| if (workingDuration >= 0)
+	 *       	| 	then new.getWorkingDuration() == workingDuration
+	 *       	| else
+	 *       	|	new.getWorkingDuration() == 0
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit cannot have the given working duration as its working duration.
 	 *       	| ! canHaveAsWorkingDuration(getWorkingDuration())
@@ -3090,14 +2966,21 @@ public class Unit {
 	private void setWorkingDuration(double workingDuration) throws IllegalArgumentException 
 	{
 		if (! canHaveAsWorkingDuration(workingDuration))
-			throw new IllegalArgumentException("The given workingDuration is invalid for this Unit.");
-		this.workingDuration = workingDuration;
+		{
+			System.err.println("Max working duration: "  + (500/getStrength()));
+			throw new IllegalArgumentException("The given workingDuration is invalid for this Unit." + workingDuration);
+		}
+			
+		if (workingDuration < 0)
+			this.workingDuration = 0;
+		else
+			this.workingDuration = workingDuration;
 	}
 	
 	/**
 	 * Variable registering the working duration of this Unit.
 	 */
-	private double workingDuration;
+	private double workingDuration = 0L;
 
 	/**
 	 * Check whether this Unit is carrying a log.
@@ -3134,7 +3017,7 @@ public class Unit {
 	 *         	This Unit cannot have the given carrying log state as its carrying log state.
 	 *       	| ! canHaveAsIsCarryingLog(getIsCarryingLog())
 	 */
-	@Raw @Model
+	@Raw
 	private void setIsCarryingLog(boolean isCarryingLog) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsCarryingLog(isCarryingLog))
@@ -3181,34 +3064,22 @@ public class Unit {
 	 * 
 	 * @param  	log
 	 *         	The new {@link Log} for this Unit.
-	 * @effect	If the log is a null object, the weight of this Unit is set to the difference between the current weight 
-	 * 			and the current Log's weight.
-	 * 			| if (log == null)
-	 * 			| 	then this.setWeight(getWeight() - getLog().getWeight())
+	 * @effect	Change the weight according to the given Log.
+	 * 			| this.changeWeight(log)
 	 * @post   	The Log of this new Unit is equal to the given Log.
 	 *       	| new.getLog() == log
-	 * @post	The weight of this new Unit is equal to the sum of the Unit's current weight and the given Log's weight if the Log isn't null.
-	 * 			| if (log != null)
-	 * 			| 	then new.getWeight() == old.getWeight() + log.getWeight()
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit can't have the given Log as its Log.
 	 *       	| ! canHaveAsLog(getLog())
 	 * @note	If the Log is effective, the weight is manually set to the current weight + the weight of the log. This is done without
 	 * 			the setter, because this temporary weight may exceed the checker.
 	 */
-	@Raw @Model
+	@Raw
 	private void setLog(Log log) throws IllegalArgumentException 
 	{
 		if (! canHaveAsLog(log))
 			throw new IllegalArgumentException("The given log is invalid for this Unit.");
-		
-		// Set weight:
-		if (log != null)
-			this.weight = getWeight() + log.getWeight();
-		else
-			setWeight(getWeight() - getLog().getWeight());
-		
-		// Set Log:
+		changeWeight(log);
 		this.log = log;
 	}
 	
@@ -3333,15 +3204,10 @@ public class Unit {
 	 * 
 	 * @param  	boulder
 	 *         	The new Boulder for this Unit.
-	 * @effect	If the given Boulder is null, the weight of this unit is set to the difference between the current Unit's weight 
-	 * 			and the current Boulder's weight.
-	 *         	| if (boulder == null)
-	 *         	| 	then this.setWeight(getWeight() - getBoulder().getWeight())
+	 * @effect	Change the weight according to the given Boulder.
+	 * 			| this.changeWeight(boulder)
 	 * @post   	The Boulder of this new Unit is equal to the given Boulder.
 	 *       	| new.getBoulder() == boulder
-	 * @post	The weight of this new Unit is equal to the sum of the current weight of this Unit and the weight of the given Boulder if the 
-	 * 			given Boulder isn't null.
-	 * 			| if (boulder != null)
 	 * @throws 	IllegalArgumentException
 	 *         	This Unit can't have the given Boulder as its Boulder.
 	 *       	| !canHaveAsBoulder(getBoulder())
@@ -3351,10 +3217,7 @@ public class Unit {
 	{
 		if (! canHaveAsBoulder(boulder))
 			throw new IllegalArgumentException("The given Boulder is invalid for this Unit.");
-		if (boulder != null)
-			this.weight = getWeight() + boulder.getWeight();
-		else
-			setWeight(getWeight() - getBoulder().getWeight());
+		changeWeight(boulder);
 		this.boulder = boulder;
 	}
 	
@@ -3384,8 +3247,8 @@ public class Unit {
 	 * @effect	This Unit's isCarryingBoulder indicator is disabled.
 	 * 			| this.setIsCarryingBoulder(false)
 	 */
-	@Raw
-	public void dropBoulder(double[] target) throws IllegalArgumentException
+	@Raw @Model
+	private void dropBoulder(double[] target) throws IllegalArgumentException
 	{
 		getBoulder().setPosition(target);
 		setBoulder(null);
@@ -3396,17 +3259,41 @@ public class Unit {
 	 * Variable referencing the {@link Boulder} attached to this Unit.
 	 */
 	private Boulder boulder;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |    IS ATTACKING	|
-	// |					|
-	// |					|
-	// ----------------------
+
+	/**
+	 * Change the weight of this Unit according to the given {@link Log} or {@link Boulder}.
+	 * 
+	 * @param 	object
+	 * 			The {@link Log} or {@link Boulder} for this change of weight.
+	 * @post	The weight of this Unit is equal to the sum of the current weight and the weight of the given object, if the given object
+	 * 			is effective.
+	 * 			| if (object != null)
+	 * 			|	then new.getWeight == (this.getWeight() + object.getWeight())
+	 * @effect	If the given object is ineffective, set the weight to the difference between the current weight and the weight of the Log or Boulder
+	 * 			this Unit is carrying.
+	 * 			| if (object == null)
+	 * 			|	then
+	 * 			|		if (isCarryingLog())
+	 * 			|			then this.setWeight(this.getWeight() - getLog().getWeight())
+	 * 			|		else
+	 * 			|			this.setWeight(this.getWeight() - getBoulder().getWeight())
+	 */
+	@Raw 
+	private void changeWeight(WorldObject object)
+	{
+		if (object != null)
+			this.weight = getWeight() + object.getWeight();
+		else
+		{
+			if (isCarryingLog())
+				setWeight(getWeight() - getLog().getWeight());
+			else if (isCarryingBoulder())
+				setWeight(getWeight() - getBoulder().getWeight());
+		}
+	}
 	
 	/**
-	 * Return the attacking indicator of this Unit.
+	 * Check whether this Unit is attacking another Unit.
 	 */
 	@Basic @Raw
 	public boolean isAttacking() 
@@ -3415,35 +3302,26 @@ public class Unit {
 	}
 	
 	/**
-	 * Set the isAttacking indicator of this Unit to the given isAttacking indicator.
+	 * Set the attacking state of this Unit to the given attacking state.
 	 * 
 	 * @param  	isAttacking
-	 *         	The new isAttacking indicator for this Unit.
-	 *         
-	 * @post   	The attacking indicator of this new Unit is equal to the given attacking indicator.
+	 *         	The new attacking state for this Unit.
+	 * @post   	The attacking state of this new Unit is equal to the given attacking state.
 	 *       	| new.getIsAttacking() == isAttacking
 	 */
-	@Raw
-	public void setIsAttacking(boolean isAttacking)
+	@Raw @Model
+	private void setAttacking(boolean isAttacking)
 	{
 		this.isAttacking = isAttacking;
 	}
 	
 	/**
-	 * Variable registering the attacking indicator of this Unit.
+	 * Variable registering the attacking state of this Unit.
 	 */
 	private boolean isAttacking;
-
-	// ----------------------
-	// |					|
-	// |					|
-	// |    IS DEFENDING	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
-	 * Return the defending indicator of this Unit.
+	 * Check whether this Unit is defending itself.
 	 */
 	@Basic @Raw
 	public boolean isDefending() 
@@ -3452,32 +3330,23 @@ public class Unit {
 	}
 	
 	/**
-	 * Set the isDefending indicator of this Unit to the given isDefending indicator.
+	 * Set the defending state of this Unit to the given defending state.
 	 * 
 	 * @param  	isDefending
-	 *         	The new defending indicator for this Unit.
-	 *         
-	 * @post   	The isDefending indicator of this new Unit is equal to the given isDefending indicator.
+	 *         	The new defending state for this Unit.
+	 * @post   	The defending state of this new Unit is equal to the given defending state.
 	 *       	| new.getIsDefending() == isDefending
 	 */
-	@Raw
-	public void setIsDefending(boolean isDefending)
+	@Raw @Model
+	private void setDefending(boolean isDefending)
 	{
 		this.isDefending = isDefending;
 	}
 	
 	/**
-	 * Variable registering the defending indicator of this Unit.
+	 * Variable registering the defending state of this Unit.
 	 */
 	private boolean isDefending;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |  FIGHTING DURATION	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the fighting duration of this Unit.
@@ -3492,75 +3361,38 @@ public class Unit {
 	 * Check whether the given fighting duration is a valid fighting duration for any Unit.
 	 *  
 	 * @param  	fightingDuration
-	 *         	The fightingDuration to check.
-	 * @return 	True if and only if the given fightingDuration is between 0 and 1.2.
+	 *         	The fighting duration to check.
+	 * @return 	True if and only if the given fightingDuration is positive.
 	 *       	| result == ((fightingDuration >= 0) && (fightingDuration < 1.2))
-	 *       
-	 * @note	Fighting lasts for 1 second. AdvanceTime can only accept durations between 0 and 0.2, thus it is possible that the 
-     * 			fightingDuration can be just less than 1.2 (e.g. 0.99 + 0.19, than a check which shows it is above 1)
 	 */
 	private static boolean isValidFightingDuration(double fightingDuration) 
 	{
-		return ((fightingDuration >= 0) && (fightingDuration < 1.2));
+		return (fightingDuration >= 0);
 	}
 	
 	/**
-	 * Set the fightingDuration of this Unit to the given fightingDuration.
+	 * Set the fighting furation of this Unit to the given duration.
 	 * 
-	 * @param  	fightingDuration
-	 *         	The new fightingDuration for this Unit.
-	 *         
-	 * @post   	The fightingDuration of this new Unit is equal to the given fightingDuration.
-	 *       	| new.getFightingDuration() == fightingDuration
-	 *       
+	 * @param  	duration
+	 *         	The new fighting duration for this Unit.
+	 * @post   	The fighting duration of this new Unit is equal to the given duration.
+	 *       	| new.getFightingDuration() == duration
 	 * @throws 	IllegalArgumentException
 	 *         	The given fightingDuration is not a valid fightingDuration for any Unit.
 	 *       	| ! isValidFightingDuration(getFightingDuration())
 	 */
 	@Raw
-	private void setFightingDuration(double fightingDuration) throws IllegalArgumentException 
+	private void setFightingDuration(double duration) throws IllegalArgumentException 
 	{
-		if (! isValidFightingDuration(fightingDuration))
+		if (! isValidFightingDuration(duration))
 			throw new IllegalArgumentException("The given fightingDuration is too large.");
-		this.fightingDuration = fightingDuration;
+		this.fightingDuration = duration;
 	}
 	
 	/**
 	 * Variable registering the fighting duration of this Unit.
 	 */
 	private double fightingDuration;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |  	   FIGHT		|
-	// |					|
-	// |					|
-	// ----------------------
-	
-	/**
-	 * Check whether both Units are adjacent to each other.
-	 * 
-	 * @param 	other
-	 * 			The other Unit to check positions with.
-	 * @return	True if and only if each cube coordinate of this Unit is equal, plus one or minus one to each cube coordinate
-	 * 			of the other Unit .
-	 * 			| for (int i = 0; i < getUnitPosition().length; i++)
-	 * 			| 	if (!(getCubeCoordinates()[i] == other.getCubeCoordinates()[i] || getCubeCoordinates()[i] == other.getCubeCoordinates()[i] - 1
-	 *			|		|| getCubeCoordinates()[i] == other.getCubeCoordinates()[i] + 1))
-	 *			| 		then result == false
-	 *			| result == true
-	 */
-	private boolean checkPositions(Unit other)
-	{
-		for (int i = 0; i < getPosition().length; i++)
-		{
-			if (!(getCubeCoordinates()[i] == other.getCubeCoordinates()[i] || getCubeCoordinates()[i] == other.getCubeCoordinates()[i] - 1
-					|| getCubeCoordinates()[i] == other.getCubeCoordinates()[i] + 1))
-				return false;
-		}
-		return true;
-	}
 	
 	/**
 	 * Attack another Unit.
@@ -3571,60 +3403,57 @@ public class Unit {
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 			Both Units aren't next to each other or they are in the same faction, thus they can't attack each other.
-	 * 			| if (!checkPositions(defender) && defender.getFaction() == getFaction())
-	 * 
+	 * 			| if (!World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() == getFaction())
 	 * @effect	The isWorking indicator of this Unit is disabled, only if both Units are next to each other, if they are from different Factions
 	 * 			and if the given Unit doesn't equal this Unit and if the isWorking indicator is enabled.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction() && defender != this && isWorking())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) 
+	 * 			|		&& defender.getFaction() != getFaction() && defender != this && isWorking())
 	 * 			| 	then this.setIsWorking(false)
-	 * 
 	 * @effect	The isResting indicator of this Unit is disabled, only if both Units are next to each other, if they are from different Factions
 	 * 			and if the given Unit doesn't equal this Unit and if the isResting indicator is enabled.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction() && defender != this && isResting())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction() 
+	 * 			|		&& defender != this && isResting())
 	 * 			| 	then this.setIsResting(false)
-	 * 
 	 * @effect	The orientation of this Unit is set to the arctangent of the difference
 	 * 			of the y-component of the other Unit and the y-component of this Unit
 	 * 			and the difference of the x-component of the other Unit and the x-component
 	 * 			of this Unit, only if both Units are next to each other and if they are from different Factions.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction())
 	 * 			| 	then this.setOrientation(Math.atan2(defender.getUnitPosition()[1] - getUnitPosition()[1],
 	 * 			| 		defender.getUnitPosition()[0] - getUnitPosition()[0]))
-	 * 
 	 * @effect	The isAttacking indicator of this Unit is enabled, only if both Units are
 	 * 			next to each other and if they are from different Factions.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction())
 	 * 			| 	then this.setIsAttacking(true)
-	 * 
 	 * @effect	The isMoving indicator of this Unit is disabled, only if both Units are next to each other and if they are from
 	 * 			different Factions and if this Unit is currently moving.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction() && isMoving())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction() 
+	 * 			|		&& isMoving())
 	 * 			| 	then this.setIsMoving(false)
-	 * 
 	 * @effect	The wasMoving indicator of this Unit is enabled, only if both Units are next to each other and if they are from  
 	 * 			different Factions and if this Unit is currently moving.
-	 * 			| if (checkPositions(defender) && defender.getFaction() != getFaction() && isMoving())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction() 
+	 * 			|		&& isMoving())
 	 * 			| 	then this.setWasMoving(true)
 	 */
+	@Raw
 	public void attack(Unit defender) throws IllegalArgumentException
 	{
-		if (checkPositions(defender) && defender.getFaction() != getFaction())
+		if (World.isNeighbouringCube(getCubeCoordinates(), defender.getCubeCoordinates()) && defender.getFaction() != getFaction())
 		{
 				if (isWorking())
 					setWorking(false);
 				if (isResting())
-					setIsResting(false);
+					setResting(false);
 				if (isMoving())
 				{
-					setMovingState(false);
+					setMoving(false);
 					setWasMoving(true);
 				}
-				
 				double arg0 = defender.getPosition()[1] - getPosition()[1];
 				double arg1 = defender.getPosition()[0] - getPosition()[0];
 				setOrientation(Math.atan2(arg0, arg1));
-				
-				setIsAttacking(true);
+				setAttacking(true);
 		}
 		else
 			throw new IllegalArgumentException("The units must be next to each other.");
@@ -3639,67 +3468,65 @@ public class Unit {
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an eeror was thrown.
 	 * 			Both Units aren't next to each other or are from the same Faction, thus they can't attack each other.
-	 * 			| if (!checkPositions(attacker) && attacker.getFaction() != getFaction())
-	 * 
+	 * 			| if (!World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction())
 	 * @effect	The isWorking indicator of this Unit is disabled, only if both Units are
 	 * 			next to each other, if they are from different Factions and if the isWorking indicator is enabled.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && isWorking())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction() 
+	 * 			|		&& isWorking())
 	 * 			| 	then this.setIsWorking(false)
-	 * 
 	 * @effect	The isResting indicator of this Unit is disabled, only if both Units are
 	 * 			next to each other, if they are from different Factions and if the isResting indicator is enabled.
-	 * 			| if (checkPositions(defender) && attacker.getFaction() != getFaction() && isResting())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction() 
+	 * 			|		&& isResting())
 	 * 			| 	then this.setIsResting(false)
-	 * 
 	 * @effect	The isDefending indicator of this Unit is enabled, only if both Units are
 	 * 			next to each other and if they are from different Factions.
-	 * 			| if (checkPositions(defender) && attacker.getFaction() != getFaction())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction())
 	 * 			| 	then this.setIsDefending(true)
-	 * 
 	 * @effect	The orientation of this Unit is set to the arctangent of the difference
 	 * 			of the y-component of the other Unit and the y-component of this Unit
 	 * 			and the difference of the x-component of the other Unit and the x-component
 	 * 			of this Unit, only if both Units are next to each other and if they are from different Factions.
-	 * 			| if (checkPositions(defender) && attacker.getFaction() != getFaction())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction())
 	 * 			| 	then this.setOrientation(Math.atan2(attacker.getUnitPosition()[1] - getUnitPosition()[1],
 	 * 			| 		attacker.getUnitPosition()[0] - getUnitPosition()[0]))
-	 * 
 	 * @effect	The current hitpoints of this Unit is set to the difference between its current hitpoints
 	 * 			and the other Unit's strength divided by 10, only if both Units are next to each other,
 	 * 			if they are from differen Factions and if this Unit didn't block or dodge the attack.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && !Dodged(attacker) && !Blocked(attacker))
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction() 
+	 * 			|		&& !Dodged(attacker) && !Blocked(attacker))
 	 * 			| 	then this.setCurrentHitpoints(getCurrentHitpoints() - (attacker.getStrength() / 10.0))
-	 * 
 	 * @effect	The isMoving indicator of this Unit is disabled, only if both Units are next to each other, if they are from 
 	 * 			differen Factions and if this Unit is currently moving.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && isMoving())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction() 
+	 * 			|		&& isMoving())
 	 * 			| 	then this.setIsMoving(false)
-	 * 
 	 * @effect	The wasMoving indicator of this Unit is enabled, only if both Units are next to each other, if they are from
 	 * 			different Factions and if this Unit is currently moving.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && isMoving())
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction()
+	 * 			|		 && isMoving())
 	 * 			| 	then this.setWasMoving(true)
-	 * 
 	 * @effect	The experience of this Unit is set to the sum of the current experience and 20, only if both Units are next to each
 	 * 			other, if they are from different Factions and if this Unit has either dogded or blocked the incoming attack.
-	 * 			| if (checkPositions(attacker) && attacker.getFaction() != getFaction() && (hasDogded() || hasBlocked()))
+	 * 			| if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction()
+	 * 			|		&& (hasDogded() || hasBlocked()))
 	 * 			|	then this.setExperience(getExperience() + 20)
 	 */
+	@Raw
 	public void defend(Unit attacker) throws IllegalArgumentException
 	{
-		if (checkPositions(attacker) && attacker.getFaction() != getFaction())
+		if (World.isNeighbouringCube(getCubeCoordinates(), attacker.getCubeCoordinates()) && attacker.getFaction() != getFaction())
 		{
 				if (isWorking())
 					setWorking(false);
 				if (isResting())
-					setIsResting(false);
+					setResting(false);
 				if (isMoving())
 				{
-					setMovingState(false);
+					setMoving(false);
 					setWasMoving(true);
 				}
-				
-				setIsDefending(true);
+				setDefending(true);
 				boolean hasEarnedExp = false;
 				double arg0 = attacker.getPosition()[1] - getPosition()[1];
 				double arg1 = attacker.getPosition()[0] - getPosition()[0];
@@ -3715,19 +3542,16 @@ public class Unit {
 					moveToAdjacent(dx, dy, dz);
 					hasEarnedExp = true;
 				}
-				
 				else if (hasBlocked(attacker))
 				{
 					hasEarnedExp = true;
 					System.out.println("Blocked the attack.");
 				}
-				
 				else
 				{
 					double damage = attacker.getStrength() / 10.0;
 					setCurrentHitpoints(getCurrentHitpoints() - (int)damage);
 				}
-				
 				if (hasEarnedExp)
 					setExperience(getExperience() + 20);
 		}
@@ -3744,6 +3568,7 @@ public class Unit {
 	 * 			by the attacker's agility.
 	 * 			| result == new Random().nextDouble() <= 0.2*(getAgility()/attacker.getAgility())
 	 */
+	@Raw @Model
 	private boolean hasDogded(Unit attacker)
 	{
 		double propability = 0.2*(getAgility()/attacker.getAgility());
@@ -3759,9 +3584,10 @@ public class Unit {
 	 * 			The Unit attacking this Unit.
 	 * @return	True if and only if the new random double is lower or equal than 0.25 times the sum of this Unit's strength
 	 * 			and agility divided by the sum of the attackers strength and agility.
-	 * 			| result == new Random().nextDouble() <= 0.25*((getStrength() + getAgility()) / 
-	 * 			| (attacker.getStrength() + attacker.getAgility()))
+	 * 			| result == new Random().nextDouble() <= 0.25*( (getStrength() + getAgility()) / 
+	 * 			| ( attacker.getStrength() + attacker.getAgility() ) )
 	 */
+	@Raw @Model
 	private boolean hasBlocked(Unit attacker)
 	{
 		double propability = 0.25*((getStrength() + getAgility()) / (attacker.getStrength() + attacker.getAgility()));
@@ -3769,16 +3595,8 @@ public class Unit {
 		return hasBlocked;
 	}
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |     IS RESTING		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the resting indicator of this Unit.
+	 * Check whether this Unit is resting.
 	 */
 	@Basic @Raw
 	public boolean isResting()
@@ -3787,34 +3605,32 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given isResting indicator as its inResting indicator.
+	 * Check whether this Unit can have the given resting state as its resting state.
 	 * 
 	 * @param  	isResting
-	 *         	The resting indicator to check.
+	 *         	The resting state to check.
 	 * @return 	True if and only if the given isResting indicator is enabled and this Unit isn't currently attacking or defending or if
 	 * 			the given isResting indicator is false.
-	 *       	| result == (isResting && (!isAttacking() || !isDefending()) || !isResting)
+	 *       	| result == ( (isResting && (!isAttacking() || !isDefending())) || !isResting )
 	 */
 	public boolean canHaveAsIsResting(boolean isResting)
 	{
-		return (isResting && (!isAttacking() || !isDefending()) || !isResting);
+		return ( (isResting && (!isAttacking() || !isDefending()) ) || !isResting);
 	}
 	
 	/**
-	 * Set the resting indicator of this Unit to the given resting indicator.
+	 * Set the resting state of this Unit to the given resting state.
 	 * 
 	 * @param  	isResting
-	 *         	The new resting indicator for this Unit.
-	 *         
-	 * @post   	The resting indicator of this new Unit is equal to the given resting indicator.
+	 *         	The new resting state for this Unit.
+	 * @post   	The resting state of this new Unit is equal to the given resting state.
 	 *       	| new.getIsResting() == isResting
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isResting indicator as its isResting indicator.
+	 *         	This Unit cannot have the given resting state as its resting state.
 	 *       	| ! canHaveAsIsResting(getIsResting())
 	 */
-	@Raw
-	public void setIsResting(boolean isResting) throws IllegalArgumentException 
+	@Raw @Model
+	private void setResting(boolean isResting) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsResting(isResting))
 			throw new IllegalArgumentException("The given value isResting is invalid for this Unit.");
@@ -3826,49 +3642,42 @@ public class Unit {
 	 * 
 	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
-	 * 
 	 * @effect	The isWorking indicator of this Unit is disabled, only if this Unit isn't attacking and if this Unit's current hitpoints
 	 * 			are lower than the max hitpoints and if this Unit's current staminapoints is lower than the max staminapoints and if the
 	 * 			Unit isn't already Resting and if the Unit is working.
 	 * 			| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints()) 
 	 * 			| 	&& !isResting() && isWorking())
 	 * 			| 	then this.setIsWorking(false)
-	 * 
 	 * @effect	The isResting indicator of this Unit is enabled, only if this Unit isn't attacking and if this Unit's current hitpoints 
 	 * 			are lower than the max hitpoints or if this Unit's current stamina points is lower than the max staminapoints and if the 
 	 * 			Unit isn't already resting.
 	 * 			| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 * 			| 	&& !isResting())
 	 * 			| 	then this.setIsResting(true)
-	 * 
 	 * @effect	The restingDuration of this Unit is set to 0, only if this Unit isn't attacking and if this Unit's current hitpoints
 	 * 			are lower than the max hitpoints or if this Unit's current stamina points is lower than the max staminapoints and if the
 	 * 			Unit isn't already resting.
 	 *  		| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 *  		| 	&& !isResting())
 	 * 			| 	then this.setRestingDuration(0)
-	 * 
 	 * @effect	The tempHitpoint of this Unit is set to 0, only if this Unit isn't attacking and if this Unit's current hitpoints
 	 * 			are lower than the max hitpoints or if this Unit's current stamina points is lower than the max staminapoints and if the
 	 * 			Unit isn't already resting.
 	 * 			| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 * 			| 	&& !isResting())
 	 * 			| 	then this.setTempHitpoint(0)
-	 * 
 	 * @effect	The tempStaminapoint of this Unit is set to 0, only if this Unit isn't attacking and if this Unit's current hitpoints 
 	 * 			are lower than the max hitpoints or if this Unit's current stamina points is lower than the max staminapoints and if the
 	 * 			Unit isn't already resting.
 	 * 	 		| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 * 			|	&& !isResting())
 	 * 			| 	then this.setTempStaminapoint(0)
-	 * 
 	 * @effect	The isMoving indicator is disabled, only if this Unit isn't attacking and if this Unit's current hitpoits are lower
 	 * 			than the max hitpoints or if this Unit's current staminapoints are lower than the max staminapoints and if the Unit isn't
 	 * 			already resting and if the Unit is currently moving.
 	 * 			| if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints())
 	 * 			| 	&& !isResting() && isMoving())
 	 * 			| 	then this.setIsMoving(false)
-	 * 
 	 * @effect	The wasMoving indicator is enabled, only if this Unit isn't attacking and if this Unit's current hitpoints are kiwer 
 	 * 			than the max hitpoints or if this Unit's current staminapoints are lower than the max staminapoints and if the Unit isn't
 	 * 			already resting and if the Unit is currently moving.
@@ -3876,6 +3685,7 @@ public class Unit {
 	 * 			| 	&& !isResting() && isMoving())
 	 * 			| 	then this.setWasMoving(true)
 	 */
+	@Raw
 	public void rest() throws IllegalArgumentException
 	{
 		if (!isAttacking() && (getCurrentHitpoints() < getMaxHitpoints() || getCurrentStaminapoints() < getMaxStaminapoints()) && !isResting())
@@ -3884,37 +3694,28 @@ public class Unit {
 				setWorking(false);
 			if (isMoving())
 			{
-				setMovingState(false);
+				setMoving(false);
 				setWasMoving(true);
 			}
-			if (hasRestedOnePoint())
-				setHasRestedOnePoint(false);
-			setIsResting(true);
+			setRecoveryState(false);
+			setResting(true);
 			setRestingDuration(0);
 			setTempHitpoint(0);
 			setTempStaminapoint(0);
 		}
 		/*else
-			throw new ModelException("Unable to rest right now.");*/
+			throw new IllegalStateException("Unable to rest right now.");*/
 	}
 	
 	/**
-	 * Variable registering the resting indicator of this Unit.
+	 * Variable registering the resting state of this Unit.
 	 */
 	private boolean isResting;
 
-	// ----------------------
-	// |					|
-	// |					|
-	// |  CURRENT RESTING	|
-	// |	   PERIOD		|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the resting period of this Unit.
+	 * Return the period for which this Unit hasn't been resting.
 	 */
-	@Basic @Raw
+	@Basic @Raw @Model
 	private double getCurrentRestingPeriod() 
 	{
 		return this.currentRestingPeriod;
@@ -3926,8 +3727,7 @@ public class Unit {
 	 * @param  	resting period
 	 *         	The resting period to check.
 	 * @return 	True if and only if the given restingPeriod is between 0 and RESTING_PERIOD + 0.2 (inclusive).
-	 *       	| result == ((currentRestingPeriod >= 0) && (currentRestingPeriod <= RESTING_PERIOD + 0.2))
-	 *       
+	 *       	| result == ( (currentRestingPeriod >= 0) && (currentRestingPeriod <= RESTING_PERIOD + 0.2) )
 	 * @note	The resting period can only be between 0 and the resting period + 0.2, because the advanceTime can have 0.2 
 	 * 			as its max value to work.
 	 */
@@ -3941,15 +3741,13 @@ public class Unit {
 	 * 
 	 * @param  	restingPeriod
 	 *         	The new resting period for this Unit.
-	 *         
 	 * @post  	The resting period of this new Unit is equal to the given resting period.
 	 *       	| new.getRestingPeriod() == restingPeriod
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	The given resting period is not a valid resting period for any Unit.
 	 *       	| ! isValidRestingPeriod(getRestingPeriod())
 	 */
-	@Raw
+	@Raw @Model
 	private void setCurrentRestingPeriod(double currentRestingPeriod) throws IllegalArgumentException 
 	{
 		if (! isValidRestingPeriod(currentRestingPeriod))
@@ -3958,25 +3756,17 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the resting period of this Unit.
+	 * Variable registering the period of time the Unit hasn't been resting. After 180 seconds, the Unit must rest.
 	 */
 	private double currentRestingPeriod;
 	
 	/**
-	 * Constant registering the period whenever a unit must rest.
+	 * Constant registering the period whenever a Unit must rest, which is after 180 seconds.
 	 */
 	private final static int RESTING_PERIOD = 180;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |  RESTING DURATION	|
-	// |					|
-	// |					|
-	// ----------------------
-	
+
 	/**
-	 * Return the resting duration of this Unit.
+	 * Return the duration this Unit has been resting for.
 	 */
 	@Basic @Raw
 	private double getRestingDuration() 
@@ -3989,15 +3779,12 @@ public class Unit {
 	 *  
 	 * @param  	resting duration
 	 *         	The resting duration to check.
-	 * @return	True if and only if the given restingDuration is between 0 (inclusive) and 0.4 (exclusive)
-	 *       	| result == ((restingDuration >= 0) && (restingDuration < 0.4))
-	 *       
-	 * @note	Normally, the Unit rests each 0.2 seconds, but each advanceTime can have a 0.2 value maximum. Thus, we extend this 
-	 * 			invariant with 0.2, creating the boundary of 0.4.
+	 * @return	True if and only if the given restingDuration is positive or equal to zero.
+	 *       	| result == (restingDuration >= 0)
 	 */
 	private static boolean isValidRestingDuration(double restingDuration) 
 	{
-		return ((restingDuration >= 0) && (restingDuration < 0.4));
+		return (restingDuration >= 0);
 	}
 	
 	/**
@@ -4005,15 +3792,13 @@ public class Unit {
 	 * 
 	 * @param  	restingDuration
 	 *         	The new resting duration for this Unit.
-	 *         
 	 * @post   	The resting duration of this new Unit is equal to the given resting duration.
 	 *       	| new.getRestingDuration() == restingDuration
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	The given resting duration is not a valid resting duration for any Unit.
 	 *       	| ! isValidRestingDuration(getRestingDuration())
 	 */
-	@Raw
+	@Raw @Model
 	private void setRestingDuration(double restingDuration) throws IllegalArgumentException 
 	{
 		if (! isValidRestingDuration(restingDuration))
@@ -4026,53 +3811,36 @@ public class Unit {
 	 */
 	private double restingDuration;
 
-	// ----------------------
-	// |					|
-	// |					|
-	// |HAS RESTED ONE POINT|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the hasRestedOnePoint of this Unit.
+	 * Check wheter this Unit has rested its initial recovery period.
 	 */
-	@Basic @Raw
-	private boolean hasRestedOnePoint() 
+	@Basic @Raw @Model
+	private boolean hasRestedInitialRecoveryPeriod() 
 	{
-		return this.hasRestedOnePoint;
+		return this.hasRestedInitialRecoveryPeriod;
 	}
 	
 	/**
-	 * Set the hasRestedOnePoint of this Unit to the given hasRestedOnePoint.
+	 * Set the recovery state of this Unit to the given recovery state.
 	 * 
-	 * @param  	hasRestedOnePoint
-	 *         	The new hasRestedOnePoint for this Unit.
-	 *         
-	 * @post   	The hasRestedOnePoint of this new Unit is equal to the given hasRestedOnePoint.
-	 *       	| new.getHasRestedOnePoint() == hasRestedOnePoint
+	 * @param  	recoveryState
+	 *         	The new recovery state for this Unit.
+	 * @post   	The recovery state of this new Unit is equal to the given recovery state.
+	 *       	| new.getHasRestedOnePoint() == recoveryState
 	 */
-	@Raw
-	private void setHasRestedOnePoint(boolean hasRestedOnePoint) 
+	@Raw @Model
+	private void setRecoveryState(boolean recoveryState) 
 	{
-		this.hasRestedOnePoint = hasRestedOnePoint;
+		this.hasRestedInitialRecoveryPeriod = recoveryState;
 	}
 	
 	/**
-	 * Variable registering the hasRestedOnePoint of this Unit.
+	 * Variable registering whether this Unit has rested its Initial recovery period.
 	 */
-	private boolean hasRestedOnePoint = true;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |IS DEFAULT BEHAVIOUR|
-	// |	  ENABLED		|
-	// |					|
-	// ----------------------
+	private boolean hasRestedInitialRecoveryPeriod = true;
 	
 	/**
-	 * Return the default behaviour indicator of this Unit.
+	 * Check whether this Unit has its default behaviour enabled.
 	 */
 	@Basic @Raw
 	public boolean isDefaultBehaviourEnabled() 
@@ -4088,26 +3856,25 @@ public class Unit {
 	 * @return 	True if and only if the Unit isn't currently attacking or defending.
 	 *       	| result == ((!isAttacking() || !isDefending())
 	 */
+	@Raw
 	public boolean canHaveAsIsDefaultBehaviour(boolean isDefaultBehaviourEnabled) 
 	{
 		return (!isAttacking() || !isDefending());
 	}
 	
 	/**
-	 * Set the default behaviour indicator of this Unit to the given default behaviour indicator.
+	 * Set the default behaviour state of this Unit to the given default behaviour state.
 	 * 
 	 * @param  	isDefaultBehaviourEnabled
-	 *         	The new default behaviour indicator for this Unit.
-	 *         
-	 * @post   	The default behaviour indicator of this new Unit is equal to the given default behaviour indicator.
+	 *         	The new default behaviour state for this Unit.
+	 * @post   	The default behaviour state of this new Unit is equal to the given default behaviour state.
 	 *       	| new.getIsDefaulBehaviour() == isDefaultBehaviourEnabled
-	 *       
 	 * @throws 	IllegalArgumentException
-	 *         	This Unit cannot have the given isDefaultBehaviour indicator as its isDefaultBehaviour indicator.
+	 *         	This Unit cannot have the given default behaviour state as its default behaviour state.
 	 *       	| ! canHaveAsIsDefaulBehaviour(getIsDefaulBehaviour())
 	 */
 	@Raw
-	public void setIsDefaultBehaviour(boolean isDefaultBehaviourEnabled) throws IllegalArgumentException 
+	public void setDefaultBehaviour(boolean isDefaultBehaviourEnabled) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsDefaultBehaviour(isDefaultBehaviourEnabled))
 			throw new IllegalArgumentException("The given value isDefaultBehaviourEnabled is invalid for this Unit.");
@@ -4115,20 +3882,12 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the default behaviour indicator of this Unit.
+	 * Variable registering the default behaviour stater of this Unit.
 	 */
 	private boolean isDefaultBehaviourEnabled;
 
-	// ----------------------
-	// |					|
-	// |					|
-	// |      FACTION		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the faction of this unit.
+	 * Return the {@link Faction} to which this Unit belongs.
 	 */
 	@Basic @Raw
 	public Faction getFaction() 
@@ -4137,25 +3896,25 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given Faction as one of its Factions.
+	 * Check whether this Unit can have the given {@link Faction} as the {@link Faction} to which this Unit can be attached to.
 	 *  
 	 * @param  	faction
-	 *         	The Faction to check.
-	 * @return 	True if and only if the given Faction is either one of the Factions of this Unit's World or if it is ineffective.
-	 *       	| if (faction == null)
-	 *       	|	then result == true
-	 *       	| while (getWorld().getAllFactions().iterator().hasNext())
-	 *       	| 	if (getWorld().getAllFactions().iterator().next() == faction)
-	 *       	|		then result == true
-	*/
-	public boolean canHaveAsFaction(Faction faction)
+	 *         	The {@link Faction} to check.
+	 * @return 	If this Unit is dead, true if and only if the given Faction is ineffective.
+	 * 			Otherwise, true if and only if the given Faction is part of this Unit's World and if that Faction can have this Unit as
+	 * 			one of its Units.
+	 * 			| if (!isAlive())
+	 * 			|	result == (faction == null)
+	 * 			| else
+	 * 			|	result == ( getWorld().hasAsFaction(faction) && faction.canHaveAsUnit(this) )
+	 */
+	@Raw
+	private boolean canHaveAsFaction(Faction faction)
 	{
 		if (!isAlive())
 			return faction == null;
 		else
-		{
 			return getWorld().hasAsFaction(faction) && faction.canHaveAsUnit(this);
-		}
 	}
 	
 	/**
@@ -4184,17 +3943,20 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable registering the faction of this unit.
+	 * Check whether this Unit has a proper {@link Faction} attached to it.
+	 * 
+	 * @return	True if and only if this Unit can have its Faction as its Faction and if this Faction has this Unit as its Unit.
+	 * 			| result == ( (getFaction() == null) || (canHaveAsFaction(getFaction()) && getFaction().hasAsUnit(this)) )
+	 */
+	public boolean hasProperFaction()
+	{
+		return (getFaction() == null) || (canHaveAsFaction(getFaction()) && getFaction().hasAsUnit(this));
+	}
+	
+	/**
+	 * Variable registering the {@link Faction} of this unit.
 	 */
 	private Faction faction;
-
-	// ----------------------
-	// |					|
-	// |					|
-	// |     EXPERIENCE		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Return the experience of this Unit.
@@ -4210,16 +3972,12 @@ public class Unit {
 	 *  
 	 * @param  	experience
 	 *         	The experience to check.
-	 * @return 	True if and only if the given experience is between 0 and 30.
-	 *       	| result == (experience >= 0) && (experience < 30)
-	 *       
-	 * @note	The upper boundary of this checker is 30, because each time the experience counter reaches 10, the counter is resetted
-	 * 			to 0. The max amount of experience a Unit can get at once is 20 (from a successfull attack or defence), thus the maximum
-	 * 			experience one Unit can have at any given time is 30.
+	 * @return 	True if and only if the given experience is positive.
+	 *       	| result == (experience >= 0) 
 	 */
 	public static boolean isValidExperience(int experience) 
 	{
-		return (experience >= 0) && (experience <= 30);
+		return (experience >= 0);
 	}
 	
 	/**
@@ -4227,16 +3985,14 @@ public class Unit {
 	 * 
 	 * @param 	experience
 	 *        	The new experience for this Unit.
-	 *        
 	 * @post   	The experience of this new Unit is equal to the given experience.
 	 *       	| new.getExperience() == experience
-	 *       
 	 * @throws 	IllegalArgumentException
 	 *         	The given experience is not a valid experience for any Unit.
 	 *       	| ! isValidExperience(getExperience())
 	 */
-	@Raw
-	public void setExperience(int experience) throws IllegalArgumentException 
+	@Raw @Model
+	private void setExperience(int experience) throws IllegalArgumentException 
 	{
 		if (! isValidExperience(experience))
 			throw new IllegalArgumentException("The given experience is invalid for any Unit.");
@@ -4248,16 +4004,8 @@ public class Unit {
 	 */
 	private int experience;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |      IS ALIVE		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the alive indicator of this Unit.
+	 * Check whether this Unit is alive.
 	 */
 	@Basic @Raw
 	public boolean isAlive() 
@@ -4270,17 +4018,10 @@ public class Unit {
 	 */
 	private boolean isAlive = true;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |       WORLD		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the {@link World} to which this Unit is attached.
 	 */
+	@Basic @Raw
 	public World getWorld()
 	{
 		return this.world;
@@ -4298,6 +4039,7 @@ public class Unit {
 	 * 			| else
 	 * 			|	result == ( (world != null) && world.canHaveAsUnit(this) )
 	 */
+	@Raw
 	public boolean canHaveAsWorld(World world)
 	{
 		if (!isAlive)
@@ -4316,8 +4058,8 @@ public class Unit {
 	 * 			This Unit cannot have the given World as the World to which it is attached.
 	 * 			| (!canHaveAsWorld(world))
 	 */
-	@Raw
-	public void setWorld(World world) throws IllegalArgumentException
+	@Raw @Model
+	private void setWorld(World world) throws IllegalArgumentException
 	{
 		if (!canHaveAsWorld(world))
 			throw new IllegalArgumentException("Invalid World for this Unit!");
@@ -4346,16 +4088,8 @@ public class Unit {
 	 */
 	private World world;
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |        TASK		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
-	 * Return the Task assigned to this Unit.
+	 * Return the {@link Task} that is assigned to this Unit.
 	 */
 	@Basic @Raw
 	public Task getTask()
@@ -4364,7 +4098,7 @@ public class Unit {
 	}
 	
 	/**
-	 * Check whether this Unit can have the given Task as its Task.
+	 * Check whether this Unit can have the given {@link Task} as its assigned {@link Task}.
 	 * 
 	 * @param 	task
 	 * 			The Task to check.
@@ -4375,6 +4109,7 @@ public class Unit {
 	 * 			| else
 	 * 			|	result == getFaction().getScheduler().hasAsTask(task)
 	 */
+	@Raw
 	public boolean canHaveAsTask(Task task)
 	{
 		if (task == null)
@@ -4393,6 +4128,7 @@ public class Unit {
 	 * 			This Unit cannot have the given Task as its assigned Task
 	 * 			| !canHaveAsTask(task)
 	 */
+	@Raw
 	public void setTask(Task task) throws IllegalArgumentException
 	{
 		if (!canHaveAsTask(task))
@@ -4401,7 +4137,31 @@ public class Unit {
 	}
 	
 	/**
-	 * Variable referencing the Task assigned to this Unit.
+	 * Check whether this Unit has a proper {@link Task} assigned to it.
+	 * 
+	 * @return	True if and only if this Unit can have its Task as its Task, if this Unit is alive and if the Task has this Unit as its Unit or
+	 * 			if this Unit is dead.
+	 * 			| if (canHaveAsTask(getTask())
+	 * 			|	then
+	 * 			|		if (isAlive())
+	 * 			|			then result == ( getTask().getUnit() == this )
+	 * 			|		else
+	 * 			|			result == true
+	 * 			| else
+	 * 			|	result == false
+	 */
+	public boolean hasProperTask()
+	{
+		if (canHaveAsTask(getTask()))
+			if (isAlive())
+				return getTask().getUnit() == this;
+			else
+				return true;
+		return false;
+	}
+	
+	/**
+	 * Variable referencing the {@link Task} assigned to this Unit.
 	 */
 	private Task task;
 }

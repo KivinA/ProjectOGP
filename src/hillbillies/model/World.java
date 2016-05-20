@@ -284,6 +284,24 @@ public class World {
 	}
 	
 	/**
+	 * Check whether the given cube is a neighbour of a given original cube.
+	 * 
+	 * @param 	originalCube
+	 * 			The original cube to check the neighbour cube with.
+	 * @param 	neighbourCube
+	 * 			The cube to check if its a neighbouring cube of the original cube.
+	 * @return	True if and only if the given neighbour cube is a neighbouring cube of the original cube. This means the coordinates components
+	 * 			of the neighbouring cube are either the original cube components +1, -1 or 
+	 * 			if the neighbouring cube components are equal to the original cube components.
+	 */
+	public static boolean isNeighbouringCube(int[] originalCube, int[] neighbourCube)
+	{
+		return ( ( (originalCube[0] == neighbourCube[0]) || ((originalCube[0] + 1) == neighbourCube[0]) || ((originalCube[0] - 1) == neighbourCube[0]) )
+				&& ( (originalCube[1] == neighbourCube[1]) || ((originalCube[1] + 1) == neighbourCube[1]) || ((originalCube[1] - 1) == neighbourCube[1]) )
+				&& ( (originalCube[2] == neighbourCube[2]) || ((originalCube[2] + 1) == neighbourCube[2]) || ((originalCube[2] - 1) == neighbourCube[2]) ) );
+	}
+	
+	/**
 	 * An auxiliary method to help round the given double number to an integer number. 
 	 * 
 	 * @param 	number

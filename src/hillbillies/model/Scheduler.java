@@ -240,7 +240,7 @@ public class Scheduler {
 	 * @effect	The Unit of the given Task is set to the given Unit.
 	 * 			| task.setUnit(unit)
 	 */
-	public void markTask(Task task, Unit unit) throws ModelException
+	public void markTask(Task task, Unit unit) throws IllegalArgumentException
 	{
 		unit.setTask(task);
 		task.setUnit(unit);

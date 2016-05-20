@@ -67,7 +67,6 @@ public class FactionTest {
 		{
 			Unit unit = i.next();
 			unit.die();
-			unit.setWorld(null);
 			i.remove();
 		}
 	}
