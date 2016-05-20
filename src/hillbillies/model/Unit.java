@@ -10,135 +10,66 @@ import be.kuleuven.cs.som.annotate.*;
 
 /** 
  * A class of Units which can have a name, agility, strength, weight, toughness, maximum hitpoints, maximum staminapoints, current hitpoints, 
- * current staminapoints, orientation, cube coordinates, position, default behaviour.
+ * current staminapoints, orientation, cube coordinates, position, default behaviour, a {@link Faction}, a {@link Task} and several speeds. 
+ * This Unit lives in a given {@link World}.
  * 
  * @version 1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
+ * 			1ba Informatica
+ * @note	Repository link: https://github.com/KivinA/ProjectOGP
  * 
  * @invar  	The name of each Unit must be a valid name for any Unit.
  *       	| isValidName(getName())
- * 
- * @invar  	The strength of each Unit must be a valid strength for any Unit.
- *       	| isValidStrength(getStrength())
- * 
- * @invar  	The agility of each Unit must be a valid agility for any Unit.
- *       	| isValidAgility(getAgility())
- * 
- * @invar  	The toughness of each Unit must be a valid toughness for any Unit.
- *       	| isValidToughness(getToughness())
- *      
+ * @invar  	The strength of each Unit must be a valid property value for any Unit.
+ *       	| isValidPropertyValue(getStrength())
+ * @invar  	The agility of each Unit must be a valid property value for any Unit.
+ *       	| isValidPropertyValue(getAgility())
+ * @invar  	The toughness of each Unit must be a valid property value for any Unit.
+ *       	| isValidPropertyValue(getToughness())
  * @invar  	Each Unit can have its weight as its weight.
  *       	| canHaveAsWeight(getWeight())
- *       
- * @invar  	The maxHitpoints of each Unit must be a valid maxHitpoints for any Unit.
- *       	| isValidMaxHitpoints(this.getMaxHitpoints())
- *       
- * @invar  	Each Unit can have its currentHitpoints as its currentHitpoints.
+ * @invar	The maximum hitpoints of each Unit must be valid points for any Unit.
+ * 			| isValidPoints(getMaxHitpoint())
+ * @invar  	Each Unit can have its current hitpoints as its current hitpoints.
  *       	| canHaveAsCurrentHitpoints(getCurrentHitpoints())
- *       
- * @invar  	Each Unit can have its tempHitpoint as its tempHitpoint.
- *       	| canHaveAsTempHitpoint(getTempHitpoint())
- *       
- * @invar  	The maxStaminapoints of each Unit must be a valid maxStaminapoints for any Unit.
- *       	| isValidMaxStaminaPoints(this.getMaxStaminaPoints())
- *       
- * @invar   Each Unit can have its currentStaminaPoints as its currentStaminapoints.
- *       	| canHaveAsCurrentStaminapoints(getCurrentStaminapoints())
- *       
- * @invar  	Each Unit can have its tempStaminapoint as its tempStaminapoint.
- *       	| canHaveAsTempStaminapoint(getTempStaminapoint())
- *       
+ * @invar  	The maximum staminapoints of each Unit must be a valid points for any Unit.
+ *       	| isValidPoints(getMaxStaminaPoints())	
+ * @invar   Each Unit can have its current staminapoints as its current staminapoints.
+ *       	| canHaveAsCurrentStaminapoints(getCurrentStaminapoints())  
  * @invar  	The orientation of each Unit must be a valid orientation for any Unit.
  *       	| isValidOrientation(getOrientation())
- *       
- * @invar  	Each Unit can have its cubeCoordinates as its cubeCoordinates
+ * @invar  	Each Unit can have its cube coordinates as its cube coordinates
  *       	| canHaveAsCubeCoordinates(getCubeCoordinates())
- *       	
- * @invar  	Each Unit can have its isFalling indicator as its isFalling indicator.
- *       	| canHaveAsIsFalling(getisFalling())
- *       
- * @invar  	Each Unit can have its nextCubeCoordinates as its nextCubeCoordinates.
- *       	| canHaveAsNextCubeCoordinates(getNextCubeCoordinates())
- *       
- * @invar  	The deltaNewPositions of each Unit must be a valid deltaNewPositions for any Unit.
- *       	| isValidDeltaNewPositions(getDeltaNewPositions())
-
- * @invar  	Each Unit can have its walkingSpeed as its walkingSpeed.
- *       	| canHaveAsWalkingSpeed(getWalkingSpeed())
- *       
- * @invar  	Each Unit can have its sprintSpeed as its sprintSpeed.
- *       	| canHaveAsSprintSpeed(getSprintSpeed())
- *    		
- * @invar  	Each Unit can have its current speed as its currentSpeed.
+ * @invar  	Each Unit can have its falling state as its falling state.
+ *       	| canHaveAsFalling(isFalling())
+ * @invar  	Each Unit can have its current speed as its current speed.
  *       	| canHaveAsCurrentSpeed(getCurrentSpeed())
- *       
- * @invar  	Each Unit can have its isSprinting indicator as its isSprinting indicator.
+ * @invar  	Each Unit can have its sprinting state as its sprinting state.
  *       	| canHaveAsIsSprinting(getIsSprinting())
- *       
- * @invar  	The moving indicator of each Unit must be a valid moving indicator for any Unit.
- *       	| canHaveIsMoving(getIsMoving())
- *       
- * @invar  	The sprinting duration of each Unit must be a valid sprinting duration for any Unit.
- *       	| isValidSprintingDuration(getSprintingDuration())
- *       
- * @invar  	Each Unit can have its wasMoving indicator as its wasMoving indicator.
- *       	| canHaveAsWasMoving(getWasMoving())
- *       
- * @invar  	Each Unit can have its isMovingTo indicator as its isMovingTo indicator.
- *       	| canHaveAsIsMovingTo(getIsMovingTo())
- *       
- * @invar  	Each Unit can have its isMovingToAdjacent indicator as its isMovingToAdjacent indicator.
- *       	| canHaveAsIsMovingToAdjacent(getIsMovingToAdjacent())
- *       
- * @invar  	Each Unit can have its isWorking indicator as its isWorking indicator.
- *       	| canHaveAsIsWorking(getIsWorking())
- *       	
- * @invar  	The targetCube of each Unit must be a valid targetCube for any Unit.
- *       	| isValidTargetCube(getTargetCube())
- *       
- * @invar  	Each Unit can have its workingDuration as its workingDuration.
- *       	| canHaveAsWorkingDuration(getWorkingDuration()) 
- *       
- * @invar  	This Unit can have its isCarrying indicator as isCarrying indicator.
+ * @invar  	Each Unit can have its moving state as its moving state.
+ *       	| canHaveIsMoving(isMoving())
+ * @invar  	Each Unit can have its working state as its working state.
+ *       	| canHaveAsIsWorking(isWorking())
+ * @invar  	This Unit can have its carrying log state as carrying log state.
  *       	| canHaveAsIsCarryingLog(getIsCarryingLog())
- *       
- * @invar  	This Unit can have its log as log.
- *       	| canHaveAsLog(getLog())
- *       
- * @invar  	This Unit can have its isCarryingBoulder indicator as isCarryingBoulder indicator.
- *       	| canHaveAsIsCarryingBoulder(getIsCarryingBoulder())
- *       
- * @invar  	This Unit can have its boulder as boulder.
- *       	| canHaveAsBoulder(getBoulder())
- *       
- * @invar  	The fighting duration of each Unit must be a valid fighting duration for any Unit.
- *       	| isValidFightingDuration(getFightingDuration())
- *       
- * @invar  	Each Unit can have its isResting indicator as its isResting indicator.
- *       	| canHaveAsIsResting(getIsResting())
- *       
- * @invar  	The resting period of each Unit must be a valid resting period for any Unit.
- *       	| isValidRestingPeriod(getRestingPeriod())
- *       
- * @invar  	The resting duration of each Unit must be a valid resting duration for any Unit.
- *       	| isValidRestingDuration(getRestingDuration())
- *       
- * @invar  	Each Unit can have its hasRestedOnePoint indicator as its hasRestedOnePoint indicator.
- *       	| canHaveAsHasRestedOnePoint(getHasRestedOnePoint())
- *       
- * @invar  	Each Unit can have its isDefaultBehaviour indicator as its isDefaultBehaviour indicator.
- *       	| canHaveAsIsDefaultBehaviour(getIsDefaultBehaviour())
- *       
- * @invar  	The faction of each unit must be a valid faction for any unit.
- *       	| isValidFaction(getFaction())
- *       
+ * @invar	Each Unit must have a proper Log attached to it.
+ * 			| hasProperLog()
+ * @invar  	This Unit can have its carrying boulder state as carrying boulder state.
+ *       	| canHaveAsIsCarryingBoulder(isCarryingBoulder())
+ * @invar	Each Unit must have a proper Boulder attached to it.
+ * 			| hasProperBoulder()
+ * @invar  	Each Unit can have its resting state as its resting state.
+ *       	| canHaveAsIsResting(isResting())
+ * @invar  	Each Unit can have its default behaviour state as its default behaviour state.
+ *       	| canHaveAsIsDefaultBehaviour(isDefaultBehaviourEnabled())
+ * @invar	Each Unit must have a proper Faction to which it is attached.
+ * 			| hasProperFaction()
  * @invar  	The experience of each Unit must be a valid experience for any Unit.
  *       	| isValidExperience(getExperience())
- *       
- * @invar  	Each Unit can have its isAlive indicator as its isAlive indicator.
- *       	| canHaveAsIsAlive(getIsAlive())
  * @invar	Each Unit must have a proper World to which it is attached.
- * 			| hasProperWorld(getWorld())
+ * 			| hasProperWorld()
+ * @invar	Each Unit must have a proper Task to which it is attached.
+ * 			| hasProperTask()
  */
 public class Unit {
 	
@@ -1955,7 +1886,7 @@ public class Unit {
 	 * 			|					|| (!isFalling && getWorld().hasSolidNeighbouringCube((coordinates[0], coordinates[1], coordinates[2]))) )
 	 */
 	@Raw
-	public boolean canHaveAsFallingState(boolean isFalling) 
+	public boolean canHaveAsFalling(boolean isFalling) 
 	{
 		if (!isAlive())
 			return !isFalling;
@@ -1980,7 +1911,7 @@ public class Unit {
 	@Raw
 	public void setFallingState(boolean isFalling) throws IllegalArgumentException 
 	{
-		if (!canHaveAsFallingState(isFalling))
+		if (!canHaveAsFalling(isFalling))
 			throw new IllegalArgumentException("Cannot have falling state!");
 		this.isFalling = isFalling;
 	}

@@ -333,20 +333,20 @@ public class UnitTest {
 		World theWorld = new World(terrain, new DefaultTerrainChangeListener());
 		Unit theUnit = new Unit("Hillbiilly", DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY,
 				POSITION, false, theWorld);
-		assertTrue(theUnit.canHaveAsFallingState(true));
-		assertTrue(unit.canHaveAsFallingState(false));
+		assertTrue(theUnit.canHaveAsFalling(true));
+		assertTrue(unit.canHaveAsFalling(false));
 	}
 
 	@Test
 	public void canHaveAsFallingState_DeadUnit() {
 		unit.die();
-		assertTrue(unit.canHaveAsFallingState(false));
-		assertFalse(unit.canHaveAsFallingState(true));
+		assertTrue(unit.canHaveAsFalling(false));
+		assertFalse(unit.canHaveAsFalling(true));
 	}
 
 	@Test
 	public void canHaveAsFallingState_TrueButSolidCubeAvailable() {
-		assertFalse(unit.canHaveAsFallingState(true));
+		assertFalse(unit.canHaveAsFalling(true));
 	}
 
 	@Test
@@ -355,7 +355,7 @@ public class UnitTest {
 		World theWorld = new World(terrain, new DefaultTerrainChangeListener());
 		Unit theUnit = new Unit("Hillbiilly", DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY, DEFAULT_PROPERTY,
 				POSITION, false, theWorld);
-		assertFalse(theUnit.canHaveAsFallingState(false));
+		assertFalse(theUnit.canHaveAsFalling(false));
 	}
 
 	@Test
