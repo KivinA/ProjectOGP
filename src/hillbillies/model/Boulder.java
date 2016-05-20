@@ -4,7 +4,9 @@ package hillbillies.model;
  * A class describing the Boulders that are active in the {@link World}.
  * 
  * @author 	Kevin Algoet & Jeroen Depuydt
- * @version 0.9
+ * 			1ba Informatica
+ * @version 1.0
+ * @note	Repository link: https://github.com/KivinA/ProjectOGP
  * 
  * @invar	This Boulder must have a proper World.
  */

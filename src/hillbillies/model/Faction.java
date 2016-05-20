@@ -8,8 +8,10 @@ import be.kuleuven.cs.som.annotate.*;
  * A class describing Factions that are active in the {@link World}, with a set of {@link Unit}s 
  * and a {@link Scheduler}.
  * 
- * @version 0.9
+ * @version 1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
+ * 			1ba Informatica
+ * @note	Repository link: https://github.com/KivinA/ProjectOGP
  *
  * @invar	Each Faction must have proper Units.
  * @invar	Each Faction must have a proper Scheduler.

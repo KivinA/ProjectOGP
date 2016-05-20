@@ -11,9 +11,10 @@ import ogp.framework.util.ModelException;
  * describes the terrain, a {@link ConnectedToBorder} object, a set of {@link Unit}s, a set of {@link Faction}s,
  * a set of {@link Boulder}s and a set of {@link Log}s.
  * 
- * @version 0.9
+ * @version 1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
- *
+ * @note	Repository link: https://github.com/KivinA/ProjectOGP
+ * 
  * @invar	The TerrainChangeListener of each World must be a valid TerrainChangeListener for any World.
  * @invar	Each World must have proper Units.
  * @invar	Each World must have proper Factions.
@@ -22,14 +23,6 @@ import ogp.framework.util.ModelException;
  * @invar	The terrain of each World must be a valid terrain for any World.
  */
 public class World {
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	CONSTRUCTOR		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Initialize this new World with the given terrainTypes and {@link TerrainChangeListener}.
@@ -61,14 +54,6 @@ public class World {
 		initializeTerrain(terrain);
 	}
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |   MODELLISTENER	|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return the {@link TerrainChangeListener} of this World.
 	 */
@@ -94,14 +79,6 @@ public class World {
 	 * Variable referencing the {@link TerrainChangeListener} of this World.
 	 */
 	private final TerrainChangeListener modelListener;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	ADVANCE TIME	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Advance the time of this World.
@@ -172,14 +149,6 @@ public class World {
 	{
 		return new Random().nextDouble() <= 0.25;
 	}
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  TERRAIN		|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Check whether the given cube is attached to the borders of this World.
@@ -280,6 +249,83 @@ public class World {
 	}
 	
 	/**
+	 * Convert the given precise double coordinates to integer cube coordinates.
+	 * 
+	 * @param	coordinates
+	 * 			The double coordinates to convert.
+	 * @return	An ineffective array if the given array is ineffective.
+	 * @return	An integer array containing the x, y, z cube coordinates according to the given double precise coordinates.
+	 */
+	public static int[] getCubeCoordinates(double[] coordinates)
+	{
+		if (coordinates == null)
+			return null;
+		int x = round(coordinates[0]);
+		int y = round(coordinates[1]);
+		int z = round(coordinates[2]);
+		return new int[]{x, y, z};
+	}
+	
+	/**
+	 * Convert the given integer cube coordinates to precise double coordinates.
+	 * 
+	 * @param 	coordinates
+	 * 			The integer coordinates to convert.
+	 * @return	An ineffective array if the given array is ineffective.
+	 * @return	A double array containing the precise x, y, z coordinates according to the given integer coordinates.
+	 */
+	public static double[] getPreciseCoordinates(int[] coordinates)
+	{
+		if (coordinates == null)
+			return null;
+		double x = coordinates[0] + 0.5;
+		double y = coordinates[1] + 0.5;
+		double z = coordinates[2] + 0.5;	
+		return new double[]{x, y, z};
+	}
+	
+	/**
+	 * Check whether the given cube is a neighbour of a given original cube.
+	 * 
+	 * @param 	originalCube
+	 * 			The original cube to check the neighbour cube with.
+	 * @param 	neighbourCube
+	 * 			The cube to check if its a neighbouring cube of the original cube.
+	 * @return	True if and only if the given neighbour cube is a neighbouring cube of the original cube. This means the coordinates components
+	 * 			of the neighbouring cube are either the original cube components +1, -1 or 
+	 * 			if the neighbouring cube components are equal to the original cube components.
+	 */
+	public static boolean isNeighbouringCube(int[] originalCube, int[] neighbourCube)
+	{
+		return ( ( (originalCube[0] == neighbourCube[0]) || ((originalCube[0] + 1) == neighbourCube[0]) || ((originalCube[0] - 1) == neighbourCube[0]) )
+				&& ( (originalCube[1] == neighbourCube[1]) || ((originalCube[1] + 1) == neighbourCube[1]) || ((originalCube[1] - 1) == neighbourCube[1]) )
+				&& ( (originalCube[2] == neighbourCube[2]) || ((originalCube[2] + 1) == neighbourCube[2]) || ((originalCube[2] - 1) == neighbourCube[2]) ) );
+	}
+	
+	/**
+	 * An auxiliary method to help round the given double number to an integer number. 
+	 * 
+	 * @param 	number
+	 * 			The number to round.
+	 * @return	The rounded integer number: 
+	 * 			Rounded down if the decimal was lower or equal to 0.5.
+	 * 			Rounded up if the decimal was higher than 0.5.
+	 * @note	We have created this method because Math.round() rounds the given double up starting from 0.5 and up.
+	 * 			We need a rounding method that can provide us with rounding a given number down, even when the decimal point is 0.5.
+	 */
+	@Model
+	private static int round(double number)
+	{
+		double numberAbs = Math.abs(number);
+		int intNumber = (int) numberAbs;
+		double result = numberAbs - (double) intNumber;
+		if (result < 0.5)
+			return number < 0 ? -intNumber: intNumber - 1;
+		else
+			return number < 0 ? -(intNumber + 1) : intNumber;
+	}
+	
+	/**
 	 * Return the terrain of this World.
 	 */
 	@Basic @Raw
@@ -331,6 +377,9 @@ public class World {
 					// Change solid to passable terrain where needed and add all cubes that changed to a list.
 					if (isPassableCube(x, y, z))
 						addAllNotConnected(connectedToBorderObject.changeSolidToPassable(x, y, z));
+					
+					if (terrain[x][y][z] == 3)
+						addWorkshop(new int[]{x, y, z});
 				}
 			}
 		}
@@ -363,8 +412,8 @@ public class World {
 	/**
 	 * Return the cube length of any World.
 	 */
-	@Raw @Basic @Immutable
-	public int getCubeLength()
+	@Basic @Immutable
+	public static int getCubeLength()
 	{
 		return CUBE_LENGTH;
 	}
@@ -457,6 +506,54 @@ public class World {
 	private static final int DEFAULT_CUBE_TYPE = 0;
 
 	/**
+	 * Get all workshops that are in this World.
+	 * 
+	 * @return	The resulting list is effective.
+	 * @return	The number of elements in the resulting list is equal to the number of workshops in this World.
+	 * @return	Each element of the resulting set equals a position of a workshop in this World.
+	 */
+	public List<int[]> getAllWorkshops()
+	{
+		return new ArrayList<int[]>(workshops);
+	}
+	
+	/**
+	 * Check whether this World can add the given position of a workshops to its list of workshops.
+	 * 
+	 * @param 	workshop
+	 * 			The position to check.
+	 * @return	True if and only if the cube type of the given position (cube) is equal to 3.
+	 */
+	@Raw
+	private boolean canAddAsWorkshop(int[] workshop)
+	{
+		return getCubeType(workshop[0], workshop[1], workshop[2]) == 3;
+	}
+	
+	/**
+	 * Add the given workshop position to the list of workshops.
+	 * 
+	 * @param	workshop
+	 * 			The workshop position to add.
+	 * @post	The number of workshop positions in this World is incremented by 1.
+	 * @post	This World has the given workshop position as one of its workshop positions.
+	 * @throws	IllegalArgumentException
+	 * 			This World cannot add the given position to its workshop positions.
+	 */
+	@Raw
+	private void addWorkshop(int[] workshop) throws IllegalArgumentException
+	{
+		if (!canAddAsWorkshop(workshop))
+			throw new IllegalArgumentException("Given position isn't a workshop!");
+		workshops.add(workshop);
+	}
+	
+	/**
+	 * A variable referencing the workshop in this World.
+	 */
+	private final List<int[]> workshops = new ArrayList<int[]>();
+	
+	/**
 	 * Return a list containing all cubes that aren't connected to a border of this World.
 	 * 
 	 * @note	We are currently using the reference to the notConnected list, because we have no use of a copy list.
@@ -513,15 +610,7 @@ public class World {
 	 * @invar	The referenced list is effective.
 	 * @invar	Each cube referenced in the list is effective.
 	 */
-	private List<int[]> notConnected = new ArrayList<>();
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	   UNITS		|
-	// |					|
-	// |					|
-	// ----------------------
+	private final List<int[]> notConnected = new ArrayList<>();
 	
 	/**
 	 * Return the amount of {@link Unit}s of this World.
@@ -716,7 +805,7 @@ public class World {
 			theFaction.addUnit(newUnit);
 			newUnit.setFaction(theFaction);
 			return newUnit;
-}
+    }
 	
 	/**
 	 * Variable referencing a set of {@link Unit}s attached to this World.
@@ -725,20 +814,12 @@ public class World {
 	 * @invar	Each Unit registered in the referenced set is effective.
 	 * @invar	No Unit is registered more than once in the referenced set.
 	 */
-	private Set<Unit> units = new HashSet<Unit>();
+	private final Set<Unit> units = new HashSet<Unit>();
 	
 	/**
 	 * Constant registering the maximal amount of {@link Unit}s of any World.
 	 */
 	private final static int MAX_AMOUNT_OF_UNITS = 100;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  FACTIONS		|
-	// |					|
-	// |					|
-	// ----------------------
 
 	/**
 	 * Return the amount of {@link Faction}s of this World.
@@ -868,15 +949,7 @@ public class World {
 	 * Constant registering the maximum amount of {@link Faction}s of this World.
 	 */
 	private static final int MAX_AMOUNT_OF_FACTIONS = 5;
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	   LOGS			|
-	// |					|
-	// |					|
-	// ----------------------
-	
+
 	/**
 	 * Return a set collecting all {@link Log}s in this World.
 	 */
@@ -1024,14 +1097,6 @@ public class World {
 	 */
 	private Set<Log> logs = new HashSet<Log>();
 	
-	// ----------------------
-	// |					|
-	// |					|
-	// |	  BOULDERS		|
-	// |					|
-	// |					|
-	// ----------------------
-	
 	/**
 	 * Return a set collecting all {@link Boulder}s in this World.
 	 */
@@ -1143,14 +1208,6 @@ public class World {
 	 * @invar	No Boulder is registered more than once in the referenced set.
 	 */
 	private Set<Boulder> boulders = new HashSet<Boulder>();
-	
-	// ----------------------
-	// |					|
-	// |					|
-	// |  AUXILIARY METHODS	|
-	// |					|
-	// |					|
-	// ----------------------
 	
 	/**
 	 * Calculate a random weight.

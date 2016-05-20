@@ -60,7 +60,7 @@ public class WorldTest
 		assertEquals(theTerrain[0].length, theWorld.getNbCubesY());
 		assertEquals(theTerrain[0][0].length, theWorld.getNbCubesZ());
 		assertEquals(0, theWorld.getLowerBoundary());
-		assertEquals(1, theWorld.getCubeLength());
+		assertEquals(1, World.getCubeLength());
 		assertEquals(TYPE_LOG, theWorld.getCubeType(1, 1, 1));
 		assertEquals(TYPE_ROCK, theWorld.getCubeType(0, 0, 0));
 		assertEquals(TYPE_WORKSHOP, theWorld.getCubeType(1, 1, 0));
@@ -147,6 +147,15 @@ public class WorldTest
 	{
 		assertFalse(world.isSolidCube(2, 2, 0));
 		assertFalse(world.isSolidCube(3, 3, 1));
+	}
+	
+	@Test
+	public void getCubeCoordinates_SingleCase()
+	{
+		int[] expectedCoord = {6, 12, 6};
+		double[] pos = {6.7, 12.5, 6.5};
+		
+		assertArrayEquals(expectedCoord, World.getCubeCoordinates(pos));
 	}
 	
 	@Test

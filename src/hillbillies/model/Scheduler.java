@@ -6,13 +6,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import be.kuleuven.cs.som.annotate.*;
-import ogp.framework.util.ModelException;
 
 /**
  * A class describing the Scheduler, which is attached to a Faction and stores Tasks.
  * 
- * @version	0.8
+ * @version	1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
+ * 			1ba Informatica
+ * @note	Repository link: https://github.com/KivinA/ProjectOGP
  * 
  * @invar	Each Scheduler can have its Faction as Faction.
  * 			| canHaveAsFaction(getFaction())
@@ -27,7 +28,7 @@ public class Scheduler {
 	 * 			The new Faction for this Scheduler.
 	 * @param 	world
 	 * 			The new World for this Scheduler.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The Faction of this new Scheduler is set to the given Faction.
 	 * 			| this.setFaction(faction)
@@ -46,7 +47,7 @@ public class Scheduler {
 	 * @post	The collection of Tasks attached to this Scheduler is cleared.
 	 * @post	The World to which this Scheduler is attached is ineffective.
 	 * @post	The Faction to which this Scheduler is attached is ineffective.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 */
 	public void terminate()
@@ -74,17 +75,41 @@ public class Scheduler {
 	/**
 	 * Return an ArrayList collecting all Tasks of this Scheduler.
 	 */
+	@Raw @Basic
 	public ArrayList<Task> getAllTasks()
 	{
+		sortTasks();
 		return this.tasks;
 	}
 	
 	/**
 	 * Return an Iterator for all Tasks currently managed by this Scheduler.
 	 */
+	@Raw
 	public Iterator<Task> getAllTasksIterator()
 	{
+		sortTasks();
 		return tasks.iterator();
+	}
+	
+	/**
+	 * Sort the Tasks of this Scheduler.
+	 * 
+	 * @effect	Sort the Tasks of this Scheduler according to the Comparator.
+	 */
+	@Raw @Model
+	private void sortTasks()
+	{
+		Collections.sort(tasks, new Comparator<Task>(){ 
+			@Override
+			public int compare(Task t1, Task t2) {
+				if (t1.getPriority() > t2.getPriority())
+					return -1;
+				if (t1.getPriority() < t2.getPriority())
+					return 1;
+				return 0;
+			}
+		});
 	}
 	
 	/**
@@ -92,13 +117,13 @@ public class Scheduler {
 	 * 
 	 * @return	
 	 */
+	@Raw @Basic
 	public Task getTaskWithHighestPriority()
 	{
-		Iterator<Task> iter = getAllTasksIterator();
-		while (iter.hasNext())
+		for (Task task : getAllTasks())
 		{
-			if(iter.next().getUnit() == null)
-				return iter.next();
+			if (task.getUnit() == null)
+				return task;
 		}
 		return null;
 	}
@@ -111,6 +136,7 @@ public class Scheduler {
 	 * @return	True if and only if all Tasks of this collection are assigned to this Scheduler.
 	 * 			| result == tasks.containsAll(tasks)
 	 */
+	@Raw @Basic
 	public boolean areTasksPartOfThisScheduler(Collection<Task> tasks)
 	{
 		return tasks.containsAll(tasks);
@@ -124,18 +150,34 @@ public class Scheduler {
 	 * @return	True if and only if the given Task is contained in the Tasks collection of this Scheduler.
 	 * 			| result == tasks.contains(task)
 	 */
+	@Raw @Basic
 	public boolean hasAsTask(Task task)
 	{
 		return tasks.contains(task);
 	}
 	
 	/**
-	 * Check whether this Scheduler has proper Tasks attached to it.
-	 * [TODO] Add implementation.
+	 * Check whether this Scheduler has proper {@link Task}s attached to it.
+	 * 
+	 * @return	True if and only if the Scheduler can have each Task of this Scheduler as one of its Tasks and if that Task 
+	 * 			has this Scheduler as one of its Schedulers.
+	 * 			| for each task in getAllTasks():
+	 * 			|	if (!canHaveAsTask(task))
+	 * 			|		then result == false
+	 * 			|	if (!task.hasAsScheduler(this))
+	 * 			|		then result == false
+	 * 			| result == true
 	 */
 	public boolean hasProperTasks()
 	{
-		return false;
+		for (Task task : getAllTasks())
+		{
+			if (!canHaveAsTask(task))
+				return false;
+			if (!task.hasAsScheduler(this))
+				return false;
+		}
+		return true;
 	}
 	
 	/**
@@ -143,12 +185,13 @@ public class Scheduler {
 	 * 
 	 * @param 	task
 	 * 			The {@link Task} to check.
-	 * @return	True if and only if this Scheduler isn't terminated.
-	 * TODO 	Complemete implementation.
+	 * @return	True if and only if this Scheduler isn't terminated and if the given Task isn't terminated.
+	 * 			| result == ( (!isTerminated()) && (!task.isTerminated()) )
 	 */
+	@Raw
 	public boolean canHaveAsTask(Task task)
 	{
-		return !isTerminated();
+		return !isTerminated() && !task.isTerminated();
 	}
 	
 	/**
@@ -158,21 +201,11 @@ public class Scheduler {
 	 * 			The given Task to add.
 	 * @post	This Sheduler has the given Task as one of its Tasks.
 	 * 			| new.hasAsTask(task) == true
-	 * @effect	Sort the collection of Task according to the Comparator given. 
 	 */
+	@Raw
 	public void addTask(Task task)
 	{
 		tasks.add(task);
-		Collections.sort(tasks, new Comparator<Task>(){ // Anonymous class!
-			@Override
-			public int compare(Task t1, Task t2) {
-				if (t1.getPriority() > t2.getPriority())
-					return -1;
-				if (t1.getPriority() < t2.getPriority())
-					return 1;
-				return 0;
-			}
-		});
 	}
 	
 	/**
@@ -184,6 +217,7 @@ public class Scheduler {
 	 * 			| result == (task != null && hasAsTask(task))
 	 * TODO 	Complete implementation.
 	 */
+	@Raw
 	public boolean canRemoveAsTask(Task task)
 	{
 		return (task != null) && hasAsTask(task);
@@ -197,10 +231,11 @@ public class Scheduler {
 	 * @post	The given Task is no longer part of this Scheduler's collection of Tasks.
 	 * 			| new.hasAsTask(task) == false
 	 */
-	public void removeTask(Task task) throws ModelException
+	@Raw
+	public void removeTask(Task task) throws IllegalArgumentException
 	{
 		if (!canRemoveAsTask(task))
-			throw new ModelException("The given Task cannot be removed from this Scheduler's list of Tasks.");
+			throw new IllegalArgumentException("The given Task cannot be removed from this Scheduler's list of Tasks.");
 		tasks.remove(task);
 	}
 	
@@ -215,10 +250,11 @@ public class Scheduler {
 	 * 			| this.tasks.set(index, replacement)
 	 * @effect	The original Task is removed from the list of Tasks.
 	 * 			| this.removeTask(task)
-	 * @throws	ModelException
+	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 */
-	public void replaceTask(Task original, Task replacement) throws ModelException
+	@Raw
+	public void replaceTask(Task original, Task replacement) throws IllegalArgumentException
 	{
 		stopExecutingTask(original);
 		int index = tasks.indexOf(original);
@@ -233,17 +269,18 @@ public class Scheduler {
 	 * 			The Task to mark.
 	 * @param 	unit
 	 * 			The Unit to execute the given Task.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The Task of the given Unit is set to the given Task.
 	 * 			| unit.setTask(task)
 	 * @effect	The Unit of the given Task is set to the given Unit.
 	 * 			| task.setUnit(unit)
 	 */
-	public void markTask(Task task, Unit unit) throws ModelException
+	@Raw
+	public void markTask(Task task, Unit unit) throws IllegalArgumentException
 	{
-		unit.setTask(task);
 		task.setUnit(unit);
+		unit.setTask(task);
 	}
 	
 	/**
@@ -253,14 +290,15 @@ public class Scheduler {
 	 * 			The Task to unmark.
 	 * @param 	unit
 	 * 			The Unit to unmark.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The Task of the given Unit is set to an ineffective state.
 	 * 			| unit.setTask(null)
 	 * @effect	The Unit of the given Task is set to an ineffective state.
 	 * 			| task.setUnit(null)
 	 */
-	public void unmarkTask(Task task, Unit unit) throws ModelException
+	@Raw
+	public void unmarkTask(Task task, Unit unit) throws IllegalArgumentException
 	{
 		unit.setTask(null);
 		task.setUnit(null);
@@ -276,15 +314,15 @@ public class Scheduler {
 	 * 
 	 * @param 	task
 	 * 			The given Task to check whether it's being executed or not.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The assigned Task of a Unit will be set to null, if this Unit has the given Task as its assigned Task.
 	 * 			| (for each Unit in getFaction().getAllUnits():
 	 * 			|	if (Unit.getTask() == task)
 	 * 			|		then unit.setTask(null))
 	 */
-	@Model
-	private void stopExecutingTask(Task task) throws ModelException
+	@Model @Raw
+	private void stopExecutingTask(Task task) throws IllegalArgumentException
 	{
 		Iterator<Unit> iter = getFaction().getAllUnits().iterator();
 		while (iter.hasNext())
@@ -296,9 +334,9 @@ public class Scheduler {
 	}
 	
 	/**
-	 * Return the Faction to which this Scheduler is attached.
+	 * Return the {@link Faction} to which this Scheduler is attached.
 	 */
-	@Basic
+	@Basic @Raw
 	public Faction getFaction()
 	{
 		return this.faction;
@@ -316,6 +354,7 @@ public class Scheduler {
 	 * 			| else
 	 * 			| 	result == getWorld().hasAsFaction(faction)
 	 */
+	@Raw
 	public boolean canHaveAsFaction(Faction faction)
 	{
 		if (isTerminated())
@@ -353,7 +392,7 @@ public class Scheduler {
 	/**
 	 * Return the World in which this Scheduler operates.
 	 */
-	@Basic
+	@Basic @Raw
 	public World getWorld()
 	{
 		return this.world;
@@ -368,6 +407,7 @@ public class Scheduler {
 	 * 			Otherwise, true if and only if the given World is effective, and if this Scheduler's Faction has the same World
 	 * 			as the given world.
 	 */
+	@Raw
 	public boolean canHaveAsWorld(World world)
 	{
 		if (isTerminated())

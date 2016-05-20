@@ -15,7 +15,7 @@ public class Facade implements IFacade{
 
 	@Override
 	public double[] getPosition(Unit unit) throws ModelException {
-		return unit.getUnitPosition();
+		return unit.getPosition();
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class Facade implements IFacade{
 
 	@Override
 	public void setDefaultBehaviorEnabled(Unit unit, boolean value) throws ModelException {
-		unit.setIsDefaultBehaviour(value);
+		unit.setDefaultBehaviour(value);
 		
 	}
 

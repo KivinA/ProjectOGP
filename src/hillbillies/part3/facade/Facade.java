@@ -16,7 +16,7 @@ public class Facade implements IFacade{
 		{
 			return new World(terrainTypes, modelListener);
 		}
-		catch (IllegalArgumentException e)
+		catch (Exception e)
 		{
 			throw new ModelException(e.getMessage());
 		}
@@ -39,7 +39,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public void advanceTime(World world, double dt) throws ModelException {
-		world.advanceTime(dt);
+		try
+		{
+			world.advanceTime(dt);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -140,7 +147,7 @@ public class Facade implements IFacade{
 
 	@Override
 	public double[] getPosition(Unit unit) throws ModelException {
-		return unit.getUnitPosition();
+		return unit.getPosition();
 	}
 
 	@Override
@@ -155,7 +162,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public void setName(Unit unit, String newName) throws ModelException {
-		unit.setName(newName);
+		try
+		{
+			unit.setName(newName);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -165,7 +179,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public void setWeight(Unit unit, int newValue) throws ModelException {
-		unit.setWeight(newValue);
+		try 
+		{
+			unit.setWeight(newValue);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -175,7 +196,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public void setStrength(Unit unit, int newValue) throws ModelException {
-		unit.setStrength(newValue);
+		try
+		{
+			unit.setStrength(newValue);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -185,7 +213,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public void setAgility(Unit unit, int newValue) throws ModelException {
-		unit.setAgility(newValue);
+		try
+		{
+			unit.setAgility(newValue);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -195,7 +230,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public void setToughness(Unit unit, int newValue) throws ModelException {
-		unit.setToughness(newValue);
+		try
+		{
+			unit.setToughness(newValue);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -220,12 +262,26 @@ public class Facade implements IFacade{
 
 	@Override
 	public void advanceTime(Unit unit, double dt) throws ModelException {
-		unit.advanceTime(dt);
+		try
+		{
+			unit.advanceTime(dt);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
 	public void moveToAdjacent(Unit unit, int dx, int dy, int dz) throws ModelException {
-		unit.moveToAdjacent(dx, dy, dz);
+		try
+		{
+			unit.moveToAdjacent(dx, dy, dz);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -240,12 +296,26 @@ public class Facade implements IFacade{
 
 	@Override
 	public void startSprinting(Unit unit) throws ModelException {
-		unit.startSprinting();
+		try
+		{
+			unit.startSprinting();
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
 	public void stopSprinting(Unit unit) throws ModelException {
-		unit.stopSprinting();
+		try 
+		{
+			unit.stopSprinting();
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -260,12 +330,26 @@ public class Facade implements IFacade{
 
 	@Override
 	public void moveTo(Unit unit, int[] cube) throws ModelException {
-		unit.moveTo(cube);
+		try
+		{
+			unit.moveTo(cube);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
 	public void work(Unit unit) throws ModelException {
-		unit.work();
+		try
+		{
+			unit.work();
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -275,8 +359,15 @@ public class Facade implements IFacade{
 
 	@Override
 	public void fight(Unit attacker, Unit defender) throws ModelException {
-		attacker.attack(defender);
-		defender.defend(attacker);
+		try
+		{
+			attacker.attack(defender);
+			defender.defend(attacker);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -286,7 +377,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public void rest(Unit unit) throws ModelException {
-		unit.rest();		
+		try
+		{
+			unit.rest();
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -296,7 +394,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public void setDefaultBehaviorEnabled(Unit unit, boolean value) throws ModelException {
-		unit.setIsDefaultBehaviour(value);
+		try
+		{
+			unit.setDefaultBehaviour(value);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -312,7 +417,7 @@ public class Facade implements IFacade{
 	@Override
 	public boolean isWellFormed(Task task) throws ModelException {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
@@ -322,12 +427,27 @@ public class Facade implements IFacade{
 
 	@Override
 	public void schedule(Scheduler scheduler, Task task) throws ModelException {
-		scheduler.addTask(task);
+		try
+		{
+			scheduler.addTask(task);
+			task.addScheduler(scheduler);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
 	public void replace(Scheduler scheduler, Task original, Task replacement) throws ModelException {
-		scheduler.replaceTask(original, replacement);
+		try
+		{
+			scheduler.replaceTask(original, replacement);
+		}
+		catch (Exception e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
