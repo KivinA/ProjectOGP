@@ -13,7 +13,7 @@ public class CarriesItem<T extends UnitExpression> extends BooleanExpression {
 		this.unitE = unit;
 	}
 	
-	T unitE;
+	private T unitE;
 	
 	@Override
 	public Boolean evaluate(Task task) {

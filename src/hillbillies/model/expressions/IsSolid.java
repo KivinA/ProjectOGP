@@ -12,7 +12,7 @@ public class IsSolid<T extends PositionExpression> extends BooleanExpression {
 		this.positionE = positionE;
 	}
 	
-	T positionE;
+	private T positionE;
 	
 	@Override
 	public Boolean evaluate(Task task) {

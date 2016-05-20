@@ -13,7 +13,7 @@ public class MoveTo<T extends PositionExpression> extends Action {
 		this.positionE = positionE;
 	}
 	
-	T positionE;
+	private T positionE;
 	
 	@Override
 	public void execute(Task task) {

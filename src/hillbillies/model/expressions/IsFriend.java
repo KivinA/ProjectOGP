@@ -14,7 +14,7 @@ public class IsFriend<T extends UnitExpression> extends BooleanExpression { // M
 		this.unitE = unitE;
 	}
 	
-	T unitE;
+	private T unitE;
 	
 	@Override
 	public Boolean evaluate(Task task) {

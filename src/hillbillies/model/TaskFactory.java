@@ -99,7 +99,10 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createIsPassable(Expression position, SourceLocation sourceLocation) {
-		return new IsPassable(position, sourceLocation);
+		if (!(position instanceof PositionExpression))
+			throw new IllegalArgumentException("Wrong expression, a Position expression is expected at line" + sourceLocation.getLine()
+			+ "and column " + sourceLocation.getColumn()+ "!");
+		return new IsPassable<PositionExpression>((PositionExpression) position);
 	}
 
 	@Override
@@ -176,7 +179,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createNextToPosition(Expression position, SourceLocation sourceLocation) {
-		return new PositionNextTo(position);
+		return new PositionNextTo<PositionExpression>((PositionExpression) position);
 	}
 
 	@Override

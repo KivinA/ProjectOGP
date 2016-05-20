@@ -16,7 +16,7 @@ public class Attack<T extends UnitExpression> extends Action {
 		this.unitE = unitE;
 	}
 	
-	T unitE;
+	private T unitE;
 	
 	@Override
 	public void execute(Task task) {

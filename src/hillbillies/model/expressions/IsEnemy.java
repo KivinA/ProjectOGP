@@ -13,7 +13,7 @@ public class IsEnemy<T extends UnitExpression> extends BooleanExpression {
 		this.unitE = unitE;
 	}
 	
-	T unitE;
+	private T unitE;
 	
 	@Override
 	public Boolean evaluate(Task task) {

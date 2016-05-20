@@ -10,16 +10,16 @@ import hillbillies.model.World;
  * @version 0.1
  *
  */
-public class PositionNextTo extends PositionExpression {
-	private PositionExpression position;
-
-	public PositionNextTo(Expression position) {
-		this.position = (PositionExpression) position;
+public class PositionNextTo<T extends PositionExpression> extends PositionExpression {
+	public PositionNextTo(T positionE) {
+		this.positionE = positionE;
 	}
+	
+	private T positionE;
 	
 	@Override
 	public Integer[] evaluate(Task task) {
-		Integer[] coord = position.evaluate(task);
+		Integer[] coord = positionE.evaluate(task);
 		Integer[] neighbour = Arrays.copyOf(coord, coord.length);
 		World world = task.getUnit().getWorld();
 		
