@@ -1,7 +1,6 @@
 package hillbillies.model.expressions;
 
 import hillbillies.model.Task;
-import hillbillies.part3.programs.SourceLocation;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -9,10 +8,9 @@ import hillbillies.part3.programs.SourceLocation;
  *
  */
 public class PositionHere extends PositionExpression {
-	private SourceLocation sourceLocation;
 
-	public PositionHere(SourceLocation sourceLocation) {
-		this.sourceLocation = sourceLocation;
+	public PositionHere() {
+		
 	}
 
 	@Override

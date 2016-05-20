@@ -1,7 +1,6 @@
 package hillbillies.model.expressions;
 
 import hillbillies.model.Task;
-import hillbillies.part3.programs.SourceLocation;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -10,11 +9,9 @@ import hillbillies.part3.programs.SourceLocation;
  */
 public class Negation extends BooleanExpression {
 	private Expression expression;
-	private SourceLocation sourceLocation;
 
-	public Negation(Expression expression, SourceLocation sourceLocation) {
+	public Negation(Expression expression) {
 		this.expression = expression;
-		this.sourceLocation = sourceLocation;
 	}
 
 	@Override

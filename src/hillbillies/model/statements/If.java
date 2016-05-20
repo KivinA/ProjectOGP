@@ -15,7 +15,7 @@ public class If implements Statement {
 	private Statement ifBody;
 	private Statement elseBody;
 	
-	public If(Expression condition, Statement ifBody, Statement elseBody, SourceLocation sourceLocation) {
+	public If(Expression condition, Statement ifBody, Statement elseBody) {
 		this.condition = (BooleanExpression) condition;
 		this.ifBody = ifBody;
 		this.elseBody = elseBody;

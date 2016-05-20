@@ -3,7 +3,6 @@ package hillbillies.model.statements;
 import hillbillies.model.expressions.BooleanExpression;
 import hillbillies.model.expressions.Expression;
 import hillbillies.model.Task;
-import hillbillies.part3.programs.SourceLocation;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -13,12 +12,10 @@ import hillbillies.part3.programs.SourceLocation;
 public class While implements Statement {
 	private BooleanExpression condition;
 	private Statement body;
-	private SourceLocation sourceLocation;
 	
-	public While(Expression condition, Statement body, SourceLocation sourceLocation){
+	public While(Expression condition, Statement body){
 		this.condition = (BooleanExpression) condition;
 		this.body = body;
-		this.sourceLocation = sourceLocation;
 	}
 	
 	@Override

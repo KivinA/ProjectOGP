@@ -28,23 +28,23 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Statement createWhile(Expression condition, Statement body, SourceLocation sourceLocation) {
-		return new While(condition, body, sourceLocation);
+		return new While(condition, body);
 	}
 
 	@Override
 	public Statement createIf(Expression condition, Statement ifBody, Statement elseBody,
 			SourceLocation sourceLocation) {
-		return new If(condition, ifBody, elseBody, sourceLocation);
+		return new If(condition, ifBody, elseBody);
 	}
 
 	@Override
 	public Statement createBreak(SourceLocation sourceLocation) {
-		return new Break(sourceLocation);
+		return new Break();
 	}
 
 	@Override
 	public Statement createPrint(Expression value, SourceLocation sourceLocation) {
-		return new Print(value, sourceLocation);
+		return new Print(value);
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createNot(Expression expression, SourceLocation sourceLocation) {
-		return new Negation(expression, sourceLocation);
+		return new Negation(expression);
 	}
 
 	@Override
@@ -154,7 +154,7 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createHerePosition(SourceLocation sourceLocation) {
-		return new PositionHere(sourceLocation);
+		return new PositionHere();
 	}
 
 	@Override
@@ -184,12 +184,12 @@ public class TaskFactory implements ITaskFactory<Expression, Statement, Task>
 
 	@Override
 	public Expression createLiteralPosition(int x, int y, int z, SourceLocation sourceLocation) {
-		return new PositionXYZ(x, y, z, sourceLocation);
+		return new PositionXYZ(x, y, z);
 	}
 
 	@Override
 	public Expression createThis(SourceLocation sourceLocation) {
-		return new UnitThis(sourceLocation);
+		return new UnitThis();
 	}
 
 	@Override

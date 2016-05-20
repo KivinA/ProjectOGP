@@ -40,7 +40,7 @@ public class PositionNextToTest {
 	@Test
 	public void PositionNextTo_SingleCase() {
 		Integer[] original = {1, 1, 0};
-		PositionXYZ testLiteral = new PositionXYZ(original[0], original[1], original[2], null);
+		PositionXYZ testLiteral = new PositionXYZ(original[0], original[1], original[2]);
 		PositionNextTo test = new PositionNextTo(testLiteral);
 		Integer[] result = test.evaluate(task);
 		assertTrue(isNeighbour(result, original));

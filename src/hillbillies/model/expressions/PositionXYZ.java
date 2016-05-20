@@ -1,7 +1,6 @@
 package hillbillies.model.expressions;
 
 import hillbillies.model.Task;
-import hillbillies.part3.programs.SourceLocation;
 
 /**
  * @author Kevin Algoet & Jeroen Depuydt
@@ -12,13 +11,10 @@ public class PositionXYZ extends PositionExpression {
 	private int x;
 	private int y;
 	private int z;
-	private SourceLocation sourceLocation;
-
-	public PositionXYZ(int x, int y, int z, SourceLocation sourceLocation) {
+	public PositionXYZ(int x, int y, int z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.sourceLocation = sourceLocation;
 	}
 
 	@Override
