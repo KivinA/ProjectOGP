@@ -255,16 +255,19 @@ public class Unit {
 			{
 				if (getTask() != null)
 				{
-					executeTask(getTask(), duration);
+					if (getTask().getActivity() == null)
+					{
+						getTask().terminate();
+						setTask(null);
+					}
+					else
+						executeTask(getTask(), duration);
 				}
 				else
 				{
 					Task newTask = getFaction().getScheduler().getTaskWithHighestPriority();
 					if (newTask != null)
-					{
 						getFaction().getScheduler().markTask(newTask, this);
-						executeTask(getTask(), duration);
-					}
 					else
 						SelectBehaviour();
 				}
@@ -1168,7 +1171,7 @@ public class Unit {
 	@Raw @Model
 	private void executeTask(Task task, double duration)
 	{
-		// TODO IMPLEMENT THIS SHIT
+		getTask().executeActivity();
 	}
 	
 	/**

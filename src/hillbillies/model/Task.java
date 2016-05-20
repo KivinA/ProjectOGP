@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Set;
 import be.kuleuven.cs.som.annotate.*;
 import hillbillies.model.expressions.Expression;
+import hillbillies.model.statements.Sequence;
 import hillbillies.model.statements.Statement;
 import ogp.framework.util.ModelException;
 
@@ -35,11 +36,21 @@ public class Task {
 	{
 		this.name = name;
 		setPriority(priority);
-		this.acitivity = activity;
+		this.activity = activity;
 		if (selectedCube != null)
 			this.selectedCube = Arrays.copyOf(selectedCube, selectedCube.length);
 		else
 			this.selectedCube = null;
+	}
+	
+	public void terminate()
+	{
+		for (Scheduler scheduler : getAllSchedulers())
+			scheduler.removeTask(this);
+		setUnit(null);
+		schedulers.clear();
+		variables.clear();
+		activity = null;
 	}
 	
 	/**
@@ -108,7 +119,7 @@ public class Task {
 	{
 		if (unit == null)
 			return true;
-		return unit.getTask() == null;
+		return unit.canHaveAsTask(this);
 	}
 	
 	/**
@@ -261,13 +272,26 @@ public class Task {
 	
 	public Statement getActivity()
 	{
-		return this.acitivity;
+		return this.activity;
+	}
+	
+	public void executeActivity()
+	{
+		activity.execute(this);
+		if (activity instanceof Sequence)
+		{
+			Sequence statements = (Sequence) activity;
+			if (statements.isEmpty())
+				activity = null;
+		}
+		else
+			activity = null;
 	}
 	
 	/**
 	 * Variable referencing the activities linked to this Task. This will most likely be a sequence of statements.
 	 */
-	private Statement acitivity;
+	private Statement activity;
 	
 	/**
 	 * Check whether the given variable is in the map of variables.

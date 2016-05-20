@@ -11,14 +11,26 @@ public class Sequence implements Statement{
 		this.statements = new ArrayList<Statement>(statements);
 	}
 	
+	public boolean isEmpty()
+	{
+		return statements.isEmpty();
+	}
+	
 	private final List<Statement> statements;
 	
 	@Override
 	public void execute(Task task) {
-		for (Statement statement : statements)
+		if (statements.size() > 0)
 		{
-			statement.execute(task);
+			statements.get(0).execute(task);
+			System.out.println("Executing " + statements.get(0).getClass().getSimpleName() + " statement...");
+			
+			statements.remove(0);
 		}
+		
+//		for (Statement statement : statements)
+//		{
+//			statement.execute(task);
+//		}
 	}
-
 }

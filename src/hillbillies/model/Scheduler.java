@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import be.kuleuven.cs.som.annotate.*;
-import ogp.framework.util.ModelException;
 
 /**
  * A class describing the Scheduler, which is attached to a Faction and stores Tasks.
@@ -27,7 +26,7 @@ public class Scheduler {
 	 * 			The new Faction for this Scheduler.
 	 * @param 	world
 	 * 			The new World for this Scheduler.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The Faction of this new Scheduler is set to the given Faction.
 	 * 			| this.setFaction(faction)
@@ -46,7 +45,7 @@ public class Scheduler {
 	 * @post	The collection of Tasks attached to this Scheduler is cleared.
 	 * @post	The World to which this Scheduler is attached is ineffective.
 	 * @post	The Faction to which this Scheduler is attached is ineffective.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 */
 	public void terminate()
@@ -94,11 +93,10 @@ public class Scheduler {
 	 */
 	public Task getTaskWithHighestPriority()
 	{
-		Iterator<Task> iter = getAllTasksIterator();
-		while (iter.hasNext())
+		for (Task task : tasks)
 		{
-			if(iter.next().getUnit() == null)
-				return iter.next();
+			if (task.getUnit() == null)
+				return task;
 		}
 		return null;
 	}
@@ -197,10 +195,10 @@ public class Scheduler {
 	 * @post	The given Task is no longer part of this Scheduler's collection of Tasks.
 	 * 			| new.hasAsTask(task) == false
 	 */
-	public void removeTask(Task task) throws ModelException
+	public void removeTask(Task task) throws IllegalArgumentException
 	{
 		if (!canRemoveAsTask(task))
-			throw new ModelException("The given Task cannot be removed from this Scheduler's list of Tasks.");
+			throw new IllegalArgumentException("The given Task cannot be removed from this Scheduler's list of Tasks.");
 		tasks.remove(task);
 	}
 	
@@ -215,10 +213,10 @@ public class Scheduler {
 	 * 			| this.tasks.set(index, replacement)
 	 * @effect	The original Task is removed from the list of Tasks.
 	 * 			| this.removeTask(task)
-	 * @throws	ModelException
+	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 */
-	public void replaceTask(Task original, Task replacement) throws ModelException
+	public void replaceTask(Task original, Task replacement) throws IllegalArgumentException
 	{
 		stopExecutingTask(original);
 		int index = tasks.indexOf(original);
@@ -233,7 +231,7 @@ public class Scheduler {
 	 * 			The Task to mark.
 	 * @param 	unit
 	 * 			The Unit to execute the given Task.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The Task of the given Unit is set to the given Task.
 	 * 			| unit.setTask(task)
@@ -242,8 +240,8 @@ public class Scheduler {
 	 */
 	public void markTask(Task task, Unit unit) throws IllegalArgumentException
 	{
-		unit.setTask(task);
 		task.setUnit(unit);
+		unit.setTask(task);
 	}
 	
 	/**
@@ -253,14 +251,14 @@ public class Scheduler {
 	 * 			The Task to unmark.
 	 * @param 	unit
 	 * 			The Unit to unmark.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The Task of the given Unit is set to an ineffective state.
 	 * 			| unit.setTask(null)
 	 * @effect	The Unit of the given Task is set to an ineffective state.
 	 * 			| task.setUnit(null)
 	 */
-	public void unmarkTask(Task task, Unit unit) throws ModelException
+	public void unmarkTask(Task task, Unit unit) throws IllegalArgumentException
 	{
 		unit.setTask(null);
 		task.setUnit(null);
@@ -276,7 +274,7 @@ public class Scheduler {
 	 * 
 	 * @param 	task
 	 * 			The given Task to check whether it's being executed or not.
-	 * @throws 	ModelException
+	 * @throws 	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * @effect	The assigned Task of a Unit will be set to null, if this Unit has the given Task as its assigned Task.
 	 * 			| (for each Unit in getFaction().getAllUnits():
@@ -284,7 +282,7 @@ public class Scheduler {
 	 * 			|		then unit.setTask(null))
 	 */
 	@Model
-	private void stopExecutingTask(Task task) throws ModelException
+	private void stopExecutingTask(Task task) throws IllegalArgumentException
 	{
 		Iterator<Unit> iter = getFaction().getAllUnits().iterator();
 		while (iter.hasNext())

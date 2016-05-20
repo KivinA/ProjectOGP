@@ -24,7 +24,7 @@ public class If implements Statement {
 	public void execute(Task task) {
 		if (condition.evaluate(task))
 			ifBody.execute(task);
-		else
+		else if (elseBody != null)
 			elseBody.execute(task);
 	}
 
