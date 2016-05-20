@@ -7,7 +7,9 @@ import be.kuleuven.cs.som.annotate.*;
  * A class of objects that are in the {@link World}.
  * 
  * @author 	Kevin Algoet & Jeroen Depuydt
- * @version	0.9
+ * 			1ba Informatica
+ * @version	1.0
+ * @note	Repository link: https://github.com/KivinA/ProjectOGP
  * 
  * @invar	The weight of each WorldObject must be a valid weight for any WorldObject.
  * @invar	This WorldObject can have its position as its position.

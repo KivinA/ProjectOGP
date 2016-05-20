@@ -11,9 +11,10 @@ import ogp.framework.util.ModelException;
  * describes the terrain, a {@link ConnectedToBorder} object, a set of {@link Unit}s, a set of {@link Faction}s,
  * a set of {@link Boulder}s and a set of {@link Log}s.
  * 
- * @version 0.9
+ * @version 1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
- *
+ * @note	Repository link: https://github.com/KivinA/ProjectOGP
+ * 
  * @invar	The TerrainChangeListener of each World must be a valid TerrainChangeListener for any World.
  * @invar	Each World must have proper Units.
  * @invar	Each World must have proper Factions.

@@ -4,6 +4,7 @@ package hillbillies.model;
  * A class describing Logs that are active in the {@link World}.
  * 
  * @author 	Kevin Algoet & Jeroen Depuydt
+ * 			1ba Informatica
  * @version 1.0
  * @note	Repository link: https://github.com/KivinA/ProjectOGP
  * 

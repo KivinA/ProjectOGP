@@ -12,6 +12,7 @@ import be.kuleuven.cs.som.annotate.*;
  * 
  * @version	1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
+ * 			1ba Informatica
  * @note	Repository link: https://github.com/KivinA/ProjectOGP
  * 
  * @invar	Each Scheduler can have its Faction as Faction.

@@ -11,6 +11,7 @@ import hillbillies.model.statements.Statement;
  * 
  * @version	1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
+ * 			1ba Informatica
  * @note	Repository link: https://github.com/KivinA/ProjectOGP
  * 
  * @invar	Each Task must have proper Schedulers.

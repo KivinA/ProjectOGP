@@ -3,11 +3,6 @@ package hillbillies.model;
 import java.util.*;
 import be.kuleuven.cs.som.annotate.*;
 
-/* 
- * 		1. Check all TODO's.
- * 		5. Add @Raw annotation to associations with objects that doesn't have to be in proper state (basically almost every association)
- */
-
 /** 
  * A class of Units which can have a name, agility, strength, weight, toughness, maximum hitpoints, maximum staminapoints, current hitpoints, 
  * current staminapoints, orientation, cube coordinates, position, default behaviour, a {@link Faction}, a {@link Task} and several speeds. 
