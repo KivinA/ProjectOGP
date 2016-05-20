@@ -588,11 +588,11 @@ public class Unit {
 	}
 	
 	/**
-	 * [TODO] Complete this function.
-	 * [FIXME] Add a checker to check values as well in (c,n| n <= n0).
-	 * @param position
-	 * @param n
+	 * Calculate the path to follow towards the destination cube.
+	 *
+	 * @note	This is part of the advanceTime method (through findPath()), thus we don't specify documentation for this method.
 	 */
+	@Raw
 	private ArrayList<Tuple<int[], Integer>> search(Tuple<int[], Integer> startTuple, ArrayList<Tuple<int[], Integer>> tempPaths)
 	{
 		// let l be a List of cube positions.
@@ -639,13 +639,13 @@ public class Unit {
 	}
 
 	/**
-	 * [TODO]
-	 * @throws IllegalArgumentException
+	 * Find the path towards the destination cube.
+	 * 
+	 * @note	This is a method from advance time (through moving()), thus no documentation is specified.
 	 */
+	@Raw
 	private void findPath() throws IllegalArgumentException
 	{
-		// Calculate the Path: 
-		//System.out.println("Destination cube is: " + "[" + getDestinationCube()[0] + ", " + getDestinationCube()[1] + ", " + getDestinationCube()[2] + "]");
 		pathQueue = new ArrayList<Tuple<int[], Integer>>();
 		Tuple<int[], Integer> destination = new Tuple<int[], Integer>(getDestinationCube(), 0);
 		pathQueue.add(destination);
@@ -667,18 +667,14 @@ public class Unit {
 			else
 				pathQueue.addAll(searchedDestinations);
 		}
-
-		//System.out.println("Size of possible paths: " + pathQueue.size());
 		
 		// Check is we can still move...
 		if (hasTupleWithGivenCoordinates(getCubeCoordinates(), pathQueue))
 		{
-			//System.out.println("This Unit can move to its destination.");
 			Tuple<int[], Integer> next = findNextCube(getCubeCoordinates());
 			// If the returned tuple from the queue is null, pathing is terminated.
 			if (next.getFirstValue() == null)
 			{
-				//System.out.println("Pathing will now end, because there isn't a next cube.");
 				setMovingTo(false);
 				setMoving(false);
 				throw new IllegalArgumentException("Pathing will end here.");
@@ -724,9 +720,7 @@ public class Unit {
 		{
 			setMovingTo(false);
 			setMoving(false);
-			//System.out.println("Location is impossible to reach! Terminating movement...");
 		}
-			
 	}
 	
 	/**
@@ -741,7 +735,10 @@ public class Unit {
 	 * 			| 	if (Tuple.getFirstValue()[0] == coordinates[0] && currentTuple.getFirstValue()[1] == coordinates[1] 
 	 * 			|			&& currentTuple.getFirstValue()[2] == coordinates[2]) 
 	 * 			| 		result == true)
+	 * @note	Although this method is part of advance time (through findPath()), we still specified some documentation because this method was
+	 * 			rather short.
 	 */
+	@Raw
 	private boolean hasTupleWithGivenCoordinates(int[] coordinates, ArrayList<Tuple<int[], Integer>> list)
 	{
 		Iterator<Tuple<int[], Integer>> iter = list.iterator();
@@ -770,7 +767,10 @@ public class Unit {
 	 * 			|			if (Tuple.getSecondValue() < result.getSecondValue())
 	 * 			|				resultTuple = Tuple)
 	 * 			| result == resultTuple
+	 * @note	Although this method is part of advance time (through findPath()), we still specified some documentation because this method was
+	 * 			rather short.
 	 */
+	@Raw
 	private Tuple<int[], Integer> findNextCube(int[] coordinates)
 	{
 		Iterator<Tuple<int[], Integer>> iter = pathQueue.iterator();
@@ -794,15 +794,10 @@ public class Unit {
 	
 	/**
 	 * Check whether the Unit has reached its destination.
-	 * TODO Finish the Return statement (or change method)
-	 * @return	True if and only if the current Unit position components are greater or lower (depends on direction) or equal to
-	 * 			the cube coordinates + the cube length divided by 2.
-	 * 			| result == hasReached
-	 * 			| for 
-	 * 			| if ...
-	 * 			| then hasReached = true 
-	 * 			| else .. 
+	 *
+	 * @note	This method is part of advance time (through moving()), thus no documentation is specified.
 	 */
+	@Raw
 	private boolean destinationReached()
 	{
 		boolean hasReached = false;
@@ -840,8 +835,9 @@ public class Unit {
 	/**
 	 * Increase one of the following skills of this Unit: strength, agility or toughness.
 	 * 
-	 * [TODO]	effects, posts, etc.
+	 * @note	This method is part of advance time, thus no documentation is specified.
 	 */
+	@Raw @Model
 	private void increaseSkills()
 	{	
 		int oldStrength = getStrength();
@@ -881,14 +877,16 @@ public class Unit {
 	 * 			| while (getWorld().getAllLogs().iterator().hasNext())
 	 * 			| 	if (Arrays.equals(getWorld().getAllLogs().iterator().next().getPosition(), targetCube)
 	 * 			|		then result == getWorld().getAllLogs().iterator().next()
-	 * 
 	 * @return	A Log that is ineffective if there isn't a Boulder with the given position that is a part of this Unit's World collection
 	 * 			of Log.
 	 * 			| while (getWorld().getAllLogs().iterator().hasNext())
 	 * 			| 	if (Arrays.equals(getWorld().getAllLogs().iterator().next().getPosition(), targetCube)
 	 * 			|		then result == getWorld().getAllLogs().iterator().next()
 	 * 			| result == null
+	 * @note	Although this method is part of advance time (through findPath()), we still specified some documentation because this method was
+	 * 			rather short.
 	 */
+	@Raw
 	private Log logPresentAtCube(double[] targetCube)
 	{
 		Iterator<Log> iterator = getWorld().getAllLogs().iterator(); 
@@ -920,7 +918,10 @@ public class Unit {
 	 * 			| 	if (Arrays.equals(getWorld().getAllBoulders().iterator().next().getPosition(), targetCube)
 	 * 			|		then result == getWorld().getAllBoulders().iterator().next()
 	 * 			| result == null
+	 * @note	Although this method is part of advance time (through findPath()), we still specified some documentation because this method was
+	 * 			rather short.
 	 */
+	@Raw
 	private Boulder boulderPresentAtCube(double[] targetCube)
 	{
 		Iterator<Boulder> iterator = getWorld().getAllBoulders().iterator();
@@ -937,9 +938,7 @@ public class Unit {
 	/**
 	 * Check whether there is a Unit of this Unit's World available in the neighbouring cubes.
 	 * 
-	 * @return	A Unit that is effective if and only if there is a Unit in the neighbouring cubes and if that Unit is from a different Faction.
-	 * 
-	 * [TODO] Formal specifications
+	 * @note	This method is part of advance time (through selectBehaviour()), thus no documentation is specified.
 	 */
 	private Unit isNeighbouringUnitPresent()
 	{
@@ -970,6 +969,12 @@ public class Unit {
 		return null;
 	}
 	
+	/**
+	 * Select the behaviour for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
+	@Raw @Model
 	private void SelectBehaviour() throws IllegalStateException
 	{
 		int choice = new Random().nextInt(4);
@@ -1019,6 +1024,11 @@ public class Unit {
 		}
 	}
 	
+	/**
+	 * Calculate the resting consequences for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
 	@Raw @Model
 	private void resting(double duration)
 	{
@@ -1076,15 +1086,20 @@ public class Unit {
 		}
 	}
 	
+	/**
+	 * Calculate the fighting consequences for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
 	@Raw @Model
 	private void fighting(double duration)
 	{
 		if (getFightingDuration() >= 1)
 		{
 			if (isAttacking())
-				setIsAttacking(false);
+				setAttacking(false);
 			else
-				setIsDefending(false);
+				setDefending(false);
 			setFightingDuration(0);
 			if (wasMoving())
 			{
@@ -1099,6 +1114,11 @@ public class Unit {
 			setFightingDuration(getFightingDuration() + duration);
 	}
 	
+	/**
+	 * Calculate the moving consequences for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
 	@Raw @Model
 	private void moving(double duration)
 	{
@@ -1146,6 +1166,11 @@ public class Unit {
 		}
 	}
 	
+	/**
+	 * Calculate the working consequences for this Unit.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
 	@Raw @Model
 	private void working(double duration)
 	{
@@ -1153,7 +1178,6 @@ public class Unit {
 			setWorkingDuration(getWorkingDuration() - duration);
 		else
 		{
-			// Several cases:
 			double[] target = World.getPreciseCoordinates(getTargetCube());
 			Log log = logPresentAtCube(target);
 			Boulder boulder = boulderPresentAtCube(target);
@@ -1205,10 +1229,15 @@ public class Unit {
 		}
 	}
 	
+	/**
+	 * Execute the specified {@link Task}.
+	 * 
+	 * @note	This method is part of advance time, thus no documentation is specified.
+	 */
+	@Raw @Model
 	private void executeTask(Task task, double duration)
 	{
-		setTask(task);
-		
+		// TODO IMPLEMENT THIS SHIT
 	}
 	
 	/**
@@ -1217,11 +1246,37 @@ public class Unit {
 	 * @throws	IllegalArgumentException
 	 * 			A condition was violated or an error was thrown.
 	 * 
-	 * [TODO]	Effects, post conditions, etc.
-	 * [FIXME] 	Add checker to see if hitpoints is zero.
+	 * @effect	Drop the carried Log, if this Unit is carrying a Log.
+	 * 			| if (isCarryingLog())
+	 * 			|	dropLog(getPosition())
+	 * @effect	Drop the carried Boulder, if this Unit is carrying a Boulder.
+	 * 			| if (isCarryingBoulder())
+	 * 			|	dropBoulder(getPosition())
+	 * @effect	Disable the moving state.
+	 * 			| this.setMoving(false)
+	 * @effect	Disable the working state.
+	 * 			| this.setWorking(false)
+	 * @effect	Disable the attacking state.
+	 * 			| this.setAttacking(false)
+	 * @effect	Disable the defending state.
+	 * 			| this.setDefending(false)
+	 * @effect	Disable the resting state.
+	 * 			| this.setResting(false)
+	 * @effect	Disable the default behaviour.
+	 * 			| this.setDefaultBehaviour(false)
+	 * @effect	Set Faction of this Unit ineffective.
+	 * 			| this.setFaction(null)
+	 * @effect	Set the World of this Unit ineffective.
+	 * 			| this.setWorld(null)
+	 * @post	The new alive state is false.
+	 * 			| new.isAlive() == false
 	 */
+	@Raw
 	public void die() throws IllegalArgumentException
 	{
+		// Kill the Unit:
+		this.isAlive = false;
+		
 		if (isCarryingLog())
 			dropLog(getPosition());
 		else if (isCarryingBoulder())
@@ -1230,14 +1285,11 @@ public class Unit {
 		// Disable all behaviour:
 		setMoving(false);
 		setWorking(false);
-		setIsAttacking(false);
-		setIsDefending(false);
+		setAttacking(false);
+		setDefending(false);
 		setResting(false);
 		setDefaultBehaviour(false);
-		
-		// Kill the Unit:
-		this.isAlive = false;
-		
+
 		// Delete the Unit:
 		setFaction(null);
 		setWorld(null);
@@ -3336,7 +3388,7 @@ public class Unit {
 	 *       	| new.getIsAttacking() == isAttacking
 	 */
 	@Raw @Model
-	private void setIsAttacking(boolean isAttacking)
+	private void setAttacking(boolean isAttacking)
 	{
 		this.isAttacking = isAttacking;
 	}
@@ -3364,7 +3416,7 @@ public class Unit {
 	 *       	| new.getIsDefending() == isDefending
 	 */
 	@Raw
-	public void setIsDefending(boolean isDefending)
+	public void setDefending(boolean isDefending)
 	{
 		this.isDefending = isDefending;
 	}
@@ -3478,7 +3530,7 @@ public class Unit {
 				double arg0 = defender.getPosition()[1] - getPosition()[1];
 				double arg1 = defender.getPosition()[0] - getPosition()[0];
 				setOrientation(Math.atan2(arg0, arg1));
-				setIsAttacking(true);
+				setAttacking(true);
 		}
 		else
 			throw new IllegalArgumentException("The units must be next to each other.");
@@ -3550,7 +3602,7 @@ public class Unit {
 					setMoving(false);
 					setWasMoving(true);
 				}
-				setIsDefending(true);
+				setDefending(true);
 				boolean hasEarnedExp = false;
 				double arg0 = attacker.getPosition()[1] - getPosition()[1];
 				double arg1 = attacker.getPosition()[0] - getPosition()[0];
