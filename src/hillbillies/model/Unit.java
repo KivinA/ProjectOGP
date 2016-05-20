@@ -354,129 +354,122 @@ public class Unit {
 	 * @param 	dz
 	 * 			The difference between the z-component of the current cube and the z-component of the destination cube.
 	 * 
+	 * @throws	IllegalStateException
+	 * 			This Unit cannot move when it's dead.
+	 * 			| !isAlive()
 	 * @throws	IllegalArgumentException
-	 * 			A condition was violated or an error was thrown. 
-	 * 			If this Unit is already moving to an adjacent cube and if the function is called upon with all of its parameters equal to 0, 
-	 * 			an exception will be thrown.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0))
-	 * 
-	 * @effect	The isMoving indicator of this Unit is enabled if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy
-	 * 			and dz are equal to zero and if the Unit has finished the initial resting period and if the Unit isn't currently moving already.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && !isMoving())
-	 * 			| then this.setIsMoving(true)
-	 * 
-	 * @effect	The isResting indicator of this Unit is disabled if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy
-	 * 			and dz are equal to zero and if the Unit has finished the initial resting period and if the Unit is currently resting.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isResting())
-	 * 			| then this.setIsResting(false)
-	 * 
-	 * @effect	The isWorking indicator of this Unit is disabled if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy
-	 * 			and dz are equal to zero and if the Unit has finished the initial resting period and if the Unit is currently working.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isWorking())
-	 * 			| then this.setIsWorking(false)
-	 * 
-	 * @effect	The isMovingToAdjacent indicator of this Unit is enabled if the Unit's isMovingToAdjacent indicator is disabled, 
-	 * 			and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint())
-	 * 			| then this.setIsMovingToAdjacent(true)
-	 * 
-	 * @effect 	The deltaNewPositions of this Unit is set to the given dx, dy, dz collected in the array dCoordinates, 
-	 * 			if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero 
-	 * 			and if the Unit has finished the initial resting period and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 *       	| then this.setDeltaNewPositions(dCoordinates)
-	 *       
-	 * @effect	The nextCubeCoordinates of this Unit is set to the calculated newCoordinates, if the Unit's isMovingToAdjacent indicator 
-	 * 			is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
-	 * 			and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then this.setNextCubeCoordinates(newCoordinates)
-	 *       
-	 * @effect 	The base speed of this Unit is set to the calculated base speed newBaseSpeed, if the Unit's isMovingToAdjacent indicator 
-	 * 			is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
-	 * 			and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 *       	| this.setBaseSpeed(newBaseSpeed)
-	 *      	
-	 * @effect	The walking speed of this Unit is set to either 1/2 times the base speed, 1.2 times the base speed, or the base speed itself
-	 * 			depending whether the difference between the current z coordinate and the new z coordinate is either -1, 0 or 1 and
-	 * 			if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero and 
-	 * 			if the Unit has finished the initial resting period and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then
-	 * 			| 	if (getCubeCoordinates()[2] - newCoordinates[2] == -1)
-	 * 			| 	then this.setWalkingSpeed(getBaseSpeed() / 2)
-	 * 			| 	else if (getCubeCoordinates()[2] - newCoordinates[2] == 1)
-	 * 			| 	then this.setWalkingSpeed(getBaseSpeed() * 1.2)
-	 * 			| 	else this.setwalkingSpeed(getBaseSpeed())
-	 * 
-	 * @effect	The sprintSpeed of this Unit is set to 2 times its walking speed if the Unit's isMovingToAdjacent indicator 
-	 * 			is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
-	 * 			and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then this.setSprintSpeed(getWalkingSpeed() * 2)
-	 * 
-	 * @effect 	The velocity of this Unit is set to the calculated velocity using the new coordinates of the Unit if the Unit's isMovingToAdjacent
-	 * 			indicator is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has finished the initial resting period
-	 * 			and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then this.setVelocity(newCoordinates)
-	 * 
-	 * @effect	The orientation of this Unit is set to the arctagent of the x- and y-component of the Unit's velocity if the Unit's 
-	 * 			isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero and if the Unit has 
-	 * 			finished the initial resting period and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| this.setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]))
-	 * 
-	 * @effect	The current speed of this Unit is either set to its walking speed or its sprinting speed depending on whether the Unit is sprinting
-	 * 			if the Unit's isMovingToAdjacent indicator is disabled, and if the given dx, dy and dz are equal to zero 
-	 * 			and if the Unit has finished the initial resting period and if the newCoordinates are valid coordinates.
-	 * 			| if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedOnePoint() && isValidCubeCoordinates(newCoordinates))
-	 * 			| then 
-	 * 			| 	if (isSprinting())
-	 * 			| 	then this.setCurrentSpeed(getSprintSpeed())
-	 * 			| 	else this.setCurrentSpeed(getWalkingSpeed())
+	 * 			If this Unit is already moving to an adjacent cube, or if the function is called upon with all of its parameters equal to 0, 
+	 * 			or if this Unit hasn't rested its initial recovery period, an exception will be thrown.
+	 * 			| if ( isMovingToAdjacent() && (dx == 0 && dy == 0 && dz == 0) && !hasRestedInitialRecoveryPeriod() )
+	 *  
+	 * @effect	The resting state of this Unit is disabled, if it was enabled.
+	 * 			| if (isResting())
+	 * 			|	then this.setResting(false)
+	 * @effect	The working state of this Unit is disabled, if it was enabled.
+	 * 			| if (isWorking())
+	 * 			|	then this.setWorking(false)
+	 * @effect	The moving state of this Unit is enabled if it wasn't enabled already.
+	 * 			| if (!isMoving())
+	 * 			|	then this.setMoving(true) 
+	 * @effect	The moving to adjacent state is enabled.
+	 * 			| this.setMovingToAdjacent(true)
+	 * @effect	The difference between the current and next position is set to the collection of the given dx, dy and dz value, if this Unit
+	 * 			can have the newly calculated cube coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	dCoordinates = {dx, dy, dz},
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)
+	 * 			| in
+	 * 			| 	if (canHaveAsCubeCoordinates(newCoordinates))
+	 * 			|		then this.setDeltaNewPositions(dCoordinates)
+	 * @effect 	Set the next cube coordinates to the newly calculated coordinates, if this Unit can have these coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates))
+	 *			|		then this.setNextCoordinates(newCoordinates)
+	 * @effect	Set the walking speed of this Unit with the given difference on the z coordinate, if this Unit can have the newly calculated 
+	 * 			coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates))
+	 *			|		then this.setWalkingSpeed(dz)
+	 * @effect	Calculate the velocity of this Unit using the new coordinates, if this Unit isn't falling and if this Unit can have the newly
+	 * 			calculated coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates) && !isFalling())
+	 *			|		then this.setVelocity(newCoordinates)
+	 * @effect	Withdraw 10 hitpoints from this Unit, if this Unit is falling and if it can have the newly calculated coordinates
+	 * 			as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates) && isFalling())
+	 *			|		then this.setCurrentHitpoints(getCurrentHitpoints() - 10)
+	 * @effect	The orientation of this Unit is set according to the velocity of this Unit, if this Unit can have the newly calculated
+	 * 			coordinates as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates))
+	 *			|		then this.setOrientation(getVelocity()[0], getVelocity()[1])
+	 * @effect	If this Unit is currently sprinting set the current speed to the sprinting speed.
+	 * 			Otherwise set the current speed equal to the walking speed of this Unit.
+	 * 			This can only be done if this Unit can have the newly calculated coordiantes as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates))
+	 *			|		then 
+	 *			|			if (isSprinting())
+	 *			|				then this.setCurrentSpeed(getSprintingSpeed())
+	 *			|			else this.setCurrentSpeed(getWalkingSpeed())
+	 * @post	The velocity of this Unit is set to {0, 0, -3}, if this Unit is falling and if it can have the newly calculated coordinates
+	 * 			as its cube coordinates.
+	 * 			| let
+	 * 			|	coordinates = getCubeCoordinates(),
+	 * 			|	newCoordinates = { (coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)    
+	 *			| in
+	 *			|	if (canHaveAsCubeCoordinates(newCoordinates) && isFalling())
+	 *			|		then for each i in 0..velocity.length:
+	 *			|			if (i == 2)
+	 *			|				then new.getVelocity()[i] == -3
+	 *			|			else new.getVelocity()[i] == 0
 	 */
 	public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException
 	{
-		// REVISION:
 		if (!isAlive())
 			throw new IllegalStateException("Unit cannot move while its dead!");
-		// This method will only work if the Unit isn't currently already moving and if the destination cube isn't the same cube.
 		if (!isMovingToAdjacent() && !(dx == 0 && dy == 0 && dz == 0) && hasRestedInitialRecoveryPeriod())
 		{
 			try {
-				// Disable behaviours and enable isMoving if it isn't already: 
-				if (!isMoving())
-					setMovingState(true);
 				if (isResting())
 					setResting(false);
 				if (isWorking())
 					setWorking(false);
-				setIsMovingToAdjacent(true);
+				if (!isMoving())
+					setMoving(true);
+				setMovingToAdjacent(true);
 				
-				// Calculate new coordinates:
 				int[] dCoordinates = {dx, dy, dz};
-	
-				int newXPos = getCubeCoordinates()[0] + dCoordinates[0];
-				int newYPos = getCubeCoordinates()[1] + dCoordinates[1];
-				int newZPos = getCubeCoordinates()[2] + dCoordinates[2];
-				
-				int[] newCoordinates = {newXPos, newYPos, newZPos};
+				int[] coordinates = getCubeCoordinates();	
+				int[] newCoordinates = {(coordinates[0] + dx), (coordinates[1] + dy), (coordinates[2] + dz)};
 				
 				// Check whether the new cube coordinates are valid. If so, calculate the speeds and orientation:
 				if (canHaveAsCubeCoordinates(newCoordinates))
 				{
-					// Set the delta coordinates:
 					setDeltaNewPositions(dCoordinates);
-					
-					// Set the next cube coordinates to the new coordinates:
 					setNextCoordinates(newCoordinates);
-					
-					// Set walking speed:
 					setWalkingSpeed(dz);
-					
-					// Set the velocity:
 					if (!isFalling())
 						setVelocity(newCoordinates);
 					else
@@ -490,11 +483,7 @@ public class Unit {
 						}
 						setCurrentHitpoints(getCurrentHitpoints() - 10); // If the Unit is falling, subtract 10 hitpoints
 					}
-						
-					// Set the orientation: 
 					setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
-					
-					// Set the current speed:
 					if (isSprinting())
 						setCurrentSpeed(getSprintSpeed());
 					else
@@ -505,9 +494,8 @@ public class Unit {
 			}
 			catch (IllegalArgumentException e)
 			{
-				// Disable movement:
-				setIsMovingToAdjacent(false);
-				setMovingState(false);
+				setMovingToAdjacent(false);
+				setMoving(false);
 				//throw e;
 			}
 		}
@@ -554,7 +542,7 @@ public class Unit {
 			try
 			{
 				if (!isMoving())
-					setMovingState(true);
+					setMoving(true);
 				if (isResting())
 					setResting(false);
 				if (isWorking())
@@ -566,7 +554,7 @@ public class Unit {
 			catch (IllegalArgumentException e)
 			{
 				setMovingTo(false);
-				setMovingState(false);
+				setMoving(false);
 				//throw e;
 			}
 		}
@@ -666,7 +654,7 @@ public class Unit {
 			{
 				//System.out.println("Pathing will now end, because there isn't a next cube.");
 				setMovingTo(false);
-				setMovingState(false);
+				setMoving(false);
 				throw new IllegalArgumentException("Pathing will end here.");
 			}
 			
@@ -709,7 +697,7 @@ public class Unit {
 		else
 		{
 			setMovingTo(false);
-			setMovingState(false);
+			setMoving(false);
 			//System.out.println("Location is impossible to reach! Terminating movement...");
 		}
 			
@@ -1022,7 +1010,7 @@ public class Unit {
 					setRecoveryState(true);
 					if (wasMoving())
 					{
-						setMovingState(true);
+						setMoving(true);
 						setWasMoving(false);
 					}
 				}
@@ -1074,7 +1062,7 @@ public class Unit {
 			setFightingDuration(0);
 			if (wasMoving())
 			{
-				setMovingState(true);
+				setMoving(true);
 				setWasMoving(false);
 				setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
 			}
@@ -1118,13 +1106,13 @@ public class Unit {
 		{	
 			if (isMovingToAdjacent())
 			{
-				setIsMovingToAdjacent(false);
+				setMovingToAdjacent(false);
 				if (!isFalling())
 					setExperience(getExperience() + 1);
 			}
 			if (!isMovingTo())
 			{
-				setMovingState(false);
+				setMoving(false);
 				if (isSprinting())
 					setSprintingState(false);
 			}
@@ -1214,7 +1202,7 @@ public class Unit {
 			dropBoulder(getPosition());
 		
 		// Disable all behaviour:
-		setMovingState(false);
+		setMoving(false);
 		setWorking(false);
 		setIsAttacking(false);
 		setIsDefending(false);
@@ -2570,7 +2558,7 @@ public class Unit {
 	 *       	| ! canHaveAsIsMoving(getIsMoving())
 	 */
 	@Raw @Model
-	private void setMovingState(boolean isMoving) throws IllegalArgumentException 
+	private void setMoving(boolean isMoving) throws IllegalArgumentException 
 	{
 		if (! canHaveAsIsMoving(isMoving))
 			throw new IllegalArgumentException("The given value isMoving is invalid for this Unit.");
@@ -2702,7 +2690,7 @@ public class Unit {
 	 * 			this state to check if its moving to an adjacent cube.
 	 */
 	@Raw @Model
-	private void setIsMovingToAdjacent(boolean isMovingToAdjacent) throws IllegalArgumentException 
+	private void setMovingToAdjacent(boolean isMovingToAdjacent) throws IllegalArgumentException 
 	{
 		if (!canHaveAsMovingTo(isMovingToAdjacent))
 			throw new IllegalArgumentException("Cannot have the given is moving to adjacent cube state!");
@@ -3458,7 +3446,7 @@ public class Unit {
 					setResting(false);
 				if (isMoving())
 				{
-					setMovingState(false);
+					setMoving(false);
 					setWasMoving(true);
 				}
 				double arg0 = defender.getPosition()[1] - getPosition()[1];
@@ -3533,7 +3521,7 @@ public class Unit {
 					setResting(false);
 				if (isMoving())
 				{
-					setMovingState(false);
+					setMoving(false);
 					setWasMoving(true);
 				}
 				setIsDefending(true);
@@ -3701,7 +3689,7 @@ public class Unit {
 				setWorking(false);
 			if (isMoving())
 			{
-				setMovingState(false);
+				setMoving(false);
 				setWasMoving(true);
 			}
 			setRecoveryState(false);
