@@ -1,37 +1,70 @@
 package hillbillies.model;
 
-import java.util.Map;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import be.kuleuven.cs.som.annotate.*;
 import hillbillies.model.expressions.Expression;
-import hillbillies.model.statements.Sequence;
 import hillbillies.model.statements.Statement;
-import ogp.framework.util.ModelException;
 
 /**
- * A class of...
+ * A class of Tasks than can be assigned to {@link Unit}s, with a name, priority, activity, list of schedulers, variable declarations and a
+ * selected coordinate.
  * 
- * @version	0.8	
+ * @version	1.0
  * @author 	Kevin Algoet & Jeroen Depuydt
+ * @note	Repository link: https://github.com/KivinA/ProjectOGP
  * 
  * @invar	Each Task must have proper Schedulers.
  * 			| hasProperSchedulers()
- * @invar	Each Task can have its Unit as Unit.
- * 			| canHaveAsUnit(getUnit())
+ * @invar	Each Task must have a proper Unit.
+ * 			| hasProperUnit()
  */
 public class Task {
 	
+	/**
+	 * Initialize this Task with a given name and priority, and an ineffective coordinate and activity.
+	 *  
+	 * @param 	name
+	 * 			The name for this Task.
+	 * @param 	priority
+	 * 			The priority for this Task.
+	 * @effect	Initialize this Task with the given name as its name, the given priority as its priority, an ineffective activity Statement
+	 * 			and an ineffective selected coordinate.
+	 * 			| this(name, priority, null, null)
+	 * @note	This constructor should only be used as a quick alternative for easy test setups. 
+	 * 			DO NOT USE THIS CONSTRUCTOR TO INITIALIZE A TASK IN A CLASS.
+	 * 			Use the other constructor.
+	 */
+	@Deprecated
 	public Task(String name, int priority)
 	{
-		this.name = name;
-		setPriority(priority);
-		this.selectedCube = null;
+		this(name, priority, null, null);
 	}
 	
+	/**
+	 * Create a new Task with the given name, priority, activity {@link Statement} and a selected coordinate.
+	 * 
+	 * @param 	name
+	 * 			The name for this new Task.
+	 * @param 	priority
+	 * 			The priority for this new Task.
+	 * @param 	activity
+	 * 			The activity {@link Statement} for this new Task.
+	 * @param 	selectedCube
+	 * 			The selected coordinate for this new Task.
+	 * 
+	 * @post	The name of this new Task is equal to the given name.
+	 * 			| new.getName() == name
+	 * @post	The activity of this new Task is equal to the given activity.
+	 * 			| new.getActivity() == activity
+	 * @post	The selected coordinate of this Task is equal to the given selected coordinates, if it is effective.
+	 * 			Otherwise the selected coordiante of this new Task is ineffective.
+	 * 			| if (selectedCube != null)
+	 * 			| 	new.getSelected() == Arrays.copyOf(selectedCube, selectedCube.length)
+	 * 			| else
+	 * 			|	new.getSelected() == null
+	 *  @effect	The priority of this Task is set to the given priority.
+	 *  		| this.setPriority(priority)
+	 */
 	public Task(String name, int priority, Statement activity, int[] selectedCube)
 	{
 		this.name = name;
@@ -43,8 +76,24 @@ public class Task {
 			this.selectedCube = null;
 	}
 	
+	/**
+	 * Terminate this Task.
+	 * 
+	 * @post	The terminated state of this Task equals true.
+	 * 			| new.isTerminated() == true
+	 * @post	The list of Schedulers is empty.
+	 * 			| new.getSchedulers().isEmpty() == true
+	 * @post	The map of variables of this Task is empty.
+	 * 			| new.variables.isEmpty() == true
+	 * @post	The activity Statement of this Task is ineffective.
+	 * 			| new.getActivity() == null
+	 * @effect	Remove this Task from all Schedulers to which this Task is attached.
+	 * 			| for each scheduler in getAllSchedulers():
+	 * 			|	scheduler.removeTask(this)
+	 */
 	public void terminate()
 	{
+		this.terminated = true;
 		for (Scheduler scheduler : getAllSchedulers())
 			scheduler.removeTask(this);
 		setUnit(null);
@@ -52,6 +101,20 @@ public class Task {
 		variables.clear();
 		activity = null;
 	}
+	
+	/**
+	 * Check whether this Task is terminated.
+	 */
+	@Basic @Raw
+	public boolean isTerminated()
+	{
+		return this.terminated;
+	}
+	
+	/**
+	 * Variable registering whether this Task is terminated.
+	 */
+	private boolean terminated = false;
 	
 	/**
 	 * Return the name of this Task.
@@ -109,14 +172,20 @@ public class Task {
 	 * 
 	 * @param 	unit
 	 * 			The Unit to check.
-	 * @return	True if and only if the given Unit is ineffective or if this Unit is effective and has this Task as its assigned Task.
+	 * @return	If this unit is terminated, true if and only if the given Unit is ineffective.
+	 * 			Otherwise, true if and only if the given Unit is ineffective or if this Unit is effective and has this Task as its assigned Task.
+	 * 			| if (isTerminated())
+	 * 			|	then result == (unit == null)
 	 * 			| if (unit == null)
 	 * 			|	then result == true
 	 * 			| else
 	 * 			|	result == (unit.getTask() == this)
 	 */
+	@Raw
 	public boolean canHaveAsUnit(Unit unit)
 	{
+		if (isTerminated())
+			return unit == null;
 		if (unit == null)
 			return true;
 		return unit.canHaveAsTask(this);
@@ -142,6 +211,30 @@ public class Task {
 	}
 	
 	/**
+	 * Check whether this Task has a proper {@link Unit} attached to it.
+	 * 
+	 * @return	True if and only if this Task can have its Unit as its Unit, if this Task is terminated or if this Task isn't terminated,
+	 * 			and the Unit has this Task as its Task.
+	 * 			| if (canHaveAsUnit(getUnit())
+	 * 			|	then
+	 * 			|		if (isTerminated())
+	 * 			|			then result == true
+	 * 			|		else result == (getUnit().getTask() == this)
+	 * 			| else result == false
+	 */
+	public boolean hasProperUnit()
+	{
+		if (canHaveAsUnit(getUnit()))
+		{
+			if (isTerminated())
+				return true;
+			else
+				return getUnit().getTask() == this;
+		}
+		return false;
+	}
+	
+	/**
 	 * Variable referencing the Unit that is currently executing this Task.
 	 */
 	private Unit unit;
@@ -163,6 +256,7 @@ public class Task {
 	 * @return	True if and only if the given Scheduler is attached to this Task as one of its Schedulers.
 	 * 			| result == schedulers.contains(scheduler)
 	 */
+	@Raw
 	public boolean hasAsScheduler(Scheduler scheduler)
 	{
 		return schedulers.contains(scheduler);
@@ -176,6 +270,7 @@ public class Task {
 	 * @return	True if and only if the given Scheduler is effective and if the given Scheduler has this Task listed as one of its Tasks.
 	 * 			| result == (scheduler != null) && (scheduler.hasAsTask(this))
 	 */
+	@Raw
 	public boolean canHaveAsScheduler(Scheduler scheduler)
 	{
 		return (scheduler != null) && (scheduler.hasAsTask(this));
@@ -192,6 +287,7 @@ public class Task {
 	 * 			This Task cannot have the given Scheduler as one of its Schedulers.
 	 * 			| !canHaveAsScheduler(scheduler)
 	 */
+	@Raw
 	public void addScheduler(Scheduler scheduler) throws IllegalArgumentException
 	{
 		if (!canHaveAsScheduler(scheduler))
@@ -207,6 +303,7 @@ public class Task {
 	 * @return	True if and only if the given Scheduler is effective and doesn't have this Task listed as one of its Tasks.
 	 * 			| result == (scheduler != null) && (!scheduler.hasAsTask(this))
 	 */
+	@Raw
 	public boolean canRemoveAsScheduler(Scheduler scheduler)
 	{
 		return (scheduler != null) && (!scheduler.hasAsTask(this));
@@ -223,6 +320,7 @@ public class Task {
 	 * 			The given Scheduler cannot be removed from the list of Schedulers.
 	 * 			| !canRemoveAsScheduler(scheduler)
 	 */
+	@Raw
 	public void removeScheduler(Scheduler scheduler) throws IllegalArgumentException
 	{
 		if (!canRemoveAsScheduler(scheduler))
@@ -270,25 +368,32 @@ public class Task {
 	 */
 	private Set<Scheduler> schedulers = new HashSet<Scheduler>();
 	
+	/**
+	 * Get the activity of this Task.
+	 */
+	@Basic @Raw
 	public Statement getActivity()
 	{
 		return this.activity;
 	}
 	
+	/**
+	 * Execute the activity of this Task.
+	 * 
+	 * @post	The activity of this Task is ineffective, if the activity has been executed.
+	 * 			| if (getActivity().isExecuted())
+	 * 			|	then getActivity() == null
+	 * @effect	Execute the activity of this Task, if it hasn't been executed already.
+	 * 			| if (!getActivity().isExecuted())
+	 * 			|	then this.getActivity().execute(this)
+	 */
+	@Raw
 	public void executeActivity()
 	{
 		if (getActivity().isExecuted())
 			activity = null;
 		else
-			activity.execute(this);
-//		if (activity instanceof Sequence)
-//		{
-//			Sequence statements = (Sequence) activity;
-//			if (statements.isEmpty())
-//				activity = null;
-//		}
-//		else
-//			activity = null;
+			getActivity().execute(this);
 	}
 	
 	/**
@@ -304,6 +409,7 @@ public class Task {
 	 * @return	True if and only if the given variable name is in the map of variables as a key.
 	 * 			| result == variables.containsKey(variableName)
 	 */
+	@Basic @Raw
 	public boolean hasAsVariable(String variableName)
 	{
 		return variables.containsKey(variableName);
@@ -321,6 +427,7 @@ public class Task {
 	 * @post	The value of the given variable name is equal to the given value.
 	 * 			| new.getVariableValue(variableName) == value
 	 */
+	@Raw
 	public void addVariable(String variableName, Expression value)
 	{
 		variables.put(variableName, value);
@@ -336,22 +443,10 @@ public class Task {
 	 * @post	The given variable name has the new given value as its value.
 	 * 			| new.getVariableValue(variableName) == value
 	 */
+	@Raw
 	public void replaceValue(String variableName, Expression value)
 	{
 		variables.replace(variableName, value);
-	}
-	
-	/**
-	 * Check whether the given variable is in the list of variables.
-	 * 
-	 * @param	variableName
-	 * 			The variable name to check.
-	 * @return	True if and only if the given variable is in the list of variables.
-	 * 			| result == variables.containsKey(variableName)
-	 */
-	public boolean hasVariable(String variableName)
-	{
-		return variables.containsKey(variableName);
 	}
 	
 	/**
@@ -360,6 +455,7 @@ public class Task {
 	 * @param 	variableName
 	 * 			The variable name that is linked to the value to return.
 	 */
+	@Basic @Raw
 	public Expression getVariableValue(String variableName)
 	{
 		return variables.get(variableName);

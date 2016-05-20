@@ -4156,10 +4156,12 @@ public class Unit {
 	public boolean hasProperTask()
 	{
 		if (canHaveAsTask(getTask()))
+		{
 			if (isAlive())
 				return getTask().getUnit() == this;
 			else
 				return true;
+		}
 		return false;
 	}
 	
