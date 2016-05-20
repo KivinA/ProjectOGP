@@ -199,7 +199,7 @@ public interface IFacade extends hillbillies.part2.facade.IFacade {
 	 *         otherwise.
 	 * 
 	 * @throws ModelException
-	 *             A precondition was violated or an exception was thrown.s
+	 *             A precondition was violated or an exception was thrown.
 	 */
 	public boolean areTasksPartOf(Scheduler scheduler, Collection<Task> tasks) throws ModelException;
 

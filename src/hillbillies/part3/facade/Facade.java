@@ -12,7 +12,14 @@ public class Facade implements IFacade{
 
 	@Override
 	public World createWorld(int[][][] terrainTypes, TerrainChangeListener modelListener) throws ModelException {
-		return new World(terrainTypes, modelListener);
+		try
+		{
+			return new World(terrainTypes, modelListener);
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new ModelException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -299,8 +306,7 @@ public class Facade implements IFacade{
 
 	@Override
 	public ITaskFactory<?, ?, Task> createTaskFactory() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TaskFactory();
 	}
 
 	@Override
@@ -311,62 +317,52 @@ public class Facade implements IFacade{
 
 	@Override
 	public Scheduler getScheduler(Faction faction) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return faction.getScheduler();
 	}
 
 	@Override
 	public void schedule(Scheduler scheduler, Task task) throws ModelException {
-		// TODO Auto-generated method stub
-		
+		scheduler.addTask(task);
 	}
 
 	@Override
 	public void replace(Scheduler scheduler, Task original, Task replacement) throws ModelException {
-		// TODO Auto-generated method stub
-		
+		scheduler.replaceTask(original, replacement);
 	}
 
 	@Override
 	public boolean areTasksPartOf(Scheduler scheduler, Collection<Task> tasks) throws ModelException {
-		// TODO Auto-generated method stub
-		return false;
+		return scheduler.areTasksPartOfThisScheduler(tasks);
 	}
 
 	@Override
 	public Iterator<Task> getAllTasksIterator(Scheduler scheduler) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return scheduler.getAllTasksIterator();
 	}
 
 	@Override
 	public Set<Scheduler> getSchedulersForTask(Task task) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return task.getAllSchedulers();
 	}
 
 	@Override
 	public Unit getAssignedUnit(Task task) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return task.getUnit();
 	}
 
 	@Override
 	public Task getAssignedTask(Unit unit) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return unit.getTask();
 	}
 
 	@Override
 	public String getName(Task task) throws ModelException {
-		// TODO Auto-generated method stub
-		return null;
+		return task.getName();
 	}
 
 	@Override
 	public int getPriority(Task task) throws ModelException {
-		// TODO Auto-generated method stub
-		return 0;
+		return task.getPriority();
 	}
 
 }
