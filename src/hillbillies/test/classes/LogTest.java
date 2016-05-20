@@ -154,12 +154,6 @@ public class LogTest {
 	}
 	
 	@Test
-	public void canHaveAsPosition_NonEffectivePosition()
-	{
-		assertFalse(log.canHaveAsPosition(null));
-	}
-	
-	@Test
 	public void canHaveAsPosition_EffectivePositionTerminatedLog()
 	{
 		log.terminate();

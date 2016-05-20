@@ -154,12 +154,6 @@ public class BoulderTest {
 	}
 	
 	@Test
-	public void canHaveAsPosition_NonEffectivePosition()
-	{
-		assertFalse(boulder.canHaveAsPosition(null));
-	}
-	
-	@Test
 	public void canHaveAsPosition_EffectivePositionTerminatedBoulder()
 	{
 		int[] coordinates = {0, 0, 0};
@@ -203,7 +197,7 @@ public class BoulderTest {
 	@Test (expected = IllegalArgumentException.class)
 	public void setPosition_IllegalCase() throws Exception
 	{
-		boulder.setPosition(null);
+		boulder.setPosition(new double[]{15.5, 15.5, 15.5});
 	}
 	
 	@Test

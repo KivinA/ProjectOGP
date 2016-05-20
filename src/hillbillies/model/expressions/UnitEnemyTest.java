@@ -35,6 +35,8 @@ public class UnitEnemyTest {
 		world.addFaction(faction2);
 		world.addFaction(faction3);
 		task = new Task("something", 0);
+		task.addScheduler(faction1.getScheduler());
+		faction1.getScheduler().addTask(task);
 		task.setUnit(unit);
 	}
 

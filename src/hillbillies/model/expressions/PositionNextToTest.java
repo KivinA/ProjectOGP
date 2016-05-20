@@ -34,6 +34,8 @@ public class PositionNextToTest {
 	@Before
 	public void setUp() throws Exception {
 		task = new Task("something", 0);
+		task.addScheduler(faction.getScheduler());
+		faction.getScheduler().addTask(task);
 		task.setUnit(unit);
 	}
 

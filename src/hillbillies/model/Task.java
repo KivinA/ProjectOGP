@@ -274,7 +274,7 @@ public class Task {
 	@Raw
 	public boolean canHaveAsScheduler(Scheduler scheduler)
 	{
-		return (scheduler != null) && (scheduler.hasAsTask(this));
+		return (scheduler != null);
 	}
 	
 	/**
