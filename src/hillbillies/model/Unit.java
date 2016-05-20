@@ -278,26 +278,25 @@ public class Unit {
 	 */
 	public void advanceTime(double duration) throws IllegalArgumentException
 	{
-		if ((duration <= 0.2 && duration >= 0) && isAlive()) // [FIXME] NORMALLY THIS SHOULD BE BETWEEN 0.2 (EXCLUSIVE) AND 0 (INCLUSIVE).
+		if ((duration <= 0.2 && duration >= 0) && isAlive()) // [FIXME] NORMALLY THIS SHOULD BE BETWEEN 0.2 (EXCLUSIVE) AND 0 (INCLUSIVE), BUT DUE TO IMPLEMENTATION, 0.2 ALSO COUNTS.
 		{
-			setCurrentRestingPeriod(getCurrentRestingPeriod() + duration); // Add time to the counter.
+			setCurrentRestingPeriod(getCurrentRestingPeriod() + duration);
 			
-			// Resting every 180 seconds:
 			if (getCurrentRestingPeriod() >= RESTING_PERIOD)
 			{
 				setCurrentRestingPeriod(0);
 				rest();
 			}
 			
-			// Checking experience:
 			if (getExperience() >= 10)
 			{
 				setExperience(getExperience() - 10);
 				if (getStrength() < MAX_PROPERTY_VALUE || getAgility() < MAX_PROPERTY_VALUE || getToughness() < MAX_PROPERTY_VALUE)
 					increaseSkills();
+				else
+					System.out.println("Reached max level in all skills.");
 			}
 			
-			// Falling:
 			if (mustUnitFall(getCubeCoordinates()))
 				setFallingState(true);
 			
@@ -306,258 +305,35 @@ public class Unit {
 				if (!isMoving())
 					moveToAdjacent(0, 0, -1);
 			}
-			// Resting:
 			if (isResting())
 			{
-				setRestingDuration(getRestingDuration() + duration);
-				
-				if (getRestingDuration() >= 0.2) // Every 0.2 seconds we add a few points.
-				{
-					setRestingDuration(getRestingDuration() - 0.2);
-					
-					if (getCurrentHitpoints() == getMaxHitpoints()) // Check if hitpoints are full.
-					{
-						if (getCurrentStaminapoints() == getMaxStaminapoints()) // Check if staminapoints are full.
-						{
-							setResting(false);
-							if (wasMoving())
-							{
-								setMovingState(true);
-								setWasMoving(false);
-							}
-						}
-						else
-						{
-							// Count down the initial period of 1 hitpoint recovery:
-							if (!hasRestedInitialRecoveryPeriod())
-							{
-								setTempHitpoint(getTempHitpoint() + (getToughness() / 200.0)); // Count the temp hitpoint.
-								
-								if (getTempHitpoint() >= 1)
-										setRecoveryState(true);
-							}
-								
-							setTempStaminapoint(getTempStaminapoint() + (getToughness() / 100.0)); // Temporary staminapoint. Once this is 1, we add one staminapoint.
-							if (getTempStaminapoint() >= 1)
-							{
-								setCurrentStaminapoints(getCurrentStaminapoints() + 1);
-								setTempStaminapoint(0);
-							}
-						}
-						
-					}
-					else
-					{
-						setTempHitpoint(getTempHitpoint() + (getToughness() / 200.0)); // Temporary hitpoint. Once this is 1, we add one hitpoint.
-						
-						if (getTempHitpoint() >= 1)
-						{
-							// Initial period of 1 hitpoint recovery: 
-							if (!hasRestedInitialRecoveryPeriod())
-								setRecoveryState(true);
-							setCurrentHitpoints(getCurrentHitpoints() + 1);
-							setTempHitpoint(0);
-						}
-					}
-				}
+				resting(duration);
 			}
-			
-			// Attacking: 
 			else if (isAttacking() || isDefending())
 			{
-				if (getFightingDuration() >= 1) // The fighting takes place for one second.
-				{
-					if (isAttacking())
-						setIsAttacking(false);
-					else
-						setIsDefending(false);
-					setFightingDuration(0);
-					if (wasMoving())
-					{
-						setMovingState(true);
-						setWasMoving(false);
-						// Reset the orientation: 
-						setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
-					}
-					
-					setExperience(getExperience() + 20);
-				}
-				else
-					setFightingDuration(getFightingDuration() + duration);
+				fighting(duration);
 			}
-			
-			// Moving: 
 			else if (isMoving())
 			{
-				// Moving to a cube: calculate the next cube in a path if we are moving to a cube further than an adjacent one and while we aren't 
-				// currently moving to an adjacent cube.
-				if (isMovingTo() && !isMovingToAdjacent()) 
-				{
-					findPath();
-				}
-				
-				// Moving to adjacent cube: 
-				for(int i = 0; i < getPosition().length; i++)
-				{
-					setPositionAt(i, getPosition()[i] + (getVelocity()[i]*duration));
-				}
-				
-				// Sprinting: 
-				if (isSprinting())
-				{
-					if (getCurrentStaminapoints() > 0)
-					{
-						if (getSprintingDuration() >= 0.1)
-						{
-							setCurrentStaminapoints(getCurrentStaminapoints() - 1);
-							setSprintingDuration(0);
-						}
-						else
-							setSprintingDuration(getSprintingDuration() + duration);
-					}
-					else
-						stopSprinting();
-				}
-				
-				// Check whether destination is reached: 
-				if (destinationReached())
-				{	
-					if (isMovingToAdjacent())
-					{
-						setIsMovingToAdjacent(false); // Done moving to an adjacent cube.
-						
-						// Add experience points
-						if (!isFalling())
-							setExperience(getExperience() + 1);
-					}
-					
-					// If the path is finished, we can exit the moving action:
-					if (!isMovingTo())
-					{
-						setMovingState(false);
-						//System.out.println("Stop with sprinting...");
-						if (isSprinting())
-							setSprintingState(false);
-					}	
-					
-					setCubeCoordinates(getNextCoordinates()); // Correct the current cube coordinates.
-				}
+				moving(duration);
 			}
-			
-			// Working:
 			else if (isWorking())
 			{
-				//System.out.println("Working duration of this Unit: " + getWorkingDuration());
-				if (getWorkingDuration() > 0)
-					setWorkingDuration(getWorkingDuration() - duration);
-				else
-				{
-					//System.out.println("Calculating result of work task...");
-					// Several cases:
-					double x = getTargetCube()[0] + (World.getCubeLength() / 2.0);
-					double y = getTargetCube()[1] + (World.getCubeLength() / 2.0);
-					double z = getTargetCube()[2] + (World.getCubeLength() / 2.0);
-					double[] target = {x, y, z};
-					Log log = logPresentAtCube(target);
-					Boulder boulder = boulderPresentAtCube(target);
-					boolean hasCompletedWork = true;
-					
-					// Target cube is wood:
-					if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 2)
-					{
-						//System.out.println("Target will now spawn a log...");
-						getWorld().spawnLog(target);
-					}
-					
-					// Target cube is rock:
-					else if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 1)
-					{
-						//System.out.println("Target will now spawn a boulder...");
-						getWorld().spawnBoulder(target);
-					}
-					
-					// Unit is currently carrying a Boulder:
-					else if (isCarryingBoulder())
-					{
-						//System.out.println("Drop current boulder at target...");
-						dropBoulder(target);
-					}
-					
-					// Unit is currently carrying a Log:
-					else if (isCarryingLog())
-					{
-						//System.out.println("Drop current log at target...");
-						dropLog(target);
-					}
-					
-					// The target cube is a workshop and a Log and a Boulder is available on this cube:
-					else if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 3 && log != null 
-							&& boulder != null)
-					{
-						//System.out.println("Work at the workshop...");
-						
-						// Remove Boulder:
-						boulder.setWorld(null);
-						getWorld().removeBoulder(boulder);
-						
-						// Remove Log:
-						log.setWorld(null);
-						getWorld().removeLog(log);
-						
-						// Increase toughness, if possible:
-						if (getToughness() < MAX_PROPERTY_VALUE)
-						{
-							setToughness(getToughness() + 1);
-							setWeight(getWeight());
-						}
-					}
-					
-					// A boulder is present on the target cube:
-					else if (boulder != null)
-					{
-						//System.out.println("Pick up the boulder at target...");
-						setBoulder(boulder);
-						setIsCarryingBoulder(true);
-						boulder.setPosition(null);
-					}
-					
-					// A log is present on the target cube:
-					else if (log != null)
-					{
-						//System.out.println("Pick up the log at target...");
-						setLog(log);
-						setIsCarryingLog(true);
-						log.setPosition(null);
-					}
-					
-					else 
-					{
-						//System.out.println("No useful task was completed, thus no exp was gained...");
-						hasCompletedWork = false;
-					}
-						
-					
-					if (hasCompletedWork)
-						setExperience(getExperience() + 10);
-					
-					setWorking(false);
-					
-				}
+				working(duration);
 			}
-			
-			// Default behaviour:
 			else if (isDefaultBehaviourEnabled())
 			{
 				if (getTask() != null)
 				{
-					
+					executeTask(getTask(), duration);
 				}
 				else
 				{
 					Task newTask = getFaction().getScheduler().getTaskWithHighestPriority();
 					if (newTask != null)
 					{
-						
+						getFaction().getScheduler().markTask(newTask, this);
+						executeTask(getTask(), duration);
 					}
 					else
 						SelectBehaviour();
@@ -1229,6 +1005,191 @@ public class Unit {
 		}
 	}
 	
+	@Raw @Model
+	private void resting(double duration)
+	{
+		setRestingDuration(getRestingDuration() + duration);
+		
+		if (getRestingDuration() >= 0.2) // Every 0.2 seconds we add a few points.
+		{
+			setRestingDuration(getRestingDuration() - 0.2);
+			
+			if (getCurrentHitpoints() == getMaxHitpoints()) // Check if hitpoints are full.
+			{
+				if (getCurrentStaminapoints() == getMaxStaminapoints()) // Check if staminapoints are full.
+				{
+					setResting(false);
+					setRecoveryState(true);
+					if (wasMoving())
+					{
+						setMovingState(true);
+						setWasMoving(false);
+					}
+				}
+				else
+				{
+					// Count down the initial period of 1 hitpoint recovery:
+					if (!hasRestedInitialRecoveryPeriod())
+					{
+						setTempHitpoint(getTempHitpoint() + (getToughness() / 200.0));
+						
+						if (getTempHitpoint() >= 1)
+						{
+							setRecoveryState(true);
+							setTempHitpoint(0);
+						}
+					}
+					setTempStaminapoint(getTempStaminapoint() + (getToughness() / 100.0));
+					if (getTempStaminapoint() >= 1)
+					{
+						setCurrentStaminapoints(getCurrentStaminapoints() + 1);
+						setTempStaminapoint(0);
+					}
+				}
+				
+			}
+			else
+			{
+				setTempHitpoint(getTempHitpoint() + (getToughness() / 200.0));
+				if (getTempHitpoint() >= 1)
+				{
+					if (!hasRestedInitialRecoveryPeriod())
+						setRecoveryState(true);
+					setCurrentHitpoints(getCurrentHitpoints() + 1);
+					setTempHitpoint(0);
+				}
+			}
+		}
+	}
+	
+	@Raw @Model
+	private void fighting(double duration)
+	{
+		if (getFightingDuration() >= 1)
+		{
+			if (isAttacking())
+				setIsAttacking(false);
+			else
+				setIsDefending(false);
+			setFightingDuration(0);
+			if (wasMoving())
+			{
+				setMovingState(true);
+				setWasMoving(false);
+				setOrientation(Math.atan2(getVelocity()[1], getVelocity()[0]));
+			}
+			
+			setExperience(getExperience() + 20);
+		}
+		else
+			setFightingDuration(getFightingDuration() + duration);
+	}
+	
+	@Raw @Model
+	private void moving(double duration)
+	{
+		if (isMovingTo() && !isMovingToAdjacent()) 
+		{
+			findPath();
+		}
+
+		for(int i = 0; i < getPosition().length; i++)
+		{
+			setPositionAt(i, getPosition()[i] + (getVelocity()[i]*duration));
+		}
+		
+		if (isSprinting())
+		{
+			if (getCurrentStaminapoints() > 0)
+			{
+				if (getSprintingDuration() >= 0.1)
+				{
+					setCurrentStaminapoints(getCurrentStaminapoints() - 1);
+					setSprintingDuration(0);
+				}
+				else
+					setSprintingDuration(getSprintingDuration() + duration);
+			}
+			else
+				stopSprinting();
+		}
+		
+		if (destinationReached())
+		{	
+			if (isMovingToAdjacent())
+			{
+				setIsMovingToAdjacent(false);
+				if (!isFalling())
+					setExperience(getExperience() + 1);
+			}
+			if (!isMovingTo())
+			{
+				setMovingState(false);
+				if (isSprinting())
+					setSprintingState(false);
+			}
+			setCubeCoordinates(getNextCoordinates()); 
+		}
+	}
+	
+	@Raw @Model
+	private void working(double duration)
+	{
+		if (getWorkingDuration() > 0)
+			setWorkingDuration(getWorkingDuration() - duration);
+		else
+		{
+			// Several cases:
+			double[] target = World.getPreciseCoordinates(getTargetCube());
+			Log log = logPresentAtCube(target);
+			Boulder boulder = boulderPresentAtCube(target);
+			boolean hasCompletedWork = true;
+			
+			if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 2)
+				getWorld().spawnLog(target);
+			else if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 1)
+				getWorld().spawnBoulder(target);
+			else if (isCarryingBoulder())
+				dropBoulder(target);
+			else if (isCarryingLog())
+				dropLog(target);
+			else if (getWorld().getCubeType(getTargetCube()[0], getTargetCube()[1], getTargetCube()[2]) == 3 && log != null && boulder != null)
+			{
+				// Remove Boulder:
+				boulder.terminate();
+				getWorld().removeBoulder(boulder);
+				
+				// Remove Log:
+				log.terminate();
+				getWorld().removeLog(log);
+				
+				// Increase toughness, if possible:
+				if (getToughness() < MAX_PROPERTY_VALUE)
+				{
+					setToughness(getToughness() + 1);
+					setWeight(getWeight());
+				}
+			}
+			else if (boulder != null)
+			{
+				setBoulder(boulder);
+				setIsCarryingBoulder(true);
+				boulder.setPosition(null);
+			}
+			else if (log != null)
+			{
+				setLog(log);
+				setIsCarryingLog(true);
+				log.setPosition(null);
+			}
+			else 
+				hasCompletedWork = false;
+			
+			if (hasCompletedWork)
+				setExperience(getExperience() + 10);
+			setWorking(false);
+		}
+	}
 	
 	private void executeTask(Task task, double duration)
 	{
@@ -3743,8 +3704,7 @@ public class Unit {
 				setMovingState(false);
 				setWasMoving(true);
 			}
-			if (hasRestedInitialRecoveryPeriod())
-				setRecoveryState(false);
+			setRecoveryState(false);
 			setResting(true);
 			setRestingDuration(0);
 			setTempHitpoint(0);
