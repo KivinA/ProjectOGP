@@ -2482,8 +2482,8 @@ public class Unit {
 	 *  
 	 * @param  	sprinting duration
 	 *         	The sprinting duration to check.
-	 * @return 	True if and only if the given sprinting duration is between 0 and 0.2.
-	 *       	| result == ((sprintingDuration >= 0) && (sprintingDuration <= 0.2))
+	 * @return 	True if and only if the given sprinting duration is positive.
+	 *       	| result == (sprintingDuration >= 0)
 	*/
 	private static boolean isValidSprintingDuration(double sprintingDuration) 
 	{
@@ -2491,7 +2491,7 @@ public class Unit {
 		 * Sprinting works every 0.1 second. Since we add the duration to this property and check whether its higher than 0.1, it is 
 		 * impossible to get higher than 0.2 with our implementation.
 		 */
-		return ((sprintingDuration >= 0) && (sprintingDuration <= 0.2));
+		return ((sprintingDuration >= 0));
 	}
 	
 	/**
