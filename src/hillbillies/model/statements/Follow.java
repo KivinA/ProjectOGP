@@ -15,12 +15,12 @@ public class Follow<T extends UnitExpression> extends Action {
 	}
 	
 	private T unitE;
-
+	
 	@Override
 	public void execute(Task task) {
 		int[] location = unitE.evaluate(task).getCubeCoordinates();
 		task.getUnit().moveTo(location);
-		
+		this.executed = true;
 	}
 
 }

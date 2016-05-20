@@ -26,6 +26,15 @@ public class If implements Statement {
 			ifBody.execute(task);
 		else if (elseBody != null)
 			elseBody.execute(task);
+		
+		if ( (ifBody.isExecuted()) || ( (elseBody != null) && elseBody.isExecuted() ) || ( (elseBody == null) && !condition.evaluate(task) ) )
+			this.executed = true;
 	}
 
+	@Override
+	public boolean isExecuted() {
+		return this.executed;
+	}
+
+	private boolean executed = false;
 }

@@ -2868,7 +2868,7 @@ public class Unit {
 			catch (IllegalArgumentException e)
 			{
 				setWorking(false);
-				throw e;
+				//throw e;
 			}
 		}
 	}

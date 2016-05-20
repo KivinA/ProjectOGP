@@ -8,16 +8,24 @@ import hillbillies.model.Task;
  * @version 0.1
  *
  */
-public class Print implements Statement {
-	private Expression value;
-	
+public class Print implements Statement {	
 	public Print(Expression value) {
 		this.value = value;
 	}
 	
+	private Expression value;
+	
+	public boolean isExecuted()
+	{
+		return this.executed;
+	}
+	
+	private boolean executed = false;
+	
 	@Override
 	public void execute(Task task) {
 		System.out.println(value);
+		this.executed = true;
 	}
 
 }

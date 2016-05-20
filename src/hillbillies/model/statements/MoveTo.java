@@ -19,7 +19,7 @@ public class MoveTo<T extends PositionExpression> extends Action {
 	public void execute(Task task) {
 		Integer[] pos = positionE.evaluate(task);
 		int[] cube = {pos[0], pos[1], pos[2]};
+		this.executed = true;
 		task.getUnit().moveTo(cube);
 	}
-
 }

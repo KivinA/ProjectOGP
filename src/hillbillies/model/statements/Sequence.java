@@ -11,6 +11,13 @@ public class Sequence implements Statement{
 		this.statements = new ArrayList<Statement>(statements);
 	}
 	
+	public boolean isExecuted()
+	{
+		return executed;
+	}
+	
+	private boolean executed = false;
+	
 	public boolean isEmpty()
 	{
 		return statements.isEmpty();
@@ -20,17 +27,15 @@ public class Sequence implements Statement{
 	
 	@Override
 	public void execute(Task task) {
-		if (statements.size() > 0)
+		if (!isEmpty())
 		{
-			statements.get(0).execute(task);
+			Statement nextStatement = statements.get(0);
+			nextStatement.execute(task);
 			System.out.println("Executing " + statements.get(0).getClass().getSimpleName() + " statement...");
-			
-			statements.remove(0);
-		}
-		
-//		for (Statement statement : statements)
-//		{
-//			statement.execute(task);
-//		}
+			if (nextStatement.isExecuted())
+				statements.remove(0);
+		} 	
+		else
+			this.executed = true;
 	}
 }

@@ -277,15 +277,18 @@ public class Task {
 	
 	public void executeActivity()
 	{
-		activity.execute(this);
-		if (activity instanceof Sequence)
-		{
-			Sequence statements = (Sequence) activity;
-			if (statements.isEmpty())
-				activity = null;
-		}
-		else
+		if (getActivity().isExecuted())
 			activity = null;
+		else
+			activity.execute(this);
+//		if (activity instanceof Sequence)
+//		{
+//			Sequence statements = (Sequence) activity;
+//			if (statements.isEmpty())
+//				activity = null;
+//		}
+//		else
+//			activity = null;
 	}
 	
 	/**

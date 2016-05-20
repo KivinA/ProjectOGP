@@ -23,6 +23,14 @@ public class While implements Statement {
 		while (condition.evaluate(task)) {
 			body.execute(task);
 		}
+		this.executed = true;
 	}
+
+	@Override
+	public boolean isExecuted() {
+		return this.executed;
+	}
+	
+	private boolean executed = false;
 
 }

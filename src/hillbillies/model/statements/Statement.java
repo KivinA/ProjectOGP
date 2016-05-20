@@ -9,4 +9,6 @@ import hillbillies.model.Task;
  */
 public interface Statement {
 	public void execute(Task task);
+	
+	public boolean isExecuted();
 }

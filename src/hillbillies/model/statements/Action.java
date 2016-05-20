@@ -11,4 +11,11 @@ public abstract class Action implements Statement {
 
 	@Override
 	public abstract void execute(Task task);
+	
+	public boolean isExecuted()
+	{
+		return this.executed;
+	}
+	
+	protected boolean executed = false;
 }

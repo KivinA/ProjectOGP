@@ -18,6 +18,7 @@ public class Work<T extends PositionExpression> extends Action {
 	@Override
 	public void execute(Task task) {
 		Integer[] pos = positionE.evaluate(task);
+		this.executed = true;
 		task.getUnit().workAt(pos[0], pos[1], pos[2]);
 	}
 

@@ -16,5 +16,10 @@ public class Break implements Statement {
 	public void execute(Task task) {
 		
 	}
+	@Override
+	public boolean isExecuted() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

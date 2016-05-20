@@ -15,10 +15,11 @@ public class Attack<T extends UnitExpression> extends Action {
 	}
 	
 	private T unitE;
-	
+		
 	@Override
 	public void execute(Task task) {
 		task.getUnit().attack(unitE.evaluate(task));
+		this.executed = true;
 	}
 
 }
